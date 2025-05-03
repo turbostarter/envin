@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    /* Base Options: */
+    "skipLibCheck": true,
+    "target": "es2022",
+    "declaration": true,
+    "isolatedModules": true,
+    "allowImportingTsExtensions": true,
+
+    /* Strictness */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+
+    /* Bundled projects */
+    "lib": ["dom", "dom.iterable", "ES2022"],
+    "noEmit": true,
+    "module": "Preserve",
+    "incremental": true,
+    "tsBuildInfoFile": "${configDir}/.cache/tsbuildinfo.json"
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "packages"]
+}

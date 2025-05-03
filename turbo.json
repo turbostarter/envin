@@ -4,18 +4,18 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "inputs": ["$TURBO_DEFAULT$", ".env*"]
     },
-    "lint": {
-      "dependsOn": ["^lint"]
-    },
-    "check-types": {
-      "dependsOn": ["^check-types"]
+    "typecheck": {
+      "outputs": [".cache/tsbuildinfo.json"]
     },
     "dev": {
       "cache": false,
       "persistent": true
-    }
+    },
+    "clean": {
+      "cache": false
+    },
+    "test": {}
   }
 }

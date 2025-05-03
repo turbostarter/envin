@@ -1,0 +1,23 @@
+{
+  "name": "@turbostarter/env",
+  "version": "0.0.1",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "start": "node dist/index.js",
+    "clean": "rm -rf dist .turbo node_modules",
+    "dev": "tsup --watch",
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "zod": "3.24.1"
+  },
+  "devDependencies": {
+    "tsup": "8.3.0",
+    "typescript": "5.8.3"
+  }
+}
