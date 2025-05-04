@@ -3,7 +3,16 @@
   "version": "0.0.1",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./presets": {
+      "types": "./dist/presets.d.ts",
+      "require": "./dist/presets.js",
+      "default": "./dist/presets.js"
+    }
   },
   "scripts": {
     "start": "node dist/index.js",

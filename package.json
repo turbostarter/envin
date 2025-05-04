@@ -19,7 +19,7 @@
     "node": ">=22.15.0"
   },
   "packageManager": "bun@1.1.4",
-  "workspaces": ["packages/*"],
+  "workspaces": ["apps/*", "packages/*"],
   "dependencies": {
     "@types/bun": "^1.2.11",
     "expect-type": "^1.2.1",

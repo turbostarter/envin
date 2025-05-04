@@ -141,7 +141,7 @@ export interface LooseOptions<TExtends extends TExtendsFormat>
    * `process.env` or `import.meta.env`.
    */
   // This doesn't enforce that all environment variables are set.
-  env: Record<string, string | boolean | number | undefined>;
+  env?: Record<string, string | boolean | number | undefined>;
 }
 
 export interface SharedOptions<TShared extends TSharedFormat> {
@@ -245,13 +245,16 @@ export type EnvOptions<
 > = LooseOptions<TExtends> &
   ValidationOptions<TPrefix, TShared, TServer, TClient>;
 
+export type FinalSchema<
+  TShared extends TSharedFormat,
+  TServer extends TServerFormat,
+  TClient extends TClientFormat,
+  TExtends extends TExtendsFormat,
+> = CombinedSchema<Reduce<TExtends>, CombinedSchema<TShared, TServer, TClient>>;
+
 export type DefineEnv<
   TShared extends TSharedFormat,
   TServer extends TServerFormat,
   TClient extends TClientFormat,
   TExtends extends TExtendsFormat,
-> = Readonly<
-  TypeOf<
-    CombinedSchema<Reduce<TExtends>, CombinedSchema<TShared, TServer, TClient>>
-  >
->;
+> = Readonly<TypeOf<FinalSchema<TShared, TServer, TClient, TExtends>>>;

@@ -4,6 +4,7 @@ import { getDefaults } from "./defaults";
 import type {
   DefineEnv,
   EnvOptions,
+  FinalSchema,
   TClientFormat,
   TExtendsFormat,
   TPrefixFormat,
@@ -13,7 +14,7 @@ import type {
 } from "./types";
 
 const ignoreProp = (prop: string) => {
-  return prop === "__esModule" || prop === "$$typeof";
+  return ["__esModule", "$$typeof", "_def", "_schema"].includes(prop);
 };
 
 const mergeSchemas = (schemas: TSchema[]) =>
@@ -72,6 +73,13 @@ const getKeys = <T extends z.ZodTypeAny>(schema: T): string[] => {
   return [];
 };
 
+class EnvError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "EnvError";
+  }
+}
+
 export function defineEnv<
   TPrefix extends TPrefixFormat,
   TShared extends TSharedFormat,
@@ -80,8 +88,11 @@ export function defineEnv<
   const TExtends extends TExtendsFormat = [],
 >(
   options: EnvOptions<TPrefix, TShared, TServer, TClient, TExtends>
-): DefineEnv<TShared, TServer, TClient, TExtends> {
-  const values = options.env;
+): DefineEnv<TShared, TServer, TClient, TExtends> & {
+  _def: EnvOptions<TPrefix, TShared, TServer, TClient, TExtends>;
+  _schema: FinalSchema<TShared, TServer, TClient, TExtends>;
+} {
+  const values = options.env ?? process.env;
 
   for (const [key, value] of Object.entries(values)) {
     if (value === "") {
@@ -99,13 +110,13 @@ export function defineEnv<
         "❌ Invalid environment variables:",
         issues.flatten().fieldErrors
       );
-      throw new Error("Invalid environment variables");
+      throw new EnvError("Invalid environment variables");
     });
 
   const onInvalidAccess =
     options.onInvalidAccess ??
     (variable => {
-      throw new Error(
+      throw new EnvError(
         `❌ Attempted to access a server-side environment variable on the client: ${variable}`
       );
     });
@@ -119,6 +130,8 @@ export function defineEnv<
       ...values,
       // biome-ignore lint/suspicious/noExplicitAny: <explanation>
       ...getDefaults(schema as any),
+      _def: options,
+      _schema: schema,
     };
 
   const parsed = parse(schema, values);
@@ -161,6 +174,10 @@ export function defineEnv<
     },
   });
 
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  return env as any;
+  return {
+    ...env,
+    _def: options,
+    _schema: schema,
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  } as any;
 }
