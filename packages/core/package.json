@@ -8,10 +8,10 @@
       "require": "./dist/index.js",
       "default": "./dist/index.js"
     },
-    "./presets": {
-      "types": "./dist/presets.d.ts",
-      "require": "./dist/presets.js",
-      "default": "./dist/presets.js"
+    "./presets/*": {
+      "types": "./dist/presets/*.d.ts",
+      "require": "./dist/presets/*.js",
+      "default": "./dist/presets/*.js"
     }
   },
   "scripts": {

@@ -49,10 +49,10 @@ export const getConfigFile = async (configFilePath: string) => {
   // because it will have a path like <tsconfigLocation>/stdout/config.js.map
   sourceMapToConfig.sourceRoot = path.resolve(
     sourceMapFile?.path ?? "",
-    "../.."
+    "../..",
   );
-  sourceMapToConfig.sources = sourceMapToConfig.sources.map(source =>
-    path.resolve(sourceMapFile?.path ?? "", "..", source)
+  sourceMapToConfig.sources = sourceMapToConfig.sources.map((source) =>
+    path.resolve(sourceMapFile?.path ?? "", "..", source),
   );
 
   const runningResult = runBundledCode(builtConfigFile ?? "", configFilePath);
@@ -66,7 +66,7 @@ export const getConfigFile = async (configFilePath: string) => {
         error: improveErrorWithSourceMap(
           error,
           configFilePath,
-          sourceMapToConfig
+          sourceMapToConfig,
         ),
       };
     }
@@ -83,10 +83,10 @@ export const getConfigFile = async (configFilePath: string) => {
           `The config file at ${configFilePath} does not contain the expected exports`,
           {
             cause: parseResult.error,
-          }
+          },
         ),
         configFilePath,
-        sourceMapToConfig
+        sourceMapToConfig,
       ),
     };
   }

@@ -1,6 +1,3 @@
-import { ZodObject, z } from "zod";
-
-import { getDefaults } from "./defaults";
 import type {
   DefineEnv,
   EnvOptions,
@@ -11,66 +8,63 @@ import type {
   TSchema,
   TServerFormat,
   TSharedFormat,
+  ValidationOptions,
 } from "./types";
+import { ensureSynchronous, parseWithDictionary } from "./standard";
 
 const ignoreProp = (prop: string) => {
-  return ["__esModule", "$$typeof", "_def", "_schema"].includes(prop);
+  return ["__esModule", "$$typeof"].includes(prop);
 };
 
-const mergeSchemas = (schemas: TSchema[]) =>
-  schemas.reduce((acc, schema) => {
-    return acc instanceof ZodObject && schema instanceof ZodObject
-      ? acc.merge(schema)
-      : acc?.and(schema);
-  }, schemas[0]) ?? z.object({});
-
-const parse = (schema: TSchema, values: unknown) => {
-  return schema.safeParse(values);
+const getCombinedSchema = <
+  TPrefix extends TPrefixFormat,
+  TShared extends TSharedFormat,
+  TServer extends TServerFormat,
+  TClient extends TClientFormat,
+>(
+  options: ValidationOptions<TPrefix, TShared, TServer, TClient>,
+  isServer: boolean,
+) => {
+  return {
+    ...(options.shared && options.shared),
+    ...(options.server && isServer && options.server),
+    ...(options.client && options.client),
+  };
 };
 
-const getSchema = <
+const getFinalSchema = <
   TPrefix extends TPrefixFormat,
   TShared extends TSharedFormat,
   TServer extends TServerFormat,
   TClient extends TClientFormat,
   TExtends extends TExtendsFormat,
+  TFinalSchema extends TSchema,
 >(
-  options: EnvOptions<TPrefix, TShared, TServer, TClient, TExtends>,
-  isServer: boolean
+  options: EnvOptions<
+    TPrefix,
+    TShared,
+    TServer,
+    TClient,
+    TExtends,
+    TFinalSchema
+  >,
+  isServer: boolean,
 ) => {
-  const presets =
-    options.extends?.map(ext =>
-      mergeSchemas([
-        ...(ext.shared ? [ext.shared] : []),
-        ...(ext.server && isServer ? [ext.server] : []),
-        ...(ext.client ? [ext.client] : []),
-      ])
-    ) ?? [];
+  const presets = options.extends?.reduce(
+    (acc, preset) => {
+      return {
+        // biome-ignore lint/performance/noAccumulatingSpread: <explanation>
+        ...acc,
+        ...getCombinedSchema(preset, isServer),
+      };
+    },
+    {} as ValidationOptions<string, TShared, TServer, TClient>,
+  );
 
-  return mergeSchemas([
+  return {
     ...presets,
-    ...(options.shared ? [options.shared] : []),
-    ...(options.server && isServer ? [options.server] : []),
-    ...(options.client ? [options.client] : []),
-  ]);
-};
-
-const getKeys = <T extends z.ZodTypeAny>(schema: T): string[] => {
-  if (schema === null || schema === undefined) return [];
-  if (schema instanceof z.ZodNullable || schema instanceof z.ZodOptional)
-    return getKeys(schema.unwrap());
-  if (schema instanceof z.ZodArray) return getKeys(schema.element);
-  if (schema instanceof z.ZodObject) {
-    const entries = Object.entries(schema.shape);
-    return entries.flatMap(([key, value]) => {
-      const nested =
-        value instanceof z.ZodType
-          ? getKeys(value).map(subKey => `${key}.${subKey}`)
-          : [];
-      return nested.length ? nested : key;
-    });
-  }
-  return [];
+    ...getCombinedSchema(options, isServer),
+  };
 };
 
 class EnvError extends Error {
@@ -82,17 +76,27 @@ class EnvError extends Error {
 
 export function defineEnv<
   TPrefix extends TPrefixFormat,
-  TShared extends TSharedFormat,
-  TServer extends TServerFormat,
-  TClient extends TClientFormat,
+  TShared extends TSharedFormat = NonNullable<unknown>,
+  TServer extends TServerFormat = NonNullable<unknown>,
+  TClient extends TClientFormat = NonNullable<unknown>,
   const TExtends extends TExtendsFormat = [],
+  TFinalSchema extends TSchema = FinalSchema<
+    TShared,
+    TServer,
+    TClient,
+    TExtends
+  >,
 >(
-  options: EnvOptions<TPrefix, TShared, TServer, TClient, TExtends>
-): DefineEnv<TShared, TServer, TClient, TExtends> & {
-  _def: EnvOptions<TPrefix, TShared, TServer, TClient, TExtends>;
-  _schema: FinalSchema<TShared, TServer, TClient, TExtends>;
-} {
-  const values = options.env ?? process.env;
+  options: EnvOptions<
+    TPrefix,
+    TShared,
+    TServer,
+    TClient,
+    TExtends,
+    TFinalSchema
+  >,
+): DefineEnv<TFinalSchema> {
+  const values = options.envStrict ?? options.env ?? process.env;
 
   for (const [key, value] of Object.entries(values)) {
     if (value === "") {
@@ -105,58 +109,55 @@ export function defineEnv<
 
   const onError =
     options.onError ??
-    (issues => {
-      console.error(
-        "❌ Invalid environment variables:",
-        issues.flatten().fieldErrors
-      );
+    ((issues) => {
+      console.error("❌ Invalid environment variables:", issues);
       throw new EnvError("Invalid environment variables");
     });
 
   const onInvalidAccess =
     options.onInvalidAccess ??
-    (variable => {
+    ((variable) => {
       throw new EnvError(
-        `❌ Attempted to access a server-side environment variable on the client: ${variable}`
+        `❌ Attempted to access a server-side environment variable on the client: ${variable}`,
       );
     });
 
   const skip = !!options.skip;
 
-  const schema = getSchema(options, isServer);
+  if (skip) {
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    return values as any;
+  }
 
-  if (skip)
-    return {
-      ...values,
-      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-      ...getDefaults(schema as any),
-      _def: options,
-      _schema: schema,
-    };
+  const schema = getFinalSchema(options, isServer);
 
-  const parsed = parse(schema, values);
+  const parsed =
+    options
+      .transform?.(schema as never, isServer)
+      ["~standard"].validate(values) ?? parseWithDictionary(schema, values);
 
-  if (parsed.error) {
-    onError(parsed.error);
+  ensureSynchronous(parsed, "Validation must be synchronous!");
+
+  if (parsed.issues) {
+    onError(parsed.issues);
   }
 
   const isServerAccess = (prop: string) => {
     const isClientAccess = [options, ...(options.extends ?? [])]
-      .map(preset => ({
-        keys: preset.client ? getKeys(preset.client) : [],
+      .map((preset) => ({
+        keys: Object.keys(preset.client ?? {}),
         prefix: preset.clientPrefix,
       }))
       .some(
-        preset =>
+        (preset) =>
           preset.keys.includes(prop) &&
-          (!preset.prefix || prop.startsWith(preset.prefix))
+          (!preset.prefix || prop.startsWith(preset.prefix)),
       );
 
     const isSharedAccess = [
-      ...(options.shared ? getKeys(options.shared) : []),
-      ...(options.extends?.flatMap(ext =>
-        ext.shared ? getKeys(ext.shared) : []
-      ) ?? []),
+      ...Object.keys(options.shared ?? {}),
+      ...(options.extends?.flatMap((ext) => Object.keys(ext.shared ?? {})) ??
+        []),
     ].includes(prop);
 
     return !isSharedAccess && !isClientAccess;
@@ -165,7 +166,7 @@ export function defineEnv<
     return isServer || !isServerAccess(prop);
   };
 
-  const env = new Proxy(parsed.data ?? {}, {
+  const env = new Proxy("value" in parsed ? parsed.value : {}, {
     get(target, prop) {
       if (typeof prop !== "string") return undefined;
       if (ignoreProp(prop)) return undefined;
@@ -174,10 +175,6 @@ export function defineEnv<
     },
   });
 
-  return {
-    ...env,
-    _def: options,
-    _schema: schema,
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  } as any;
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  return env as any;
 }

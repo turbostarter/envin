@@ -1,14 +1,4 @@
-import {
-  type TypeOf,
-  type ZodError,
-  type ZodIntersection,
-  type ZodObject,
-  type ZodSchema,
-  type ZodType,
-  type ZodUnknown,
-  type objectUtil,
-  z,
-} from "zod";
+import type { StandardSchemaDictionary, StandardSchemaV1 } from "./standard";
 
 export type ErrorMessage<T extends string> = T;
 
@@ -17,28 +7,45 @@ type Impossible<T extends Record<string, any>> = Partial<
   Record<keyof T, never>
 >;
 
-type ExtractCombinedSchema<T> =
-  T extends ValidationOptions<
-    TPrefixFormat,
-    infer TShared,
-    infer TServer,
-    infer TClient
-  >
-    ? CombinedSchema<TShared, TServer, TClient>
-    : T extends Readonly<
-          ValidationOptions<
-            TPrefixFormat,
-            infer TShared,
-            infer TServer,
-            infer TClient
-          >
+type Merge<A, B> = Omit<A, keyof B> & B;
+
+type Simplify<T> = {
+  [P in keyof T]: T[P];
+} & {};
+
+type PossiblyUndefinedKeys<T> = {
+  [K in keyof T]: undefined extends T[K] ? K : never;
+}[keyof T];
+
+type UndefinedOptional<T> = Partial<Pick<T, PossiblyUndefinedKeys<T>>> &
+  Omit<T, PossiblyUndefinedKeys<T>>;
+
+type Mutable<T> = T extends Readonly<infer U> ? U : T;
+
+type ExtractCombinedSchema<T> = T extends ValidationOptions<
+  TPrefixFormat,
+  infer TShared,
+  infer TServer,
+  infer TClient
+>
+  ? CombinedSchema<TShared, TServer, TClient>
+  : T extends Readonly<
+        ValidationOptions<
+          TPrefixFormat,
+          infer TShared,
+          infer TServer,
+          infer TClient
         >
-      ? CombinedSchema<TShared, TServer, TClient>
-      : never;
+      >
+    ? CombinedSchema<TShared, TServer, TClient>
+    : never;
 
 type Reduce<
   TArr extends readonly unknown[] | unknown[],
-  TAcc extends ZodType = ZodUnknown,
+  TAcc extends StandardSchemaDictionary<
+    object,
+    object
+  > = StandardSchemaDictionary<object, object>,
 > = TArr extends readonly [] | []
   ? TAcc
   : TArr extends
@@ -46,66 +53,37 @@ type Reduce<
         // biome-ignore lint/suspicious/noRedeclare: <explanation>
         | [infer Head, ...infer Tail]
     ? Tail extends readonly unknown[] | unknown[]
-      ? Reduce<Tail, CombinedSchema<TAcc, ExtractCombinedSchema<Head>>>
-      : TAcc
-    : TAcc;
+      ? Mutable<Reduce<Tail, CombinedSchema<TAcc, ExtractCombinedSchema<Head>>>>
+      : never
+    : never;
 
-type IsUnknownSchema<T extends ZodSchema<unknown>> =
-  T extends ZodSchema<infer TType>
-    ? unknown extends TType
-      ? true
-      : false
-    : true;
-
-type MergeOrIntersectKnownSchemas<
-  S1 extends ZodSchema,
-  S2 extends ZodSchema,
-> = [S1, S2] extends [ZodObject<infer Shape1>, ZodObject<infer Shape2>]
-  ? ZodObject<objectUtil.MergeShapes<Shape1, Shape2>>
-  : ZodIntersection<S1, S2>;
-
-type CombineSchemas<
-  T1 extends ZodSchema<unknown> = ZodSchema<unknown>,
-  T2 extends ZodSchema<unknown> = ZodSchema<unknown>,
-> =
-  IsUnknownSchema<T1> extends true
-    ? IsUnknownSchema<T2> extends true
-      ? ZodUnknown
-      : T2 extends ZodSchema
-        ? T2
-        : ZodUnknown
-    : IsUnknownSchema<T2> extends true
-      ? T1 extends ZodSchema
-        ? T1
-        : ZodUnknown
-      : T1 extends ZodSchema
-        ? T2 extends ZodSchema
-          ? MergeOrIntersectKnownSchemas<T1, T2>
-          : ZodUnknown
-        : ZodUnknown;
-
-export type InferPresetOutput<T extends TExtendsFormat[number]> = TypeOf<
-  ExtractCombinedSchema<T>
->;
+export type InferPresetOutput<T extends TExtendsFormat[number]> =
+  StandardSchemaDictionary.InferOutput<ExtractCombinedSchema<T>>;
 
 export type CombinedSchema<
   TShared extends TSharedFormat = TSharedFormat,
   TServer extends TServerFormat = TServerFormat,
   TClient extends TClientFormat = TClientFormat,
-  TAcc extends ZodSchema<unknown> = ZodSchema<unknown>,
-> =
-  IsUnknownSchema<TAcc> extends true
-    ? CombineSchemas<CombineSchemas<TShared, TServer>, TClient>
-    : CombineSchemas<TAcc, CombineSchemas<TShared, TServer>>;
+> = Merge<TShared, Merge<TServer, TClient>>;
 
 export type TPrefixFormat = string | undefined;
-export type TSharedFormat<T = unknown> = ZodSchema<T> | Readonly<ZodSchema<T>>;
-export type TServerFormat<T = unknown> = ZodSchema<T>;
-export type TClientFormat<T = unknown> = ZodSchema<T>;
+export type TSharedFormat = StandardSchemaDictionary<object, object>;
+export type TServerFormat = StandardSchemaDictionary<object, object>;
+export type TClientFormat = StandardSchemaDictionary<object, object>;
 export type TExtendsFormat =
-  | (ValidationOptions | Readonly<ValidationOptions>)[]
-  | ReadonlyArray<ValidationOptions>;
-export type TSchema = ZodSchema<unknown>;
+  | (TPreset | Readonly<TPreset>)[]
+  | ReadonlyArray<TPreset>;
+
+export type TPreset<
+  TPrefix extends TPrefixFormat = TPrefixFormat,
+  TShared extends TSharedFormat = TSharedFormat,
+  TServer extends TServerFormat = TServerFormat,
+  TClient extends TClientFormat = TClientFormat,
+> = ValidationOptions<TPrefix, TShared, TServer, TClient> & {
+  id?: string;
+};
+
+export type TSchema = StandardSchemaV1<object, object>;
 
 export interface BaseOptions<TExtends extends TExtendsFormat> {
   extends?: TExtends;
@@ -125,7 +103,7 @@ export interface BaseOptions<TExtends extends TExtendsFormat> {
    * Called when validation fails. By default the error is logged,
    * and an error is thrown telling what environment variables are invalid.
    */
-  onError?: (error: ZodError) => never;
+  onError?: (issues: StandardSchemaV1.FailureResult["issues"]) => never;
 
   /**
    * Called when a server-side environment variable is accessed on the client.
@@ -136,12 +114,47 @@ export interface BaseOptions<TExtends extends TExtendsFormat> {
 
 export interface LooseOptions<TExtends extends TExtendsFormat>
   extends BaseOptions<TExtends> {
+  envStrict?: never;
   /**
    * What object holds the environment variables at runtime. This is usually
    * `process.env` or `import.meta.env`.
    */
   // This doesn't enforce that all environment variables are set.
   env?: Record<string, string | boolean | number | undefined>;
+}
+
+export interface StrictOptions<
+  TPrefix extends TPrefixFormat,
+  TServer extends TServerFormat,
+  TClient extends TClientFormat,
+  TShared extends TSharedFormat,
+  TExtends extends TExtendsFormat,
+> extends BaseOptions<TExtends> {
+  /**
+   * Runtime Environment variables to use for validation - `process.env`, `import.meta.env` or similar.
+   * Enforces all environment variables to be set. Required in for example Next.js Edge and Client runtimes.
+   */
+  envStrict?: Record<
+    | {
+        [TKey in keyof TClient]: TPrefix extends undefined
+          ? never
+          : TKey extends `${TPrefix}${string}`
+            ? TKey
+            : never;
+      }[keyof TClient]
+    | {
+        [TKey in keyof TServer]: TPrefix extends undefined
+          ? TKey
+          : TKey extends `${TPrefix}${string}`
+            ? never
+            : TKey;
+      }[keyof TServer]
+    | {
+        [TKey in keyof TShared]: TKey extends string ? TKey : never;
+      }[keyof TShared],
+    string | boolean | number | undefined
+  >;
+  env?: never;
 }
 
 export interface SharedOptions<TShared extends TSharedFormat> {
@@ -162,29 +175,13 @@ export interface ClientOptions<
    * Specify your client-side environment variables schema here. This way you can ensure the app isn't
    * built with invalid env vars.
    */
-  client?: TClient extends ZodObject<
-    infer R1,
-    infer R2,
-    infer R3,
-    infer R4,
-    unknown
-  >
-    ? TClient extends never
-      ? TClient
-      : ZodObject<
-          R1,
-          R2,
-          R3,
-          R4,
-          {
-            [TKey in keyof TClient["_input"]]: TKey extends `${TPrefix}${string}`
-              ? TClient[TKey]
-              : ErrorMessage<`${TKey extends string
-                  ? TKey
-                  : never} is not prefixed with ${TPrefix}.`>;
-          }
-        >
-    : TClient;
+  client?: Partial<{
+    [TKey in keyof TClient]: TKey extends `${TPrefix}${string}`
+      ? TClient[TKey]
+      : ErrorMessage<`${TKey extends string
+          ? TKey
+          : never} is not prefixed with ${TPrefix}.`>;
+  }>;
 }
 
 export interface ServerOptions<
@@ -195,33 +192,17 @@ export interface ServerOptions<
    * Specify your server-side environment variables schema here. This way you can ensure the app isn't
    * built with invalid env vars.
    */
-  server?: TServer extends ZodObject<
-    infer R1,
-    infer R2,
-    infer R3,
-    infer R4,
-    unknown
-  >
-    ? TServer extends never
-      ? TServer
-      : TPrefix extends undefined
-        ? TServer
-        : TPrefix extends ""
-          ? TServer
-          : ZodObject<
-              R1,
-              R2,
-              R3,
-              R4,
-              {
-                [TKey in keyof TServer["_input"]]: TKey extends `${TPrefix}${string}`
-                  ? ErrorMessage<`${TKey extends `${TPrefix}${string}`
-                      ? TKey
-                      : never} should not prefixed with ${TPrefix}.`>
-                  : TServer["_input"][TKey];
-              }
-            >
-    : TServer;
+  server: Partial<{
+    [TKey in keyof TServer]: TPrefix extends undefined
+      ? TServer[TKey]
+      : TPrefix extends ""
+        ? TServer[TKey]
+        : TKey extends `${TPrefix}${string}`
+          ? ErrorMessage<`${TKey extends `${TPrefix}${string}`
+              ? TKey
+              : never} should not prefixed with ${TPrefix}.`>
+          : TServer[TKey];
+  }>;
 }
 
 export type ValidationOptions<
@@ -236,25 +217,58 @@ export type ValidationOptions<
 ) &
   SharedOptions<TShared>;
 
+export interface TransformSchemaOptions<
+  TShared extends TSharedFormat,
+  TServer extends TServerFormat,
+  TClient extends TClientFormat,
+  TExtends extends TExtendsFormat,
+  TFinalSchema extends TSchema,
+> {
+  /**
+   * A custom function to combine the schemas.
+   * Can be used to add further refinement or transformation.
+   */
+  transform?: (
+    shape: Simplify<FullSchemaShape<TShared, TServer, TClient, TExtends>>,
+    isServer: boolean,
+  ) => TFinalSchema;
+}
+
 export type EnvOptions<
   TPrefix extends TPrefixFormat,
   TShared extends TSharedFormat,
   TServer extends TServerFormat,
   TClient extends TClientFormat,
   TExtends extends TExtendsFormat,
-> = LooseOptions<TExtends> &
-  ValidationOptions<TPrefix, TShared, TServer, TClient>;
+  TFinalSchema extends TSchema,
+> = (
+  | LooseOptions<TExtends>
+  | StrictOptions<TPrefix, TServer, TClient, TShared, TExtends>
+) &
+  ValidationOptions<TPrefix, TShared, TServer, TClient> &
+  TransformSchemaOptions<TShared, TServer, TClient, TExtends, TFinalSchema>;
 
-export type FinalSchema<
+export type FullSchemaShape<
   TShared extends TSharedFormat,
   TServer extends TServerFormat,
   TClient extends TClientFormat,
   TExtends extends TExtendsFormat,
 > = CombinedSchema<Reduce<TExtends>, CombinedSchema<TShared, TServer, TClient>>;
 
-export type DefineEnv<
+export type FinalSchema<
   TShared extends TSharedFormat,
   TServer extends TServerFormat,
   TClient extends TClientFormat,
   TExtends extends TExtendsFormat,
-> = Readonly<TypeOf<FinalSchema<TShared, TServer, TClient, TExtends>>>;
+> = StandardSchemaV1<
+  object,
+  UndefinedOptional<
+    StandardSchemaDictionary.InferOutput<
+      FullSchemaShape<TShared, TServer, TClient, TExtends>
+    >
+  >
+>;
+
+export type DefineEnv<TFinalSchema extends TSchema> = Readonly<
+  Simplify<StandardSchemaV1.InferOutput<TFinalSchema>>
+>;
