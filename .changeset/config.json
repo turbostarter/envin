@@ -5,6 +5,6 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "fixed": [["better-env"]],
-  "ignore": ["@better-env/cli", "example"]
+  "fixed": [["envin"]],
+  "ignore": ["@envin/cli", "example"]
 }

@@ -1,5 +1,5 @@
 {
-  "name": "@better-env/cli",
+  "name": "@envin/cli",
   "version": "0.0.1",
   "exports": {
     ".": "./src/index.ts"
@@ -22,7 +22,7 @@
     "@radix-ui/react-slot": "^1.2.0",
     "@radix-ui/react-toggle": "^1.1.6",
     "@radix-ui/react-tooltip": "^1.2.4",
-    "better-env": "workspace:*",
+    "envin": "workspace:*",
     "chalk": "^5.4.1",
     "commander": "^13.1.0",
     "esbuild": "^0.25.0",

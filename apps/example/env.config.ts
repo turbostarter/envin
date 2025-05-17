@@ -1,4 +1,4 @@
-import { defineEnv } from "better-env";
+import { defineEnv } from "envin";
 import { z } from "zod";
 
 export default defineEnv({

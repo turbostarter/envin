@@ -26,7 +26,7 @@ export const getConfigFile = async (configFilePath: string) => {
       },
       outdir: "stdout",
       sourcemap: "external",
-      external: ["better-env"],
+      external: ["envin"],
     });
     outputFiles = buildData.outputFiles;
   } catch (exception) {

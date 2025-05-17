@@ -1,7 +1,7 @@
 import path from "node:path";
 import vm from "node:vm";
-import * as env from "better-env";
-import * as envPresets from "better-env/presets";
+import * as env from "envin";
+import * as envPresets from "envin/presets";
 import { err, ok, type Result } from "./result";
 import { staticNodeModulesForVM } from "./static-node-modules-for-vm";
 
@@ -13,11 +13,11 @@ const mockDefineEnv = (arg) => {
 };
 
 const internalModules = {
-  "better-env": {
+  envin: {
     ...env,
     defineEnv: mockDefineEnv,
   },
-  "better-env/presets": envPresets,
+  "envin/presets": envPresets,
 } as const;
 
 export const runBundledCode = (

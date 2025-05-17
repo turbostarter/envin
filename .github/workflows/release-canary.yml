@@ -2,7 +2,7 @@ name: Release - Canary
 
 on:
   pull_request:
-    types: [labeled]
+    types: [labeled, edited]
     branches:
       - main
 
@@ -53,7 +53,7 @@ jobs:
               body: `A new canary is available for testing. You can install this latest build in your project with:
 
               \`\`\`sh
-              pnpm add better-env@${version}
+              pnpm add envin@${version}
               \`\`\`
               `,
             })
