@@ -8,7 +8,7 @@ const PACKAGE_NAME = "env-cli";
 program
   .name(PACKAGE_NAME)
   .description(
-    "A live preview of your environment variables right in your browser"
+    "A live preview of your environment variables right in your browser",
   )
   .version(packageJson.version);
 

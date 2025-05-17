@@ -3,7 +3,7 @@ import { isDev } from "./start-dev-server";
 
 export const getEnvVariablesForPreviewApp = (
   relativePathToEnvDirectory: string,
-  cwd: string
+  cwd: string,
 ) => {
   return {
     ENV_DIR_RELATIVE_PATH: relativePathToEnvDirectory,

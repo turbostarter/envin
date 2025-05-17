@@ -6,14 +6,14 @@ import logSymbols from "log-symbols";
 import next from "next";
 import ora from "ora";
 import packageJson from "../../../../package.json";
-import { serveStaticFile } from "./serve-static-file";
 import { registerSpinnerAutostopping } from "../../../utils/register-spinner-autostopping";
 import { getEnvVariablesForPreviewApp } from "./get-env-variables";
+import { serveStaticFile } from "./serve-static-file";
 
 let devServer: http.Server | undefined;
 
 const safeAsyncServerListen = (server: http.Server, port: number) => {
-  return new Promise<{ portAlreadyInUse: boolean }>(resolve => {
+  return new Promise<{ portAlreadyInUse: boolean }>((resolve) => {
     server.listen(port, () => {
       resolve({ portAlreadyInUse: false });
     });
@@ -40,7 +40,7 @@ export const previewServerLocation = isDev
 export const startDevServer = async (
   emailsDirRelativePath: string,
   staticBaseDirRelativePath: string,
-  port: number
+  port: number,
 ): Promise<http.Server> => {
   devServer = http.createServer((req, res) => {
     if (!req.url) {
@@ -53,7 +53,7 @@ export const startDevServer = async (
     // Never cache anything to avoid
     res.setHeader(
       "Cache-Control",
-      "no-cache, max-age=0, must-revalidate, no-store"
+      "no-cache, max-age=0, must-revalidate, no-store",
     );
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Expires", "-1");
@@ -66,7 +66,7 @@ export const startDevServer = async (
         void serveStaticFile(res, parsedUrl, staticBaseDirRelativePath);
       } else if (!isNextReady) {
         void nextReadyPromise.then(() =>
-          nextHandleRequest?.(req, res, parsedUrl)
+          nextHandleRequest?.(req, res, parsedUrl),
         );
       } else {
         void nextHandleRequest?.(req, res, parsedUrl);
@@ -85,18 +85,18 @@ export const startDevServer = async (
     // this errors when linting but doesn't on the editor so ignore the warning on this
     /* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */
     console.log(
-      chalk.greenBright(`    TurboStarter Env ${packageJson.version}`)
+      chalk.greenBright(`    TurboStarter Env ${packageJson.version}`),
     );
     console.log(`    Running preview at:          http://localhost:${port}\n`);
   } else {
     const nextPortToTry = port + 1;
     console.warn(
-      ` ${logSymbols.warning} Port ${port} is already in use, trying ${nextPortToTry}`
+      ` ${logSymbols.warning} Port ${port} is already in use, trying ${nextPortToTry}`,
     );
     return startDevServer(
       emailsDirRelativePath,
       staticBaseDirRelativePath,
-      nextPortToTry
+      nextPortToTry,
     );
   }
 
@@ -107,7 +107,7 @@ export const startDevServer = async (
   devServer.on("error", (e: NodeJS.ErrnoException) => {
     console.error(
       ` ${logSymbols.error} preview server error: `,
-      JSON.stringify(e)
+      JSON.stringify(e),
     );
     process.exit(1);
   });
@@ -129,7 +129,7 @@ export const startDevServer = async (
     }),
     ...getEnvVariablesForPreviewApp(
       path.normalize(emailsDirRelativePath),
-      process.cwd()
+      process.cwd(),
     ),
   };
   const app = next({
@@ -173,7 +173,7 @@ const makeExitHandler =
   (
     options?:
       | { shouldKillProcess: false }
-      | { shouldKillProcess: true; killWithErrorCode: boolean }
+      | { shouldKillProcess: true; killWithErrorCode: boolean },
   ) =>
   (_codeOrSignal: number | NodeJS.Signals) => {
     if (typeof devServer !== "undefined") {
@@ -193,21 +193,21 @@ process.on("exit", makeExitHandler());
 // catches ctrl+c event
 process.on(
   "SIGINT",
-  makeExitHandler({ shouldKillProcess: true, killWithErrorCode: false })
+  makeExitHandler({ shouldKillProcess: true, killWithErrorCode: false }),
 );
 
 //  catches "kill pid" (for example: nodemon restart)
 process.on(
   "SIGUSR1",
-  makeExitHandler({ shouldKillProcess: true, killWithErrorCode: false })
+  makeExitHandler({ shouldKillProcess: true, killWithErrorCode: false }),
 );
 process.on(
   "SIGUSR2",
-  makeExitHandler({ shouldKillProcess: true, killWithErrorCode: false })
+  makeExitHandler({ shouldKillProcess: true, killWithErrorCode: false }),
 );
 
 // catches uncaught exceptions
 process.on(
   "uncaughtException",
-  makeExitHandler({ shouldKillProcess: true, killWithErrorCode: true })
+  makeExitHandler({ shouldKillProcess: true, killWithErrorCode: true }),
 );

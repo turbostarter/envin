@@ -1,10 +1,8 @@
 import path from "node:path";
-import { envDirectoryAbsolutePath } from "./env";
-
 import { zodToJsonSchema } from "zod-to-json-schema";
-
 import { Preview } from "@/components/preview";
 import { getConfigFile } from "@/utils/get-config-file";
+import { envDirectoryAbsolutePath } from "./env";
 
 export default async function Home() {
   const envConfigFilePath = path.join(

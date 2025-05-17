@@ -2,7 +2,7 @@ import type { StandardSchemaDictionary, StandardSchemaV1 } from "./standard";
 
 export type ErrorMessage<T extends string> = T;
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+// biome-ignore lint/suspicious/noExplicitAny: needs to be any
 type Impossible<T extends Record<string, any>> = Partial<
   Record<keyof T, never>
 >;
@@ -50,7 +50,7 @@ type Reduce<
   ? TAcc
   : TArr extends
         | readonly [infer Head, ...infer Tail]
-        // biome-ignore lint/suspicious/noRedeclare: <explanation>
+        // biome-ignore lint/suspicious/noRedeclare: it's not the same type
         | [infer Head, ...infer Tail]
     ? Tail extends readonly unknown[] | unknown[]
       ? Mutable<Reduce<Tail, CombinedSchema<TAcc, ExtractCombinedSchema<Head>>>>

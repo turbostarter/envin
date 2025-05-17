@@ -8,7 +8,7 @@ import { defineEnv } from "../src";
 function ignoreErrors(cb: () => void) {
   try {
     cb();
-  } catch (err) {}
+  } catch {}
 }
 
 test("server vars should not be prefixed", () => {
@@ -430,7 +430,6 @@ describe("extending presets", () => {
 
     test("server", () => {
       const { window } = globalThis;
-      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
       globalThis.window = undefined as any;
 
       const env = lazyCreateEnv();
@@ -447,7 +446,6 @@ describe("extending presets", () => {
 
     test("client", () => {
       const { window } = globalThis;
-      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
       globalThis.window = {} as any;
 
       const env = lazyCreateEnv();
@@ -518,7 +516,6 @@ describe("extending presets", () => {
 
     test("server", () => {
       const { window } = globalThis;
-      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
       globalThis.window = undefined as any;
 
       const env = lazyCreateEnv();
@@ -536,7 +533,6 @@ describe("extending presets", () => {
 
     test("client", () => {
       const { window } = globalThis;
-      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
       globalThis.window = {} as any;
 
       const env = lazyCreateEnv();

@@ -1,3 +1,4 @@
+import { ensureSynchronous, parseWithDictionary } from "./standard";
 import type {
   DefineEnv,
   EnvOptions,
@@ -10,7 +11,6 @@ import type {
   TSharedFormat,
   ValidationOptions,
 } from "./types";
-import { ensureSynchronous, parseWithDictionary } from "./standard";
 
 const ignoreProp = (prop: string) => {
   return ["__esModule", "$$typeof"].includes(prop);
@@ -53,7 +53,7 @@ const getFinalSchema = <
   const presets = options.extends?.reduce(
     (acc, preset) => {
       return {
-        // biome-ignore lint/performance/noAccumulatingSpread: <explanation>
+        // biome-ignore lint/performance/noAccumulatingSpread: necessary for merging preset schemas
         ...acc,
         ...getCombinedSchema(preset, isServer),
       };
@@ -125,7 +125,7 @@ export function defineEnv<
   const skip = !!options.skip;
 
   if (skip) {
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    // biome-ignore lint/suspicious/noExplicitAny: we set the type explicitly
     return values as any;
   }
 
@@ -175,6 +175,6 @@ export function defineEnv<
     },
   });
 
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  // biome-ignore lint/suspicious/noExplicitAny: we set the type explicitly
   return env as any;
 }

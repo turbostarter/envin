@@ -13,10 +13,10 @@ export const dev = async ({ dir: emailsDirRelativePath, port }: Args) => {
       process.exit(1);
     }
 
-    const devServer = await startDevServer(
+    const _devServer = await startDevServer(
       emailsDirRelativePath,
       emailsDirRelativePath, // defaults to ./emails/static for the static files that are served to the preview
-      Number.parseInt(port)
+      Number.parseInt(port),
     );
 
     // await setupHotreloading(devServer, emailsDirRelativePath);

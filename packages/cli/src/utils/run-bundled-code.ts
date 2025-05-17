@@ -1,11 +1,11 @@
 import path from "node:path";
 import vm from "node:vm";
+import * as env from "better-env";
+import * as envPresets from "better-env/presets";
 import { err, ok, type Result } from "./result";
 import { staticNodeModulesForVM } from "./static-node-modules-for-vm";
-import * as env from "@turbostarter/env";
-import * as envPresets from "@turbostarter/env/presets";
 
-const mockDefineEnv = arg => {
+const mockDefineEnv = (arg) => {
   return env.defineEnv({
     ...arg,
     skip: true,
@@ -13,16 +13,16 @@ const mockDefineEnv = arg => {
 };
 
 const internalModules = {
-  "@turbostarter/env": {
+  "better-env": {
     ...env,
     defineEnv: mockDefineEnv,
   },
-  "@turbostarter/env/presets": envPresets,
+  "better-env/presets": envPresets,
 } as const;
 
 export const runBundledCode = (
   code: string,
-  filename: string
+  filename: string,
 ): Result<unknown, unknown> => {
   const fakeContext = {
     ...global,

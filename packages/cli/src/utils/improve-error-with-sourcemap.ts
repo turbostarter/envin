@@ -6,7 +6,7 @@ import type { ErrorObject } from "./types/error-object";
 export const improveErrorWithSourceMap = (
   error: Error,
   originalFilePath: string,
-  sourceMapToOriginalFile: RawSourceMap
+  sourceMapToOriginalFile: RawSourceMap,
 ): ErrorObject => {
   let stack: string | undefined;
 
@@ -17,7 +17,7 @@ export const improveErrorWithSourceMap = (
     methodName: string,
     source: string,
     line: number | undefined | null,
-    column: number | undefined | null
+    column: number | undefined | null,
   ) => {
     const columnAndLine =
       column || line
@@ -48,8 +48,8 @@ export const improveErrorWithSourceMap = (
               stackFrame.methodName,
               positionWithError.source ?? stackFrame.file,
               positionWithError.line,
-              positionWithError.column
-            )
+              positionWithError.column,
+            ),
           );
         } else {
           newStackLines.push(
@@ -57,8 +57,8 @@ export const improveErrorWithSourceMap = (
               stackFrame.methodName,
               stackFrame.file,
               stackFrame.lineNumber,
-              stackFrame.column
-            )
+              stackFrame.column,
+            ),
           );
         }
       } else if (stackFrame.file) {
@@ -66,7 +66,7 @@ export const improveErrorWithSourceMap = (
           stackFrame.methodName,
           stackFrame.file,
           stackFrame.lineNumber,
-          stackFrame.column
+          stackFrame.column,
         );
         newStackLines.push(stackLine);
       }
