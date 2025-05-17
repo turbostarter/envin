@@ -16,7 +16,7 @@ process.on("SIGINT", () => {
   nextBuildProcess.kill("SIGINT");
 });
 
-nextBuildProcess.on("exit", code => {
+nextBuildProcess.on("exit", (code) => {
   if (code !== 0) {
     console.error(`next build failed with exit code ${code}`);
     process.exit(code);

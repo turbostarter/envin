@@ -1,16 +1,17 @@
 "use client";
-
-import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/utils";
-import JSONSchemaForm from "@rjsf/shadcn";
-import type { FieldTemplateProps, RJSFSchema } from "@rjsf/utils";
+import JSONSchemaForm, { generateTemplates } from "@rjsf/shadcn";
+import type {
+  BaseInputTemplateProps,
+  FieldTemplateProps,
+  RJSFSchema,
+} from "@rjsf/utils";
 import validator from "@rjsf/validator-ajv8";
 import { AlertCircle, Copy, File, ShieldOff } from "lucide-react";
-import type { BaseInputTemplateProps } from "@rjsf/utils";
-import { generateTemplates } from "@rjsf/shadcn";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/utils";
 
 interface EnvVariablesFormProps {
   schema: RJSFSchema;

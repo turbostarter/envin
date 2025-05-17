@@ -8,9 +8,9 @@ import { lookup } from "mime-types";
 export const serveStaticFile = async (
   res: http.ServerResponse,
   parsedUrl: url.UrlWithParsedQuery,
-  staticDirRelativePath: string
+  staticDirRelativePath: string,
 ) => {
-  const pathname = parsedUrl.pathname!.replace("/static", "./static");
+  const pathname = parsedUrl.pathname?.replace("/static", "./static") ?? "";
   const ext = path.parse(pathname).ext;
 
   const staticBaseDir = path.resolve(process.cwd(), staticDirRelativePath);
@@ -39,12 +39,12 @@ export const serveStaticFile = async (
       const sanitizedFilePath = fileAbsolutePath.replace(/\n|\r/g, "");
       console.error(
         `Could not read file at ${sanitizedFilePath} to be served, here's the exception:`,
-        exception
+        exception,
       );
 
       res.statusCode = 500;
       res.end(
-        "Could not read file to be served! Check your terminal for more information."
+        "Could not read file to be served! Check your terminal for more information.",
       );
     }
   }

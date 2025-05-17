@@ -3,7 +3,7 @@ module.exports = {
   webpack: (
     /** @type {import('webpack').Configuration & { externals: string[] }} */
     config,
-    { isServer }
+    { isServer },
   ) => {
     if (isServer) {
       config.externals.push("esbuild");

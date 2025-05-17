@@ -1,28 +1,31 @@
 {
   "name": "env",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "build": "turbo run build",
     "clean": "turbo clean",
     "dev": "turbo run dev",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
-    "typecheck": "turbo typecheck",
-    "test": "turbo run test"
+    "test": "turbo run test",
+    "typecheck": "turbo typecheck"
   },
-  "devDependencies": {
-    "@biomejs/biome": "1.9.4",
+  "dependencies": {
+    "@biomejs/biome": "^2.0.0-beta.4",
+    "@changesets/changelog-github": "^0.5.1",
+    "@changesets/cli": "^2.29.2",
+    "@types/bun": "^1.2.11",
+    "expect-type": "^1.2.1",
+    "just-clone": "^6.2.0",
     "turbo": "2.5.2",
     "typescript": "5.8.3"
   },
+  "packageManager": "bun@1.1.4",
   "engines": {
     "node": ">=22.15.0"
-  },
-  "packageManager": "bun@1.1.4",
-  "workspaces": ["apps/*", "packages/*"],
-  "dependencies": {
-    "@types/bun": "^1.2.11",
-    "expect-type": "^1.2.1",
-    "just-clone": "^6.2.0"
   }
 }

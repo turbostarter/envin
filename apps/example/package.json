@@ -1,17 +1,11 @@
 {
-  "name": "demo",
+  "name": "example",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
   "dependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "@turbostarter/env": "workspace:*",
+    "better-env": "workspace:*",
     "next": "15.3.1"
   },
   "devDependencies": {

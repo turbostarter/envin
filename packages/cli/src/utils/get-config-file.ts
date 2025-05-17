@@ -1,9 +1,9 @@
-import { type BuildFailure, build, type OutputFile } from "esbuild";
 import path from "node:path";
-import { runBundledCode } from "./run-bundled-code";
-import { isErr } from "@/utils/result";
-import { improveErrorWithSourceMap } from "@/utils/improve-error-with-sourcemap";
+import { type BuildFailure, build, type OutputFile } from "esbuild";
 import { z } from "zod";
+import { improveErrorWithSourceMap } from "@/utils/improve-error-with-sourcemap";
+import { isErr } from "@/utils/result";
+import { runBundledCode } from "./run-bundled-code";
 
 const ConfigModule = z.object({
   default: z.record(z.string(), z.unknown()),
@@ -26,7 +26,7 @@ export const getConfigFile = async (configFilePath: string) => {
       },
       outdir: "stdout",
       sourcemap: "external",
-      external: ["@turbostarter/env"],
+      external: ["better-env"],
     });
     outputFiles = buildData.outputFiles;
   } catch (exception) {

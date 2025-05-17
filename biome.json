@@ -1,27 +1,46 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.0.0-beta.4/schema.json",
   "vcs": {
-    "enabled": false,
+    "enabled": true,
     "clientKind": "git",
-    "useIgnoreFile": false
-  },
-  "files": {
-    "ignoreUnknown": false,
-    "ignore": ["node_modules", "dist"]
+    "useIgnoreFile": true
   },
   "formatter": {
     "enabled": true,
     "indentStyle": "space"
   },
-  "organizeImports": {
-    "enabled": true
-  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true
+      "recommended": true,
+      "style": {
+        "noParameterAssign": "error",
+        "useAsConstAssertion": "error",
+        "useDefaultParameterLast": "error",
+        "useEnumInitializers": "error",
+        "useSelfClosingElements": "error",
+        "useConst": "error",
+        "useSingleVarDeclarator": "error",
+        "noUnusedTemplateLiteral": "error",
+        "useNumberNamespace": "error",
+        "noInferrableTypes": "error",
+        "noUselessElse": "error"
+      }
     }
   },
+  "overrides": [
+    {
+      "includes": ["**/*.test.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off"
+          }
+        }
+      }
+    }
+  ],
   "javascript": {
     "formatter": {
       "quoteStyle": "double"

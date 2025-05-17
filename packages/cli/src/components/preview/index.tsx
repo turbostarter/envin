@@ -1,7 +1,7 @@
+import type { RJSFSchema } from "@rjsf/utils";
 import { Controls } from "@/components/preview/controls";
 import { FileContent } from "@/components/preview/file-content";
 import { Form } from "@/components/preview/form";
-import type { RJSFSchema } from "@rjsf/utils";
 
 type PreviewProps = {
   schema: RJSFSchema;
