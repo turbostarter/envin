@@ -1,6 +1,7 @@
 import path from "node:path";
 import { type BuildFailure, build, type OutputFile } from "esbuild";
 import { z } from "zod";
+import fs from "node:fs";
 import { improveErrorWithSourceMap } from "@/utils/improve-error-with-sourcemap";
 import { isErr } from "@/utils/result";
 import { runBundledCode } from "./run-bundled-code";

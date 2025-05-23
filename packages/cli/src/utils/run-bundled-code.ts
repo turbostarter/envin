@@ -1,15 +1,23 @@
 import path from "node:path";
 import vm from "node:vm";
 import * as env from "envin";
-import * as envPresets from "envin/presets";
+import * as envPresets from "envin/presets/zod";
 import { err, ok, type Result } from "./result";
 import { staticNodeModulesForVM } from "./static-node-modules-for-vm";
+import {
+  saveSchemasToCorePackage,
+  extractSchemasFromModuleExports,
+  type ExtractedSchema,
+} from "./save-schemas";
 
-const mockDefineEnv = (arg) => {
-  return env.defineEnv({
-    ...arg,
-    skip: true,
-  });
+const mockDefineEnv = (args) => {
+  return {
+    args,
+    env: env.defineEnv({
+      ...args,
+      skip: true,
+    }),
+  };
 };
 
 const internalModules = {
@@ -17,13 +25,17 @@ const internalModules = {
     ...env,
     defineEnv: mockDefineEnv,
   },
-  "envin/presets": envPresets,
+  "envin/presets/zod": envPresets,
 } as const;
 
 export const runBundledCode = (
   code: string,
   filename: string,
-): Result<unknown, unknown> => {
+  options?: {
+    saveSchemas?: boolean;
+    schemaOutputPath?: string;
+  },
+): Result<{ exports: unknown; schemas?: ExtractedSchema }, unknown> => {
   const fakeContext = {
     ...global,
     console,
@@ -79,5 +91,26 @@ export const runBundledCode = (
     return err(exception);
   }
 
-  return ok(fakeContext.module.exports as unknown);
+  const moduleExports = fakeContext.module.exports as unknown;
+
+  // Extract and optionally save schemas
+  let extractedSchemas: ExtractedSchema | undefined;
+
+  if (options?.saveSchemas) {
+    extractedSchemas = extractSchemasFromModuleExports(moduleExports);
+
+    if (extractedSchemas && Object.keys(extractedSchemas).length > 0) {
+      try {
+        saveSchemasToCorePackage(extractedSchemas, options.schemaOutputPath);
+        console.log("📋 Environment schemas extracted and saved");
+      } catch (error) {
+        console.warn("⚠️ Failed to save schemas:", error);
+      }
+    }
+  }
+
+  return ok({
+    exports: moduleExports,
+    schemas: extractedSchemas,
+  });
 };

@@ -12,6 +12,26 @@ import {
 export const Controls = () => {
   return (
     <div className="flex gap-2">
+      <Select defaultValue="Valid">
+        <SelectTrigger>
+          <SelectValue placeholder="Select a status" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="Valid">
+            <div className="size-2.5 rounded-full bg-green-500" />
+            Valid (12)
+          </SelectItem>
+          <SelectItem value="Invalid">
+            <div className="size-2.5 rounded-full bg-destructive" />
+            Invalid (1)
+          </SelectItem>
+          <SelectItem value="Missing">
+            <div className="size-2.5 rounded-full bg-yellow-500" />
+            Missing (1)
+          </SelectItem>
+        </SelectContent>
+      </Select>
+
       <Select defaultValue="Production">
         <SelectTrigger>
           <SelectValue placeholder="Select an environment" />
@@ -22,17 +42,6 @@ export const Controls = () => {
           <SelectItem value="Development">Development</SelectItem>
         </SelectContent>
       </Select>
-
-      {/* <Select defaultValue="Valid">
-            <SelectTrigger>
-              <SelectValue placeholder="Select a status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Valid">Valid</SelectItem>
-              <SelectItem value="Invalid">Invalid</SelectItem>
-              <SelectItem value="Missing">Missing</SelectItem>
-            </SelectContent>
-          </Select> */}
 
       <Input placeholder="Search for a variable..." />
       <Button variant="outline">

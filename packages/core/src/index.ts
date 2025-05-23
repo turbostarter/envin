@@ -123,13 +123,15 @@ export function defineEnv<
     });
 
   const skip = !!options.skip;
+  const schema = getFinalSchema(options, isServer);
 
   if (skip) {
-    // biome-ignore lint/suspicious/noExplicitAny: we set the type explicitly
-    return values as any;
+    return {
+      ...values,
+      _schema: schema,
+      // biome-ignore lint/suspicious/noExplicitAny: we set the type explicitly
+    } as any;
   }
-
-  const schema = getFinalSchema(options, isServer);
 
   const parsed =
     options
@@ -170,6 +172,7 @@ export function defineEnv<
     get(target, prop) {
       if (typeof prop !== "string") return undefined;
       if (ignoreProp(prop)) return undefined;
+      if (prop === "_schema") return schema;
       if (!isValidServerAccess(prop)) return onInvalidAccess(prop);
       return Reflect.get(target, prop);
     },

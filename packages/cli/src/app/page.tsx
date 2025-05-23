@@ -3,6 +3,7 @@ import { zodToJsonSchema } from "zod-to-json-schema";
 import { Preview } from "@/components/preview";
 import { getConfigFile } from "@/utils/get-config-file";
 import { envDirectoryAbsolutePath } from "./env";
+import { Shrub } from "lucide-react";
 
 export default async function Home() {
   const envConfigFilePath = path.join(
@@ -12,27 +13,22 @@ export default async function Home() {
 
   const { config } = await getConfigFile(envConfigFilePath);
 
+  console.log(process.cwd);
+
   return (
-    <div className="flex flex-col grow gap-4 py-6 px-8">
-      <header className="flex items-center gap-4">
-        <div className="size-11 bg-primary rounded-md" />
+    <div className="flex flex-col h-full gap-4 py-6 px-8">
+      <header className="flex items-center gap-3">
+        <Shrub className="size-11 text-primary" />
         <div className="flex flex-col">
-          <h1 className="text-2xl font-bold">TurboStarter Env</h1>
+          <h1 className="text-2xl font-bold">Envin</h1>
           <p className="text-sm text-muted-foreground">
             Manage environment variables for your project. Validate and set them
             up in seconds.
           </p>
         </div>
       </header>
-      <main className="flex flex-col gap-4 grow">
-        <Preview
-          schema={zodToJsonSchema(config?._schema, {
-            errorMessages: true,
-            markdownDescription: true,
-            rejectedAdditionalProperties: undefined,
-            $refStrategy: "seen",
-          })}
-        />
+      <main className="flex flex-col gap-4 min-h-0 h-full">
+        <Preview config={config} />
       </main>
     </div>
   );

@@ -271,4 +271,6 @@ export type FinalSchema<
 
 export type DefineEnv<TFinalSchema extends TSchema> = Readonly<
   Simplify<StandardSchemaV1.InferOutput<TFinalSchema>>
->;
+> & {
+  _schema: TFinalSchema;
+};

@@ -2,7 +2,7 @@ name: Release - Canary
 
 on:
   pull_request:
-    types: [labeled, edited]
+    types: [labeled, edited, synchronize]
     branches:
       - main
 

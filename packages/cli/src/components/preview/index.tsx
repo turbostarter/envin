@@ -1,18 +1,17 @@
-import type { RJSFSchema } from "@rjsf/utils";
 import { Controls } from "@/components/preview/controls";
 import { FileContent } from "@/components/preview/file-content";
 import { Form } from "@/components/preview/form";
 
 type PreviewProps = {
-  schema: RJSFSchema;
+  config: any;
 };
 
-export const Preview = ({ schema }: PreviewProps) => {
+export const Preview = ({ config }: PreviewProps) => {
   return (
     <>
       <Controls />
-      <div className="grid grid-cols-2 gap-4 grow">
-        <Form schema={schema} />
+      <div className="flex gap-4 min-h-0 h-full">
+        {/* <Form config={config} /> */}
         <FileContent />
       </div>
     </>
