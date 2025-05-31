@@ -84,9 +84,7 @@ export const startDevServer = async (
   if (!portAlreadyInUse) {
     // this errors when linting but doesn't on the editor so ignore the warning on this
     /* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */
-    console.log(
-      chalk.greenBright(`    TurboStarter Env ${packageJson.version}`),
-    );
+    console.log(chalk.greenBright(`    Envin ${packageJson.version}`));
     console.log(`    Running preview at:          http://localhost:${port}\n`);
   } else {
     const nextPortToTry = port + 1;
@@ -113,7 +111,7 @@ export const startDevServer = async (
   });
 
   const spinner = ora({
-    text: "Getting react-email preview server ready...\n",
+    text: "Getting envin preview server ready...\n",
     prefixText: " ",
   }).start();
 

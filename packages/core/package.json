@@ -19,6 +19,11 @@
       "types": "./dist/presets/*.d.ts",
       "require": "./dist/presets/*.js",
       "default": "./dist/presets/*.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "require": "./dist/types.js",
+      "default": "./dist/types.js"
     }
   },
   "files": [

@@ -1,13 +1,24 @@
 import path from "node:path";
 import { type BuildFailure, build, type OutputFile } from "esbuild";
 import { z } from "zod";
-import fs from "node:fs";
+import type { Config } from "@/lib/types";
 import { improveErrorWithSourceMap } from "@/utils/improve-error-with-sourcemap";
 import { isErr } from "@/utils/result";
 import { runBundledCode } from "./run-bundled-code";
 
-const ConfigModule = z.object({
-  default: z.record(z.string(), z.unknown()),
+const presetSchema = z.object({
+  id: z.string().optional(),
+  clientPrefix: z.string().optional(),
+  client: z.record(z.string(), z.unknown()).optional(),
+  server: z.record(z.string(), z.unknown()).optional(),
+  shared: z.record(z.string(), z.unknown()).optional(),
+});
+
+const configSchema = z.object({
+  default: z.object({
+    options: presetSchema.extend({ extends: z.array(presetSchema) }),
+    env: z.record(z.string(), z.unknown()),
+  }),
 });
 
 export const getConfigFile = async (configFilePath: string) => {
@@ -75,7 +86,7 @@ export const getConfigFile = async (configFilePath: string) => {
     throw error;
   }
 
-  const parseResult = ConfigModule.safeParse(runningResult.value);
+  const parseResult = configSchema.safeParse(runningResult.value.exports);
 
   if (parseResult.error) {
     return {
@@ -95,7 +106,7 @@ export const getConfigFile = async (configFilePath: string) => {
   const { data: configModule } = parseResult;
 
   return {
-    config: configModule.default,
+    config: configModule.default as Config,
     sourceMapToOriginalFile: sourceMapToConfig,
   };
 };

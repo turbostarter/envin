@@ -4,17 +4,12 @@ import * as env from "envin";
 import * as envPresets from "envin/presets/zod";
 import { err, ok, type Result } from "./result";
 import { staticNodeModulesForVM } from "./static-node-modules-for-vm";
-import {
-  saveSchemasToCorePackage,
-  extractSchemasFromModuleExports,
-  type ExtractedSchema,
-} from "./save-schemas";
 
-const mockDefineEnv = (args) => {
+const mockDefineEnv = (options) => {
   return {
-    args,
+    options,
     env: env.defineEnv({
-      ...args,
+      ...options,
       skip: true,
     }),
   };
@@ -31,11 +26,7 @@ const internalModules = {
 export const runBundledCode = (
   code: string,
   filename: string,
-  options?: {
-    saveSchemas?: boolean;
-    schemaOutputPath?: string;
-  },
-): Result<{ exports: unknown; schemas?: ExtractedSchema }, unknown> => {
+): Result<{ exports: unknown }, unknown> => {
   const fakeContext = {
     ...global,
     console,
@@ -77,9 +68,9 @@ export const runBundledCode = (
       // webpack warnings like:
       //
       // Import trace for requested module:
-      // ./src/utils/get-email-component.tsx
+      // ./src/utils/run-bundled-code.ts
       // ./src/app/page.tsx
-      //  ⚠ ./src/utils/get-email-component.tsx
+      //  ⚠ ./src/utils/run-bundled-code.ts
       // Critical dependency: the request of a dependency is an expression
     },
     process,
@@ -93,24 +84,7 @@ export const runBundledCode = (
 
   const moduleExports = fakeContext.module.exports as unknown;
 
-  // Extract and optionally save schemas
-  let extractedSchemas: ExtractedSchema | undefined;
-
-  if (options?.saveSchemas) {
-    extractedSchemas = extractSchemasFromModuleExports(moduleExports);
-
-    if (extractedSchemas && Object.keys(extractedSchemas).length > 0) {
-      try {
-        saveSchemasToCorePackage(extractedSchemas, options.schemaOutputPath);
-        console.log("📋 Environment schemas extracted and saved");
-      } catch (error) {
-        console.warn("⚠️ Failed to save schemas:", error);
-      }
-    }
-  }
-
   return ok({
     exports: moduleExports,
-    schemas: extractedSchemas,
   });
 };
