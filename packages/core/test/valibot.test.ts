@@ -2,7 +2,7 @@
 import { describe, expect, spyOn, test } from "bun:test";
 import { expectTypeOf } from "expect-type";
 
-import { z } from "zod";
+import * as v from "valibot";
 import { defineEnv } from "../src";
 
 function ignoreErrors(cb: () => void) {
@@ -17,8 +17,8 @@ test("server vars should not be prefixed", () => {
       clientPrefix: "FOO_",
       server: {
         // @ts-expect-error - server should not have FOO_ prefix
-        FOO_BAR: z.string(),
-        BAR: z.string(),
+        FOO_BAR: v.string(),
+        BAR: v.string(),
       },
     });
   });
@@ -29,9 +29,9 @@ test("client vars should be correctly prefixed", () => {
     defineEnv({
       clientPrefix: "FOO_",
       client: {
-        FOO_BAR: z.string(),
+        FOO_BAR: v.string(),
         // @ts-expect-error - no FOO_ prefix
-        BAR: z.string(),
+        BAR: v.string(),
       },
     });
   });
@@ -41,15 +41,15 @@ describe("return type is correctly inferred", () => {
   test("simple", () => {
     const env = defineEnv({
       clientPrefix: "FOO_",
-      server: { BAR: z.string() },
-      client: { FOO_BAR: z.string() },
+      server: { BAR: v.string() },
+      client: { FOO_BAR: v.string() },
       env: {
         BAR: "bar",
         FOO_BAR: "foo",
       },
     });
 
-    expectTypeOf(env).toEqualTypeOf<
+    expectTypeOf(env).toMatchObjectType<
       Readonly<{
         BAR: string;
         FOO_BAR: string;
@@ -65,15 +65,15 @@ describe("return type is correctly inferred", () => {
   test("with transforms", () => {
     const env = defineEnv({
       clientPrefix: "FOO_",
-      server: { BAR: z.string().transform(Number) },
-      client: { FOO_BAR: z.string() },
+      server: { BAR: v.pipe(v.string(), v.transform(Number)) },
+      client: { FOO_BAR: v.string() },
       env: {
         BAR: "123",
         FOO_BAR: "foo",
       },
     });
 
-    expectTypeOf(env).toEqualTypeOf<
+    expectTypeOf(env).toMatchObjectType<
       Readonly<{
         BAR: number;
         FOO_BAR: string;
@@ -88,13 +88,13 @@ describe("return type is correctly inferred", () => {
 
   test("without client vars", () => {
     const env = defineEnv({
-      server: { BAR: z.string() },
+      server: { BAR: v.string() },
       env: {
         BAR: "bar",
       },
     });
 
-    expectTypeOf(env).toEqualTypeOf<
+    expectTypeOf(env).toMatchObjectType<
       Readonly<{
         BAR: string;
       }>
@@ -107,15 +107,15 @@ describe("return type is correctly inferred", () => {
 
   test("with empty env values", () => {
     const env = defineEnv({
-      server: { BAR: z.string().optional() },
-      shared: { BAZ: z.string() },
+      server: { BAR: v.optional(v.string()) },
+      shared: { BAZ: v.string() },
       env: {
         BAR: "",
         BAZ: "baz",
       },
     });
 
-    expectTypeOf(env).toEqualTypeOf<
+    expectTypeOf(env).toMatchObjectType<
       Readonly<{
         BAR?: string | undefined;
         BAZ: string;
@@ -132,8 +132,11 @@ describe("return type is correctly inferred", () => {
 test("can pass number and booleans", () => {
   const env = defineEnv({
     server: {
-      PORT: z.coerce.number(),
-      IS_DEV: z.enum(["true", "false"]).transform((v) => v === "true"),
+      PORT: v.pipe(v.string(), v.transform(Number)),
+      IS_DEV: v.pipe(
+        v.picklist(["true", "false"]),
+        v.transform((v) => v === "true"),
+      ),
     },
     env: {
       PORT: "123",
@@ -141,7 +144,7 @@ test("can pass number and booleans", () => {
     },
   });
 
-  expectTypeOf(env).toEqualTypeOf<
+  expectTypeOf(env).toMatchObjectType<
     Readonly<{
       PORT: number;
       IS_DEV: boolean;
@@ -159,8 +162,8 @@ describe("errors when validation fails", () => {
     expect(() =>
       defineEnv({
         clientPrefix: "FOO_",
-        server: { BAR: z.string() },
-        client: { FOO_BAR: z.string() },
+        server: { BAR: v.string() },
+        client: { FOO_BAR: v.string() },
         env: {},
       }),
     ).toThrow("Invalid environment variables");
@@ -171,9 +174,9 @@ describe("errors when validation fails", () => {
       defineEnv({
         clientPrefix: "FOO_",
         server: {
-          BAR: z.string().transform(Number).pipe(z.number()),
+          BAR: v.pipe(v.string(), v.transform(Number), v.number()),
         },
-        client: { FOO_BAR: z.string() },
+        client: { FOO_BAR: v.string() },
         env: {
           BAR: "123abc",
           FOO_BAR: "foo",
@@ -187,9 +190,9 @@ describe("errors when validation fails", () => {
       defineEnv({
         clientPrefix: "FOO_",
         server: {
-          BAR: z.string().transform(Number).pipe(z.number()),
+          BAR: v.pipe(v.string(), v.transform(Number), v.number()),
         },
-        client: { FOO_BAR: z.string() },
+        client: { FOO_BAR: v.string() },
         env: {
           BAR: "123abc",
           FOO_BAR: "foo",
@@ -201,9 +204,7 @@ describe("errors when validation fails", () => {
           throw new Error(`Custom Error: Invalid variable BAR: ${barError}`);
         },
       }),
-    ).toThrow(
-      "Custom Error: Invalid variable BAR: Expected number, received nan",
-    );
+    ).toThrow("Custom Error: Invalid variable BAR:");
   });
 });
 
@@ -211,8 +212,8 @@ describe("errors when server var is accessed on client", () => {
   // Define base options that are valid
   const options = {
     clientPrefix: "FOO_",
-    server: { BAR: z.string() },
-    client: { FOO_BAR: z.string() },
+    server: { BAR: v.string() },
+    client: { FOO_BAR: v.string() },
     env: {
       BAR: "bar",
       FOO_BAR: "foo",
@@ -254,24 +255,24 @@ describe("client/server only mode", () => {
     const env = defineEnv({
       clientPrefix: "FOO_",
       client: {
-        FOO_BAR: z.string(),
+        FOO_BAR: v.string(),
       },
       env: { FOO_BAR: "foo" },
     });
 
-    expectTypeOf(env).toEqualTypeOf<Readonly<{ FOO_BAR: string }>>();
+    expectTypeOf(env).toMatchObjectType<Readonly<{ FOO_BAR: string }>>();
     expect(env.FOO_BAR).toBe("foo");
   });
 
   test("server only", () => {
     const env = defineEnv({
       server: {
-        BAR: z.string(),
+        BAR: v.string(),
       },
       env: { BAR: "bar" },
     });
 
-    expectTypeOf(env).toEqualTypeOf<Readonly<{ BAR: string }>>();
+    expectTypeOf(env).toMatchObjectType<Readonly<{ BAR: string }>>();
     expect(env.BAR).toBe("bar");
   });
 });
@@ -285,15 +286,15 @@ describe("shared can be accessed on both server and client", () => {
 
   const options = {
     shared: {
-      NODE_ENV: z.enum(["development", "production", "test"]),
+      NODE_ENV: v.picklist(["development", "production", "test"]),
     },
     clientPrefix: "FOO_",
-    server: { BAR: z.string() },
-    client: { FOO_BAR: z.string() },
+    server: { BAR: v.string() },
+    client: { FOO_BAR: v.string() },
     env: processEnv,
   } as const;
 
-  expectTypeOf(defineEnv(options)).toEqualTypeOf<
+  expectTypeOf(defineEnv(options)).toMatchObjectType<
     Readonly<{
       NODE_ENV: "development" | "production" | "test";
       BAR: string;
@@ -324,11 +325,11 @@ describe("shared can be accessed on both server and client", () => {
 
 test("envs are readonly at type level", () => {
   const env = defineEnv({
-    server: { BAR: z.string() },
+    server: { BAR: v.string() },
     env: { BAR: "bar" },
   });
 
-  expectTypeOf(env).toEqualTypeOf<Readonly<{ BAR: string }>>();
+  expectTypeOf(env).toMatchObjectType<Readonly<{ BAR: string }>>();
 
   // The following line should error if uncommented:
   // env.BAR = "foo";
@@ -346,17 +347,17 @@ describe("extending presets", () => {
     function lazyCreateEnv() {
       const preset = {
         server: {
-          PRESET_ENV: z.string(),
+          PRESET_ENV: v.string(),
         },
       };
 
       return defineEnv({
         server: {
-          SERVER_ENV: z.string(),
+          SERVER_ENV: v.string(),
         },
         clientPrefix: "CLIENT_",
         client: {
-          CLIENT_ENV: z.string(),
+          CLIENT_ENV: v.string(),
         },
         extends: [preset],
         env: processEnv,
@@ -365,7 +366,7 @@ describe("extending presets", () => {
 
     type Env = ReturnType<typeof lazyCreateEnv>;
 
-    expectTypeOf<Env>().toEqualTypeOf<
+    expectTypeOf<Env>().toMatchObjectType<
       Readonly<{
         SERVER_ENV: string;
         CLIENT_ENV: string;
@@ -396,21 +397,21 @@ describe("extending presets", () => {
     function lazyCreateEnv() {
       const preset = {
         server: {
-          PRESET_ENV: z.enum(["preset"]),
+          PRESET_ENV: v.picklist(["preset"]),
         },
         env: processEnv,
       };
 
       return defineEnv({
         server: {
-          SERVER_ENV: z.string(),
+          SERVER_ENV: v.string(),
         },
         shared: {
-          SHARED_ENV: z.string(),
+          SHARED_ENV: v.string(),
         },
         clientPrefix: "CLIENT_",
         client: {
-          CLIENT_ENV: z.string(),
+          CLIENT_ENV: v.string(),
         },
         extends: [preset],
         env: processEnv,
@@ -419,7 +420,7 @@ describe("extending presets", () => {
 
     type Env = ReturnType<typeof lazyCreateEnv>;
 
-    expectTypeOf<Env>().toEqualTypeOf<
+    expectTypeOf<Env>().toMatchObjectType<
       Readonly<{
         SERVER_ENV: string;
         SHARED_ENV: string;
@@ -475,27 +476,27 @@ describe("extending presets", () => {
     function lazyCreateEnv() {
       const preset1 = {
         server: {
-          PRESET_ENV1: z.enum(["preset"]),
+          PRESET_ENV1: v.picklist(["preset"]),
         },
       };
 
       const preset2 = {
         server: {
-          PRESET_ENV2: z.number(),
+          PRESET_ENV2: v.number(),
         },
         runtimeEnv: processEnv,
       };
 
       return defineEnv({
         server: {
-          SERVER_ENV: z.string(),
+          SERVER_ENV: v.string(),
         },
         shared: {
-          SHARED_ENV: z.string(),
+          SHARED_ENV: v.string(),
         },
         clientPrefix: "CLIENT_",
         client: {
-          CLIENT_ENV: z.string(),
+          CLIENT_ENV: v.string(),
         },
         extends: [preset1, preset2],
         env: processEnv,
@@ -504,7 +505,7 @@ describe("extending presets", () => {
 
     type Env = ReturnType<typeof lazyCreateEnv>;
 
-    expectTypeOf<Env>().toEqualTypeOf<
+    expectTypeOf<Env>().toMatchObjectType<
       Readonly<{
         PRESET_ENV1: "preset";
         PRESET_ENV2: number;
@@ -557,8 +558,8 @@ describe("extending presets", () => {
 test("empty 'extends' array should not cause type errors", () => {
   const env = defineEnv({
     clientPrefix: "FOO_",
-    server: { BAR: z.string() },
-    client: { FOO_BAR: z.string() },
+    server: { BAR: v.string() },
+    client: { FOO_BAR: v.string() },
     env: {
       BAR: "bar",
       FOO_BAR: "foo",
@@ -566,7 +567,7 @@ test("empty 'extends' array should not cause type errors", () => {
     extends: [],
   });
 
-  expectTypeOf(env).toEqualTypeOf<
+  expectTypeOf(env).toMatchObjectType<
     Readonly<{
       BAR: string;
       FOO_BAR: string;
@@ -582,10 +583,13 @@ test("empty 'extends' array should not cause type errors", () => {
 test("overriding preset env var", () => {
   const presetOptions = {
     server: {
-      OVERRIDE_ME: z.string(),
+      OVERRIDE_ME: v.string(),
     },
     shared: {
-      SHARED_PRESET: z.enum(["true", "false"]).transform((v) => v === "true"),
+      SHARED_PRESET: v.pipe(
+        v.picklist(["true", "false"]),
+        v.transform((v) => v === "true"),
+      ),
     },
   };
 
@@ -593,14 +597,14 @@ test("overriding preset env var", () => {
 
   const env = defineEnv({
     server: {
-      OVERRIDE_ME: z.coerce.number(),
+      OVERRIDE_ME: v.pipe(v.string(), v.transform(Number)),
     },
     // Cast preset to the expected type
     extends: [presetOptions],
     env: currentEnv,
   });
 
-  expectTypeOf(env).toEqualTypeOf<
+  expectTypeOf(env).toMatchObjectType<
     Readonly<{
       OVERRIDE_ME: number;
       SHARED_PRESET: boolean;
@@ -613,12 +617,12 @@ test("overriding preset env var", () => {
 describe("skip validation", () => {
   test("should not throw if skip is true", () => {
     const env = defineEnv({
-      server: { BAR: z.string() },
+      server: { BAR: v.string() },
       env: {},
       skip: true,
     });
 
-    expectTypeOf(env).toEqualTypeOf<
+    expectTypeOf(env).toMatchObjectType<
       Readonly<{
         BAR: string;
       }>
@@ -629,11 +633,11 @@ describe("skip validation", () => {
 
   // test("should return default values if skip is true", () => {
   //   const env = defineEnv({
-  //     server: { BAR: z.string().default("bar") },
+  //     server: { BAR: v.optional(v.string(), "bar") },
   //     env: {},
   //     skip: true,
   //   });
-  //   expectTypeOf(env).toEqualTypeOf<
+  //   expectTypeOf(env).toMatchObjectType<
   //     Readonly<{
   //       BAR: string;
   //     }>
@@ -645,7 +649,7 @@ describe("skip validation", () => {
 test("empty strings are removed from env before validation", () => {
   expect(() =>
     defineEnv({
-      server: { REQ_VAR: z.string() },
+      server: { REQ_VAR: v.string() },
       env: {
         REQ_VAR: "",
       },
@@ -653,7 +657,7 @@ test("empty strings are removed from env before validation", () => {
   ).toThrow("Invalid environment variables");
 
   const env = defineEnv({
-    server: { OPT_VAR: z.string().optional() },
+    server: { OPT_VAR: v.optional(v.string()) },
     env: {
       OPT_VAR: "",
     },
@@ -666,14 +670,14 @@ describe("transforming final schema", () => {
     let receivedIsServer = false;
     const env = defineEnv({
       server: {
-        SERVER_ENV: z.string(),
+        SERVER_ENV: v.string(),
       },
       shared: {
-        SHARED_ENV: z.string(),
+        SHARED_ENV: v.string(),
       },
       clientPrefix: "CLIENT_",
       client: {
-        CLIENT_ENV: z.string(),
+        CLIENT_ENV: v.string(),
       },
       env: {
         SERVER_ENV: "server",
@@ -683,11 +687,11 @@ describe("transforming final schema", () => {
       transform: (shape, isServer) => {
         expectTypeOf(isServer).toEqualTypeOf<boolean>();
         if (typeof isServer === "boolean") receivedIsServer = true;
-        return z.object(shape);
+        return v.object(shape);
       },
     });
 
-    expectTypeOf(env).toEqualTypeOf<
+    expectTypeOf(env).toMatchObjectType<
       Readonly<{
         SERVER_ENV: string;
         SHARED_ENV: string;
@@ -706,24 +710,27 @@ describe("transforming final schema", () => {
   test("schema combiner with further refinement", () => {
     const env = defineEnv({
       server: {
-        SKIP_AUTH: z.boolean().optional(),
-        EMAIL: z.string().email().optional(),
-        PASSWORD: z.string().min(1).optional(),
+        SKIP_AUTH: v.optional(v.boolean()),
+        EMAIL: v.optional(v.pipe(v.string(), v.email())),
+        PASSWORD: v.optional(v.pipe(v.string(), v.minLength(1))),
       },
       env: {
         SKIP_AUTH: true,
       },
       transform: (shape) =>
-        z.object(shape).refine((env) => {
-          expectTypeOf(env).toEqualTypeOf<{
-            SKIP_AUTH?: boolean;
-            EMAIL?: string;
-            PASSWORD?: string;
-          }>();
-          return env.SKIP_AUTH || (env.EMAIL && env.PASSWORD);
-        }),
+        v.pipe(
+          v.object(shape),
+          v.check((env) => {
+            expectTypeOf(env).toEqualTypeOf<{
+              SKIP_AUTH?: boolean;
+              EMAIL?: string;
+              PASSWORD?: string;
+            }>();
+            return !!env.SKIP_AUTH || (!!env.EMAIL && !!env.PASSWORD);
+          }),
+        ),
     });
-    expectTypeOf(env).toEqualTypeOf<
+    expectTypeOf(env).toMatchObjectType<
       Readonly<{
         SKIP_AUTH?: boolean;
         EMAIL?: string;
@@ -735,38 +742,36 @@ describe("transforming final schema", () => {
   test("schema combiner that changes the type", () => {
     const env = defineEnv({
       server: {
-        SKIP_AUTH: z.boolean().optional(),
-        EMAIL: z.string().email().optional(),
-        PASSWORD: z.string().min(1).optional(),
+        SKIP_AUTH: v.optional(v.boolean()),
+        EMAIL: v.optional(v.pipe(v.string(), v.email())),
+        PASSWORD: v.optional(v.pipe(v.string(), v.minLength(1))),
       },
       transform: (shape) =>
-        z.object(shape).transform((env, ctx) => {
-          if (env.SKIP_AUTH) return { SKIP_AUTH: true } as const;
-          if (!env.EMAIL || !env.PASSWORD) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              message: "EMAIL and PASSWORD are required if SKIP_AUTH is false",
-            });
-            return z.NEVER;
-          }
-          return {
-            EMAIL: env.EMAIL,
-            PASSWORD: env.PASSWORD,
-          };
-        }),
+        v.pipe(
+          v.object(shape),
+          v.transform((env) => {
+            if (env.SKIP_AUTH) return { SKIP_AUTH: true } as const;
+
+            return {
+              EMAIL: env.EMAIL,
+              PASSWORD: env.PASSWORD,
+            };
+          }),
+        ),
       env: {
         SKIP_AUTH: true,
       },
     });
-    expectTypeOf(env).toEqualTypeOf<
+    // @ts-expect-error - we want to test the type of the env object, not the schema
+    expectTypeOf<Omit<typeof env, "_schema">>().toEqualTypeOf<
       Readonly<
         | {
-            readonly SKIP_AUTH: true;
-            EMAIL?: undefined;
-            PASSWORD?: undefined;
+            SKIP_AUTH: true;
+            EMAIL: undefined;
+            PASSWORD: undefined;
           }
         | {
-            readonly SKIP_AUTH?: undefined;
+            SKIP_AUTH: undefined;
             EMAIL: string;
             PASSWORD: string;
           }

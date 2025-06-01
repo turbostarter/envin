@@ -1,7 +1,8 @@
 import path from "node:path";
 import vm from "node:vm";
 import * as env from "envin";
-import * as envPresets from "envin/presets/zod";
+import * as envPresetsValibot from "envin/presets/valibot";
+import * as envPresetsZod from "envin/presets/zod";
 import { err, ok, type Result } from "./result";
 import { staticNodeModulesForVM } from "./static-node-modules-for-vm";
 
@@ -20,7 +21,8 @@ const internalModules = {
     ...env,
     defineEnv: mockDefineEnv,
   },
-  "envin/presets/zod": envPresets,
+  "envin/presets/zod": envPresetsZod,
+  "envin/presets/valibot": envPresetsValibot,
 } as const;
 
 export const runBundledCode = (

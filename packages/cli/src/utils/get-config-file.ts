@@ -16,7 +16,7 @@ const presetSchema = z.object({
 
 const configSchema = z.object({
   default: z.object({
-    options: presetSchema.extend({ extends: z.array(presetSchema) }),
+    options: presetSchema.extend({ extends: z.array(presetSchema).optional() }),
     env: z.record(z.string(), z.unknown()),
   }),
 });

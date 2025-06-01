@@ -43,6 +43,7 @@
   "devDependencies": {
     "tsup": "8.3.0",
     "typescript": "5.8.3",
+    "valibot": "1.1.0",
     "zod": "3.24.1"
   },
   "peerDependencies": {

@@ -1,12 +1,12 @@
 import type { TPreset } from "envin/types";
-import { z } from "zod";
-import type { StandardSchemaV1 } from "@/lib/standard";
 import {
   type Config,
   DEFAULT_PRESET,
   type Variable,
   VariableGroup,
 } from "@/lib/types";
+import { getDefault } from "./default";
+import { getDescription } from "./description";
 
 export const getVariables = (config: Config) => {
   const variables = {};
@@ -81,37 +81,7 @@ const getVariable = (key: string, preset: TPreset): Variable | null => {
     description: getDescription(schema),
     preset: preset.id ?? "",
     group,
-    default: getDefaultValue(schema),
+    default: getDefault(schema),
     files: [".env"],
   };
-};
-
-const descriptionSchema = z.object({
-  description: z.string().optional(),
-});
-
-const getDescription = (schema: StandardSchemaV1) => {
-  const result = descriptionSchema.safeParse(schema);
-
-  if (result.success) {
-    return result.data.description;
-  }
-
-  return undefined;
-};
-
-const defaultValueSchema = z.object({
-  _def: z.object({
-    defaultValue: z.function().optional(),
-  }),
-});
-
-const getDefaultValue = (schema: StandardSchemaV1) => {
-  const result = defaultValueSchema.safeParse(schema);
-
-  if (result.success) {
-    return result.data._def.defaultValue?.() as string | undefined;
-  }
-
-  return undefined;
 };
