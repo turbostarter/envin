@@ -60,6 +60,10 @@ const PresetIcons = {
 export const Form = () => {
   const { form, variables, filteredKeys } = useVariables();
 
+  if (!filteredKeys.length) {
+    return <Empty />;
+  }
+
   const sections = Object.groupBy(
     filteredKeys.map((key) => {
       return {
@@ -100,7 +104,7 @@ export const Form = () => {
                     {sections[key]?.map((variable) => (
                       <Variable
                         key={variable.key}
-                        variable={variable}
+                        variable={variable as VariableWithKey}
                         control={form.control}
                       />
                     ))}
@@ -279,5 +283,16 @@ const Variable = ({
         </FormItem>
       )}
     />
+  );
+};
+
+const Empty = () => {
+  return (
+    <div className="w-full h-full relative grow min-w-0 flex items-center justify-center">
+      <p className="text-muted-foreground w-full max-w-md text-center text-balance">
+        No variables found. Please add some variables to the config or modify
+        the filters.
+      </p>
+    </div>
   );
 };

@@ -9,6 +9,10 @@ import { cn } from "@/utils/cn";
 export const FileContent = () => {
   const { form, issues, filteredKeys, variables } = useVariables();
 
+  if (!filteredKeys.length) {
+    return <Empty />;
+  }
+
   const values = form.watch();
 
   const sections = Object.groupBy(
@@ -61,6 +65,17 @@ export const FileContent = () => {
           </Fragment>
         ))}
       </div>
+    </ScrollArea>
+  );
+};
+
+const Empty = () => {
+  return (
+    <ScrollArea className="w-full h-full relative grow bg-muted rounded-md p-4 px-5 min-w-0">
+      <p className="text-muted-foreground w-full max-w-md text-center text-balance absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+        No variables found. Please add some variables to the config or modify
+        the filters.
+      </p>
     </ScrollArea>
   );
 };
