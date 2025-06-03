@@ -15,7 +15,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Envin",
-  description: "Manage environment variables for your project.",
+  description:
+    "Framework-agnostic, type-safe tool to validate and preview your environment variables—powered by your favorite schema validator.",
 };
 
 export default function RootLayout({
