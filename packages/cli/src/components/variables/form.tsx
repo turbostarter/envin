@@ -255,7 +255,7 @@ const Variable = ({
   variable: VariableWithKey;
   control: Control;
 }) => {
-  const { issue } = useVariable(variable.key);
+  const { issue, fileValue } = useVariable(variable.key);
 
   return (
     <FormField
@@ -275,7 +275,7 @@ const Variable = ({
           <ValueInput variable={variable} field={field} />
           <div className="flex gap-2 mt-0.5">
             <AccessBadge group={variable.group} />
-            <FilesBadge files={variable.files} />
+            <FilesBadge files={fileValue?.files ?? []} />
             <StatusBadge valid={!issue} />
           </div>
 

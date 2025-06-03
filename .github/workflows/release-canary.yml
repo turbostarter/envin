@@ -6,6 +6,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
@@ -30,7 +34,7 @@ jobs:
         run: bun run build
 
       - name: Authenticate to npm
-        run:  echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
 
       - name: Publish
         run: bun run scripts/canary.ts
@@ -50,18 +54,21 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.payload.pull_request.number,
-              body: `A new canary is available for testing. You can install this latest build in your project with:
+              body: `A new canary is available for testing. You can install these latest builds in your project with:
 
               \`\`\`sh
-              pnpm add envin@${version}
+              bun add envin@${version}
+              bun add @envin/cli@${version}
               \`\`\`
               `,
             })
 
-            // Remove the label
-            github.rest.issues.removeLabel({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-              name: 'canary',
-            });
+
+
+            # // Remove the label
+            # github.rest.issues.removeLabel({
+            #   owner: context.repo.owner,
+            #   repo: context.repo.repo,
+            #   issue_number: context.payload.pull_request.number,
+            #   name: 'canary',
+            # });

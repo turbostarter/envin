@@ -4,7 +4,7 @@
  */
 export const MODULE = true;
 
-const packages = ["core"];
+const packages = ["core", "cli"];
 
 const commitHash = (await Bun.$`git rev-parse --short HEAD`.text()).trim();
 

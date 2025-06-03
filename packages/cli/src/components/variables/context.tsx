@@ -8,16 +8,18 @@ import {
   useState,
 } from "react";
 import { type UseFormReturn, useForm } from "react-hook-form";
-import { Status, useFilters } from "@/components/filters/context";
+import { useFilters } from "@/components/filters/context";
 import type { StandardSchemaV1 } from "@/lib/standard";
-import type { Variables } from "@/lib/types";
+import { type FileValues, Status, type Variables } from "@/lib/types";
 import { validate } from "@/lib/validate";
+import { getFileValues } from "@/lib/variables";
 
 export const VariablesContext = createContext<VariablesContextType>({
   form: {} as UseFormReturn,
   issues: [],
   variables: {},
   filteredKeys: [],
+  fileValues: {},
 });
 
 export type VariablesContextType = {
@@ -25,6 +27,7 @@ export type VariablesContextType = {
   variables: Variables;
   issues: ReadonlyArray<StandardSchemaV1.Issue>;
   filteredKeys: string[];
+  fileValues: FileValues;
 };
 
 export const VariablesProvider = ({
@@ -34,17 +37,31 @@ export const VariablesProvider = ({
   children: React.ReactNode;
   variables: Variables;
 }) => {
-  const { query, status } = useFilters();
+  const { query, status, environment } = useFilters();
+  const [fileValues, setFileValues] = useState<FileValues>({});
   const form = useForm({
     defaultValues: Object.fromEntries(
       Object.entries(variables).map(([key, value]) => [
         key,
-        value.default || "",
+        fileValues[key]?.value ?? value.default ?? "",
       ]),
     ),
   });
   const [issues, setIssues] = useState<VariablesContextType["issues"]>([]);
   const [filteredKeys, setFilteredKeys] = useState(Object.keys(variables));
+
+  useEffect(() => {
+    const { touchedFields } = form.formState;
+    const newValues = Object.fromEntries(
+      Object.entries(variables).map(([key, value]) => {
+        if (touchedFields[key]) {
+          return [key, form.getValues(key)];
+        }
+        return [key, fileValues[key]?.value ?? value.default ?? ""];
+      }),
+    );
+    form.reset(newValues, { keepDirtyValues: true });
+  }, [fileValues, variables, form]);
 
   const onValidate = useCallback(async (data: Record<string, unknown>) => {
     const result = await validate(data);
@@ -104,6 +121,10 @@ export const VariablesProvider = ({
     );
   }, [filterByStatus, filterByQuery, query, status, variables]);
 
+  useEffect(() => {
+    getFileValues(environment).then(setFileValues);
+  }, [environment]);
+
   return (
     <VariablesContext.Provider
       value={{
@@ -111,6 +132,7 @@ export const VariablesProvider = ({
         variables,
         issues,
         filteredKeys,
+        fileValues,
       }}
     >
       {children}
@@ -129,7 +151,7 @@ export const useVariables = () => {
 };
 
 export const useVariable = (key: string) => {
-  const { form, variables, issues } = useVariables();
+  const { form, variables, issues, fileValues } = useVariables();
 
   const variable = key in variables ? variables[key] : null;
   const issue = issues.find((issue) => issue.path?.includes(key));
@@ -140,5 +162,6 @@ export const useVariable = (key: string) => {
     variable,
     issue,
     field,
+    fileValue: fileValues[key],
   };
 };

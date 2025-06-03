@@ -1,10 +1,13 @@
 {
   "$schema": "https://unpkg.com/@changesets/config@2.3.0/schema.json",
-  "changelog": ["@changesets/changelog-github", { "repo": "turbostarter/env" }],
+  "changelog": [
+    "@changesets/changelog-github",
+    { "repo": "turbostarter/envin" }
+  ],
   "commit": false,
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "fixed": [["envin"]],
-  "ignore": ["@envin/cli", "example"]
+  "fixed": [["envin", "@envin/cli"]],
+  "ignore": ["example", "docs"]
 }

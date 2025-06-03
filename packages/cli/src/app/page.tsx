@@ -18,7 +18,7 @@ export default async function Home() {
     );
   }
 
-  const variables = getVariables(config);
+  const variables = await getVariables();
 
   return <Envin variables={variables} />;
 }

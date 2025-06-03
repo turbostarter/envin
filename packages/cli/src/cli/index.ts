@@ -14,7 +14,7 @@ program
 
 program
   .command("dev")
-  .description("Starts the preview env development app")
+  .description("Starts the live preview of your environment variables")
   .option("-d, --dir <path>", "Directory with your email templates", "./")
   .option("-p --port <port>", "Port to run dev server on", "3000")
   .action(dev);

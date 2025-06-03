@@ -1,21 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState } from "react";
-
-export const Status = {
-  ALL: "all",
-  VALID: "valid",
-  INVALID: "invalid",
-} as const;
-
-export type Status = (typeof Status)[keyof typeof Status];
-
-export const Environment = {
-  DEVELOPMENT: "development",
-  PRODUCTION: "production",
-} as const;
-
-export type Environment = (typeof Environment)[keyof typeof Environment];
+import { Environment, Status } from "@/lib/types";
 
 const FiltersContext = createContext<{
   status: Status;

@@ -2,7 +2,7 @@
 
 import { Check, Copy } from "lucide-react";
 import { useState } from "react";
-import { Environment, Status, useFilters } from "@/components/filters/context";
+import { useFilters } from "@/components/filters/context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -16,6 +16,8 @@ import { useVariables } from "@/components/variables/context";
 import { useCopyToClipboard } from "@/lib/hooks/use-copy-to-clipboard";
 import {
   DEFAULT_PRESET,
+  Environment,
+  Status,
   type Variables,
   type VariableWithKey,
 } from "@/lib/types";

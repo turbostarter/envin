@@ -15,17 +15,38 @@ export const VariableGroup = {
 
 export type VariableGroup = (typeof VariableGroup)[keyof typeof VariableGroup];
 
+export const Status = {
+  ALL: "all",
+  VALID: "valid",
+  INVALID: "invalid",
+} as const;
+
+export type Status = (typeof Status)[keyof typeof Status];
+
+export const Environment = {
+  DEVELOPMENT: "development",
+  PRODUCTION: "production",
+} as const;
+
+export type Environment = (typeof Environment)[keyof typeof Environment];
+
 export const DEFAULT_PRESET = "root";
 
 export interface Variable {
   preset: string;
   group: VariableGroup;
   default: string | undefined;
-  files: string[];
   description: string | undefined;
 }
 
 export type Variables = Record<string, Variable>;
+
+export interface FileValue {
+  value: string | undefined;
+  files: string[];
+}
+
+export type FileValues = Record<string, FileValue>;
 
 export interface VariableWithKey extends Variable {
   key: string;

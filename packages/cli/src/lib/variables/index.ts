@@ -1,14 +1,22 @@
+"use server";
+
 import type { TPreset } from "envin/types";
+import { config, FILES, files } from "@/lib/config";
 import {
-  type Config,
   DEFAULT_PRESET,
+  Environment,
+  type FileValues,
   type Variable,
   VariableGroup,
 } from "@/lib/types";
 import { getDefault } from "./default";
 import { getDescription } from "./description";
 
-export const getVariables = (config: Config) => {
+export const getVariables = async () => {
+  if (!config) {
+    return {};
+  }
+
   const variables = {};
   const schema = config.env._schema;
 
@@ -82,6 +90,38 @@ const getVariable = (key: string, preset: TPreset): Variable | null => {
     preset: preset.id ?? "",
     group,
     default: getDefault(schema),
-    files: [".env"],
   };
+};
+
+export const getFileValues = async (
+  environment: Environment = Environment.DEVELOPMENT,
+): Promise<FileValues> => {
+  if (!config) {
+    return {};
+  }
+
+  const variablesFromFiles = files[environment];
+
+  const result: FileValues = {};
+
+  variablesFromFiles?.forEach((file, index) => {
+    const fileName = FILES[environment][index] ?? "";
+
+    Object.entries(file).forEach(([key, value]) => {
+      if (!result[key]) {
+        result[key] = {
+          value,
+          files: [fileName],
+        };
+      } else {
+        result[key] = {
+          ...result[key],
+          value,
+          files: [...result[key].files, fileName],
+        };
+      }
+    });
+  });
+
+  return result;
 };
