@@ -63,10 +63,10 @@ jobs:
               `,
             })
 
-            # // Remove the label
-            # github.rest.issues.removeLabel({
-            #   owner: context.repo.owner,
-            #   repo: context.repo.repo,
-            #   issue_number: context.payload.pull_request.number,
-            #   name: 'canary',
-            # });
+            // Remove the label
+            github.rest.issues.removeLabel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              name: 'canary',
+            });

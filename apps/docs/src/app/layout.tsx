@@ -15,7 +15,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Envin",
+  title: {
+    template: "%s | Envin",
+    default: "Envin - Type-safe env validation with live previews",
+  },
   description:
     "Framework-agnostic, type-safe tool to validate and preview your environment variables—powered by your favorite schema validator.",
 };

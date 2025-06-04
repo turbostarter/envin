@@ -1,3 +1,4 @@
+import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { GITHUB_URL } from "@/lib/source";
@@ -6,13 +7,25 @@ import { cn } from "@/lib/utils";
 export default function HomePage() {
   return (
     <main className="flex flex-1 flex-col justify-center items-center text-center gap-6 px-4 sm:px-16">
+      <Link
+        href="/docs"
+        target="_blank"
+        className="inline-flex overflow-hidden w-fit items-center gap-2 rounded-full border bg-background py-1 pr-3 pl-1 text-foreground text-sm leading-6 shadow-xs"
+        rel="noreferrer"
+      >
+        <span className="rounded-full bg-secondary px-2 font-semibold">
+          New
+        </span>
+        <span className="font-medium truncate">Standard Schema support</span>
+        <ArrowUpRight className="size-4" />
+      </Link>
       <h1 className="max-w-3xl text-balance text-center font-semibold text-5xl leading-tighter tracking-tighter! sm:text-6xl md:max-w-4xl md:text-7xl ">
         Type-safe{" "}
         <svg
           role="img"
           viewBox="0 0 24 24"
           xmlns="http://www.w3.org/2000/svg"
-          className="pointer-events-none mx-1 inline-block h-8 w-auto translate-y-0.5 select-none align-baseline sm:h-[38px] md:h-[53px] lg:h-14 md:translate-y-1"
+          className="pointer-events-none mx-1 inline-block h-9 w-auto translate-y-0.5 select-none align-baseline sm:h-[38px] md:h-[53px] lg:h-14 md:translate-y-1"
         >
           <title>TypeScript</title>
           <path

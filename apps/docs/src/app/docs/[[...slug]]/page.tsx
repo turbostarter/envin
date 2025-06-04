@@ -25,7 +25,6 @@ export default async function Page(props: {
       <DocsBody>
         <MDXContent
           components={getMDXComponents({
-            // this allows you to link to other pages with relative file paths
             a: createRelativeLink(source, page),
           })}
         />
@@ -38,15 +37,26 @@ export async function generateStaticParams() {
   return source.generateParams();
 }
 
-export async function generateMetadata(props: {
+export async function generateMetadata({
+  params,
+}: {
   params: Promise<{ slug?: string[] }>;
 }) {
-  const params = await props.params;
-  const page = source.getPage(params.slug);
+  const { slug = [] } = await params;
+  const page = source.getPage(slug);
   if (!page) notFound();
+  const image = ["/api/og", ...slug, "image.png"].join("/");
 
   return {
     title: page.data.title,
     description: page.data.description,
+    openGraph: {
+      url: page.url,
+      images: image,
+    },
+    twitter: {
+      card: "summary_large_image",
+      images: image,
+    },
   };
 }
