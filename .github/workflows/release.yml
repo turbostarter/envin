@@ -28,7 +28,7 @@ jobs:
       - uses: ./.github/setup
 
       - name: Build
-        run: bun run build
+        run: bun build:packages
 
       - name: Create Release
         id: changeset
@@ -39,6 +39,7 @@ jobs:
           publish: bun run scripts/publish.ts
           version: bunx changeset version
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Fix formatting

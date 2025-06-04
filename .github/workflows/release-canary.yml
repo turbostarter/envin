@@ -33,7 +33,7 @@ jobs:
       - uses: ./.github/setup
 
       - name: Build
-        run: bun run build
+        run: bun build:packages
 
       - name: Authenticate to npm
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
