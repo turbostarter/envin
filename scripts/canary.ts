@@ -4,7 +4,7 @@
  */
 export const MODULE = true;
 
-const packages = ["core"];
+const packages = ["core", "cli"];
 
 const commitHash = (await Bun.$`git rev-parse --short HEAD`.text()).trim();
 
@@ -18,8 +18,8 @@ for (const pkg of packages) {
   pkgJson.version = newVersion;
   const content = `${JSON.stringify(pkgJson, null, "\t")}\n`;
   const newContent = content.replace(
-    new RegExp(`"better-env": "${oldVersion}"`, "g"),
-    `"better-env": "${newVersion}"`,
+    new RegExp(`"envin": "${oldVersion}"`, "g"),
+    `"envin": "${newVersion}"`,
   );
 
   await Bun.write(`packages/${pkg}/package.json`, newContent);

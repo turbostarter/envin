@@ -14,7 +14,10 @@ export const vercel = {
   server: {
     VERCEL: z.string().optional(),
     CI: z.string().optional(),
-    VERCEL_ENV: z.enum(["development", "preview", "production"]).optional(),
+    VERCEL_ENV: z
+      .enum(["development", "preview", "production"])
+      .optional()
+      .default("development"),
     VERCEL_URL: z.string().optional(),
     VERCEL_PROJECT_PRODUCTION_URL: z.string().optional(),
     VERCEL_BRANCH_URL: z.string().optional(),
@@ -44,10 +47,6 @@ export type VercelEnv = InferPresetOutput<typeof vercel>;
  */
 export const neonVercel = {
   id: "neon-vercel",
-  clientPrefix: "CLIENT_",
-  client: {
-    BAR: z.string(),
-  },
   server: {
     DATABASE_URL: z.string(),
     DATABASE_URL_UNPOOLED: z.string().optional(),

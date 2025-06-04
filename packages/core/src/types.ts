@@ -235,12 +235,12 @@ export interface TransformSchemaOptions<
 }
 
 export type EnvOptions<
-  TPrefix extends TPrefixFormat,
-  TShared extends TSharedFormat,
-  TServer extends TServerFormat,
-  TClient extends TClientFormat,
-  TExtends extends TExtendsFormat,
-  TFinalSchema extends TSchema,
+  TPrefix extends TPrefixFormat = TPrefixFormat,
+  TShared extends TSharedFormat = TSharedFormat,
+  TServer extends TServerFormat = TServerFormat,
+  TClient extends TClientFormat = TClientFormat,
+  TExtends extends TExtendsFormat = TExtendsFormat,
+  TFinalSchema extends TSchema = TSchema,
 > = (
   | LooseOptions<TExtends>
   | StrictOptions<TPrefix, TServer, TClient, TShared, TExtends>
@@ -269,6 +269,8 @@ export type FinalSchema<
   >
 >;
 
-export type DefineEnv<TFinalSchema extends TSchema> = Readonly<
+export type DefineEnv<TFinalSchema extends TSchema = TSchema> = Readonly<
   Simplify<StandardSchemaV1.InferOutput<TFinalSchema>>
->;
+> & {
+  _schema: TFinalSchema;
+};

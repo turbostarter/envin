@@ -1,29 +1,34 @@
 import path from "node:path";
 import vm from "node:vm";
-import * as env from "better-env";
-import * as envPresets from "better-env/presets";
+import * as env from "envin";
+import * as envPresetsValibot from "envin/presets/valibot";
+import * as envPresetsZod from "envin/presets/zod";
 import { err, ok, type Result } from "./result";
 import { staticNodeModulesForVM } from "./static-node-modules-for-vm";
 
-const mockDefineEnv = (arg) => {
-  return env.defineEnv({
-    ...arg,
-    skip: true,
-  });
+const mockDefineEnv = (options) => {
+  return {
+    options,
+    env: env.defineEnv({
+      ...options,
+      skip: true,
+    }),
+  };
 };
 
 const internalModules = {
-  "better-env": {
+  envin: {
     ...env,
     defineEnv: mockDefineEnv,
   },
-  "better-env/presets": envPresets,
+  "envin/presets/zod": envPresetsZod,
+  "envin/presets/valibot": envPresetsValibot,
 } as const;
 
 export const runBundledCode = (
   code: string,
   filename: string,
-): Result<unknown, unknown> => {
+): Result<{ exports: unknown }, unknown> => {
   const fakeContext = {
     ...global,
     console,
@@ -65,9 +70,9 @@ export const runBundledCode = (
       // webpack warnings like:
       //
       // Import trace for requested module:
-      // ./src/utils/get-email-component.tsx
+      // ./src/utils/run-bundled-code.ts
       // ./src/app/page.tsx
-      //  ⚠ ./src/utils/get-email-component.tsx
+      //  ⚠ ./src/utils/run-bundled-code.ts
       // Critical dependency: the request of a dependency is an expression
     },
     process,
@@ -79,5 +84,9 @@ export const runBundledCode = (
     return err(exception);
   }
 
-  return ok(fakeContext.module.exports as unknown);
+  const moduleExports = fakeContext.module.exports as unknown;
+
+  return ok({
+    exports: moduleExports,
+  });
 };

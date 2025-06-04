@@ -1,11 +1,20 @@
 {
-  "name": "better-env",
-  "version": "0.0.0",
+  "name": "envin",
+  "version": "0.0.1",
+  "keywords": [
+    "turbostarter",
+    "environment variables",
+    "validation",
+    "zod",
+    "arktype",
+    "valibot"
+  ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/turbostarter/env",
+    "url": "git+https://github.com/turbostarter/envin.git",
     "directory": "packages/core"
   },
+  "license": "MIT",
   "author": "Bartosz Zagrodzki",
   "type": "module",
   "exports": {
@@ -19,6 +28,11 @@
       "types": "./dist/presets/*.d.ts",
       "require": "./dist/presets/*.js",
       "default": "./dist/presets/*.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "require": "./dist/types.js",
+      "default": "./dist/types.js"
     }
   },
   "files": [
@@ -36,8 +50,9 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "tsup": "8.3.0",
+    "tsup": "^8.5.0",
     "typescript": "5.8.3",
+    "valibot": "1.1.0",
     "zod": "3.24.1"
   },
   "peerDependencies": {

@@ -23,6 +23,7 @@ coverage
 
 # Build Outputs
 .next/
+.source/
 out/
 build
 dist
@@ -36,3 +37,5 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+**/.vscode
+**/.zed

@@ -1,23 +1,26 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.0.0-beta.4/schema.json",
-  "vcs": {
-    "enabled": true,
-    "clientKind": "git",
-    "useIgnoreFile": true
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
   },
   "formatter": {
     "enabled": true,
+    "indentWidth": 2,
     "indentStyle": "space"
   },
-  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
       "style": {
-        "noParameterAssign": "error",
+        "useImportType": "error",
+        "useExportType": "error",
+        "useLiteralEnumMembers": "error",
+        "useNodejsImportProtocol": "error",
         "useAsConstAssertion": "error",
-        "useDefaultParameterLast": "error",
         "useEnumInitializers": "error",
         "useSelfClosingElements": "error",
         "useConst": "error",
@@ -25,7 +28,21 @@
         "noUnusedTemplateLiteral": "error",
         "useNumberNamespace": "error",
         "noInferrableTypes": "error",
-        "noUselessElse": "error"
+        "useExponentiationOperator": "error",
+        "useTemplate": "error",
+        "noParameterAssign": "error",
+        "noNonNullAssertion": "error",
+        "useDefaultParameterLast": "error",
+        "noUselessElse": "error",
+        "useShorthandFunctionType": "error"
+      },
+      "a11y": {
+        "noSvgWithoutTitle": "off",
+        "useButtonType": "off",
+        "useAltText": "off"
+      },
+      "complexity": {
+        "noBannedTypes": "off"
       }
     }
   },
@@ -41,9 +58,9 @@
       }
     }
   ],
-  "javascript": {
-    "formatter": {
-      "quoteStyle": "double"
-    }
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
   }
 }

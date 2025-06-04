@@ -1,0 +1,14 @@
+{
+  "pages": [
+    "---Getting Started---",
+    "index",
+    "philosophy",
+    "cli",
+    "---Guides---",
+    "installation",
+    "recipes",
+    "live-preview",
+    "---Advanced---",
+    "customization"
+  ]
+}

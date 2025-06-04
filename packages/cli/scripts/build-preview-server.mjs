@@ -3,13 +3,13 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const nextBuildProcess = spawn("pnpm", ["next", "build"], {
+const nextBuildProcess = spawn("bun", ["next", "build"], {
   detached: true,
   shell: true,
   stdio: "inherit",
-  cwd: path.resolve(__dirname, "../"),
+  cwd: path.resolve(dirname, "../"),
 });
 
 process.on("SIGINT", () => {
@@ -22,7 +22,7 @@ nextBuildProcess.on("exit", (code) => {
     process.exit(code);
   }
 
-  const builtPreviewPath = path.resolve(__dirname, "../dist/preview");
+  const builtPreviewPath = path.resolve(dirname, "../dist/preview");
 
   if (fs.existsSync(builtPreviewPath)) {
     fs.rmSync(builtPreviewPath, { recursive: true });
