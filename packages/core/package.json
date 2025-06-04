@@ -1,11 +1,25 @@
 {
   "name": "envin",
-  "version": "0.0.0",
+  "version": "0.0.1",
+  "description": "Type-safe env validation with live previews",
+  "keywords": [
+    "turbostarter",
+    "environment variables",
+    "validation",
+    "zod",
+    "arktype",
+    "valibot"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/turbostarter/env",
     "directory": "packages/core"
   },
+  "homepage": "https://envin.turbostarter.dev",
+  "bugs": {
+    "url": "https://github.com/turbostarter/envin/issues"
+  },
+  "license": "MIT",
   "author": "Bartosz Zagrodzki",
   "type": "module",
   "exports": {

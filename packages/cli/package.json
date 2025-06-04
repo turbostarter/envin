@@ -1,17 +1,36 @@
 {
   "name": "@envin/cli",
-  "version": "0.0.0",
+  "version": "0.0.1",
+  "description": "Type-safe env validation with live previews",
+  "keywords": [
+    "turbostarter",
+    "environment variables",
+    "validation",
+    "zod",
+    "arktype",
+    "valibot"
+  ],
+  "homepage": "https://envin.turbostarter.dev",
+  "bugs": {
+    "url": "https://github.com/turbostarter/envin/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/turbostarter/envin.git",
+    "directory": "packages/cli"
+  },
+  "license": "MIT",
+  "author": "Bartosz Zagrodzki",
   "bin": {
     "cli": "./dist/cli/index.mjs"
   },
   "scripts": {
-    "start": "node dist/cli/index.mjs",
     "clean": "rm -rf dist .turbo node_modules .next",
     "dev": "tsup-node --watch",
     "dev:preview": "cd ../../apps/example && tsx ../../packages/cli/src/cli/index.ts dev",
-    "build": "tsup-node && bun run build:preview",
-    "build:preview": "node ./scripts/build-preview-server.mjs",
-    "typecheck": "tsc --noEmit"
+    "start": "node dist/cli/index.mjs",
+    "typecheck": "tsc --noEmit",
+    "prepack": "bun ../../scripts/replace-workspace-protocol.ts"
   },
   "dependencies": {
     "@babel/parser": "^7.27.0",
