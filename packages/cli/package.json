@@ -6,7 +6,7 @@
   },
   "scripts": {
     "start": "node dist/cli/index.mjs",
-    "clean": "rm -rf dist .turbo node_modules",
+    "clean": "rm -rf dist .turbo node_modules .next",
     "dev": "tsup-node --watch",
     "dev:preview": "cd ../../apps/example && tsx ../../packages/cli/src/cli/index.ts dev",
     "build": "tsup-node && bun run build:preview",

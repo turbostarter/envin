@@ -1,7 +1,7 @@
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
-import { GITHUB_URL } from "@/lib/source";
+import { GITHUB_URL } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 export default function HomePage() {

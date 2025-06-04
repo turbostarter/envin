@@ -1,6 +1,6 @@
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
 import { Shrub } from "lucide-react";
-import { GITHUB_URL } from "@/lib/source";
+import { GITHUB_URL } from "@/lib/constants";
 
 export const baseOptions: BaseLayoutProps = {
   nav: {
