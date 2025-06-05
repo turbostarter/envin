@@ -36,7 +36,7 @@ jobs:
         with:
           commit: "chore(release): 📦 version packages"
           title: "chore(release): 📦  version packages"
-          publish: bun run scripts/publish.ts
+          publish: bunx changeset publish
           version: bunx changeset version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

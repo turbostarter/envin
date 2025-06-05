@@ -3,11 +3,37 @@ title: Overview
 description: Your first document
 ---
 
-Welcome to the docs! You can start writing documents in `/content/docs`.
+## The Problem
 
-## What is Next?
+Forgetting environment variables during build can be a hassle and difficult to debug if a bug is caused by a missing environment variable.
 
-<Cards>
-  <Card title="Learn more about Next.js" href="https://nextjs.org/docs" />
-  <Card title="Learn more about Fumadocs" href="https://fumadocs.vercel.app" />
-</Cards>
+You probably already implemented some form of environment variables validation in your app. It could be a simple check against the schema, but when your application grows, the complexity of the configuration grows with it.
+
+This library aims to move that complexity into a library that abstracts the implementation details and lets the user focus on just the necessary parts. It also allows other framework and stacks to benefit from the same validation strategy - which we've polished over a number of iterations up until now.
+
+## Current drawbacks
+
+Validating envs are quite easy and can be done in a few lines of code. You can also infer the result from the validation onto your `process.env` object to benefit from autocompletion throughout your application as explained in [this video](https://www.youtube.com/watch?v=q1im-hMlKhM).
+
+```ts
+import { z } from "zod";
+
+const envVariables = z.object({
+  DATABASE_URL: z.string(),
+  CUSTOM_STUFF: z.string(),
+});
+
+envVariables.parse(process.env);
+
+declare global {
+  namespace NodeJS {
+    interface ProcessEnv extends z.infer<typeof envVariables> {}
+  }
+}
+```
+
+There are also a number of libraries that provide a more opinionated approach to environment variables validation like [t3-env](https://github.com/t3-oss/t3-env), but they all have some drawbacks that we're addressing here.
+
+## The Solution
+
+We packed

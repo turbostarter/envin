@@ -2,13 +2,14 @@
   "pages": [
     "---Getting Started---",
     "index",
+    "comparisons",
     "philosophy",
-    "cli",
     "---Guides---",
     "installation",
     "recipes",
     "live-preview",
     "---Advanced---",
-    "customization"
+    "customization",
+    "validators"
   ]
 }

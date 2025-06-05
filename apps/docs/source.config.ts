@@ -1,3 +1,4 @@
+import { remarkInstall } from "fumadocs-docgen";
 import {
   defineConfig,
   defineDocs,
@@ -15,5 +16,10 @@ export const docs = defineDocs({
 });
 
 export default defineConfig({
-  mdxOptions: {},
+  mdxOptions: {
+    remarkCodeTabOptions: {
+      parseMdx: true,
+    },
+    remarkPlugins: [remarkInstall],
+  },
 });

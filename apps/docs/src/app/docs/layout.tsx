@@ -5,7 +5,22 @@ import { source } from "@/lib/source";
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
-    <DocsLayout tree={source.pageTree} {...baseOptions}>
+    <DocsLayout
+      tree={source.pageTree}
+      {...baseOptions}
+      // links={[
+      //   {
+      //     type: "custom",
+      //     children: (
+      //       <GithubInfo
+      //         owner="fuma-nama"
+      //         repo="fumadocs"
+      //         className="lg:-mx-2"
+      //       />
+      //     ),
+      //   },
+      // ]}
+    >
       {children}
     </DocsLayout>
   );

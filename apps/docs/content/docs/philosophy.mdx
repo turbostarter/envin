@@ -1,9 +1,20 @@
 ---
 title: Philosophy
+description: Guiding principles for the development of envin.
 ---
 
-# Philosophy
+## Easy
 
-## The Problem
+A tool like this should be **easy to use**. It actually shouldn't be much more than installing it and defining one configuration file. Development workflows are already complex enough without adding unnecessary friction—envin should take minutes to setup, not hours.
 
-## The Solution
+## Fast
+
+It should be **fast**. It's a helpful hand that should be there when you need it, but not get in your way and slow you down in any way. Performance means respect for your time and workflow, with intelligent caching and compile-time optimizations that fade into the background.
+
+## Safe
+
+It should be **safe**, meaning that it should be able to catch errors at build time and not at runtime. Also, while consists a configuration for multiple runtimes (e.g. client and server), it mustn't leak any secrets to the client. Environment variable misconfigurations should never make it to production, and sensitive data must be automatically separated between server and client contexts.
+
+## Self-documenting
+
+It should be **self-documenting**, meaning that it should be able to generate documentation for the environment variables based on the configuration. Your environment variable schema becomes the foundation for comprehensive documentation, IDE integration with TypeScript types, and automatic generation of example files. Good documentation evolves with your code because it's generated from the same source of truth as your actual configuration.

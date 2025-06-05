@@ -120,7 +120,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground h-screen flex flex-col overflow-hidden;
+    @apply bg-background text-foreground flex flex-col;
     overscroll-behavior: none;
   }
 
