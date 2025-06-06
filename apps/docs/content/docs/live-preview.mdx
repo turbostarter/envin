@@ -1,5 +1,113 @@
 ---
 title: Live Preview
+description: Preview your environment variables in real-time using @envin/cli.
 ---
 
-# Live Preview
+Envin ships with a CLI tool that allows you to preview, validate, and edit your environment variables in real-time.
+
+![Live Preview](/images/docs/live-preview.png)
+
+The CLI reads your `envin` configuration file, processes all your environment files (`.env` etc.), and starts a local server that you can use to preview your environment variables in real-time.
+
+## Launch preview
+
+<Tabs items={["npm", "pnpm", "yarn", "bun"]}>
+  <Tab value="npm">
+
+```bash
+npx @envin/cli dev
+```
+
+</Tab>
+
+  <Tab value="pnpm">
+
+```bash
+pnpm dlx @envin/cli dev
+```
+
+</Tab>
+
+  <Tab value="yarn">
+
+```bash
+yarn dlx @envin/cli dev
+```
+
+</Tab>
+
+  <Tab value="bun">
+
+```bash
+bunx @envin/cli dev
+```
+
+</Tab>
+
+</Tabs>
+
+This will start a local server at [http://localhost:3000](http://localhost:3000). You can also specify a custom port using the `--port` flag.
+
+## Usage
+
+### Development mode
+
+In Development Mode, the environment variables used during development will be displayed. This is useful when you are developing your application and want to see the environment variables that are being used.
+
+This mode will use variables from the following files:
+
+1. `.env`
+2. `.env.development`
+3. `.env.local`
+
+### Production mode
+
+In Production Mode, the environment variables used during production will be displayed. This is useful when you are deploying your application and want to see the environment variables that will be used.
+
+This mode will use variables from the following files:
+
+1. `.env`
+2. `.env.production`
+3. `.env.local`
+4. `.env.production.local`
+
+### Generating variables
+
+The right-hand side of the preview displays the effective environment variables that will be used in production—the final values that will be used in your application based on where they are defined.
+
+The _Copy_ button copies the environment variables to your clipboard in a format ready to be pasted into your hosting provider's environment variables section. It merges variables from each environment file using the effective order of resolution.
+
+We recommend creating a new file at `.env.production.local` and pasting the copied variables into it so they will override variables in other files. Then, copy the result using the _Copy_ button again and paste it into your hosting provider's environment variables.
+
+### Debugging
+
+You can use filters to show only certain variables or search for a specific variable using the search bar.
+
+There are also different filter options for the variables:
+
+- `all` - Show all variables.
+- `invalid` - Show only variables that are invalid (with validation issues).
+- `valid` - Show only variables that are valid (without validation issues).
+
+Use these filters to narrow down the variables you want to debug.
+
+<Callout type="info">
+
+Most production environment variables should be set in your hosting provider for security reasons.
+
+To temporarily debug your production environment variables, you can follow these steps:
+
+1. Copy the variables from your hosting provider
+2. Create a file at `.env.production.local`. This file should be ignored by Git.
+3. Paste the copied variables into the `.env.production.local` file.
+4. Use `Production` as the mode in the preview.
+5. Analyze the data in the preview.
+
+**Note:** Delete the `.env.production.local` file when you're done or store it securely.
+
+</Callout>
+
+## What's next?
+
+We're going to significantly improve and extend Envin CLI in the coming months!
+Follow us on [Twitter](https://x.com/turbostarter_) and join our [Discord](https://discord.gg/KjpK2uk3JP) community 🤝

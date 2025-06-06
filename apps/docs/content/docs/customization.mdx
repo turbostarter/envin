@@ -1,5 +1,169 @@
 ---
 title: Customization
+description: Customize the behavior of validation with additional options.
 ---
 
-# Customization
+Below are examples of how you can customize the behavior of envin. The default values are shown in the snippets below.
+
+## Skipping validation
+
+<Callout type="warn">
+  Skipping validation is not encouraged and will lead to your types and runtime
+  values being out of sync. It is available to let you opt out of validation
+  during linting (or similar), or if you're building with
+  [Docker](https://www.docker.com/) and not all environment variables are
+  present when building the image.
+</Callout>
+
+```ts title="env.config.ts"
+import { defineEnv } from "envin";
+
+export default defineEnv({
+  // ... your schema
+  // Tell the library to skip validation if condition is true.
+  skip: process.env.SKIP_ENV_VALIDATION === "true",
+});
+```
+
+## Custom error handling
+
+You can customize how validation errors and invalid access attempts are handled:
+
+```ts title="env.config.ts"
+import { defineEnv } from "envin";
+
+export default defineEnv({
+  // ... your schema
+  // Called when the schema validation fails.
+  onError: issues => {
+    console.error("❌ Invalid environment variables:", issues);
+    process.exit(1);
+  },
+  // Called when server variables are accessed on the client.
+  onInvalidAccess: variable => {
+    throw new Error(
+      `❌ Attempted to access server variable "${variable}" on the client`
+    );
+  },
+});
+```
+
+## Server context detection
+
+Tell the library when we're in a server context. This is used to determine whether server-side environment variables should be accessible:
+
+```ts title="env.config.ts"
+import { defineEnv } from "envin";
+
+export default defineEnv({
+  // ... your schema
+  // Tell the library when we're in a server context.
+  isServer: typeof window === "undefined",
+});
+```
+
+## Extending presets
+
+Your env object may extend other presets by using the `extends` property. This can be used to include system environment variables for your deployment provider, or if you have a monorepo with multiple packages that share some environment variables.
+
+```ts title="env.config.ts"
+import { defineEnv } from "envin";
+import { vercel } from "envin/presets/zod";
+
+export default defineEnv({
+  // ... your schema
+  // Extend the Vercel preset.
+  extends: [vercel],
+});
+
+// env.VERCEL_URL; // string | undefined
+```
+
+Envin ships the following presets out of the box, all importable from the `/presets` entrypoint:
+
+- `vercel` - [Vercel](https://vercel.com) environment variables. [See full list](https://vercel.com/docs/projects/environment-variables/system-environment-variables).
+- `neonVercel` - [Neon](https://neon.tech) for Vercel environment variables. [See full list](https://neon.tech/docs/guides/vercel-native-integration#environment-variables-set-by-the-integration).
+- `uploadthing` - [UploadThing](https://uploadthing.com) environment variables. [See full list](https://docs.uploadthing.com/getting-started/appdir#add-env-variables).
+- `render` - [Render](https://render.com) environment variables. [See full list](https://render.com/docs/environment-variables).
+- `railway` - [Railway](https://railway.app) provided system environment variables. [See full list](https://docs.railway.app/reference/variables#railway-provided-variables).
+- `fly` - [Fly.io](https://fly.io) provided machine runtime environment variables. [See full list](https://fly.io/docs/machines/runtime-environment/).
+- `netlify` - [Netlify](https://netlify.com) provided system environment variables. [See full list](https://docs.netlify.com/configure-builds/environment-variables/#read-only-variables).
+- `upstashRedis` - [Upstash Redis](https://upstash.com) environment variables. [See full list](https://upstash.com/docs/redis/howto/connectwithupstashredis).
+- `coolify` - [Coolify](https://coolify.io) environment variables. [See full list](https://coolify.io/docs/knowledge-base/environment-variables#predefined-variables).
+
+> Feel free to open a PR with more presets!
+
+A preset is just like any other envin configuration object, so you can easily create your own:
+
+```ts title="packages/billing/env.config.ts"
+import { defineEnv } from "envin";
+import { z } from "zod";
+
+export const stripe = {
+  clientPrefix: "NEXT_PUBLIC_",
+  client: {
+    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().min(1),
+  },
+  server: {
+    STRIPE_SECRET_KEY: z.string().min(1),
+    STRIPE_WEBHOOK_SECRET: z.string().min(1),
+  },
+} as const;
+```
+
+```ts title="apps/web/env.config.ts"
+import { defineEnv } from "envin";
+import { stripe } from "@repo/billing/env.config";
+
+export default defineEnv({
+  // ... your schema
+  extends: [stripe],
+});
+```
+
+## Custom transformations and refinements
+
+You can use custom transformations to process environment variables or add complex validation logic:
+
+```ts title="env.config.ts"
+import { defineEnv } from "envin";
+import { z } from "zod";
+
+export default defineEnv({
+  server: {
+    // Transform string to number with default
+    PORT: z.string().transform(Number).default("3000"),
+    // Transform comma-separated string to array
+    FEATURE_FLAGS: z.string().transform(s => s.split(",")),
+    // Complex validation with refinement
+    DATABASE_URL: z
+      .string()
+      .url()
+      .refine(
+        url => url.startsWith("postgresql://"),
+        "Database URL must be a PostgreSQL connection string"
+      ),
+    // Conditional validation
+    SKIP_AUTH: z.boolean().optional(),
+    EMAIL: z.string().email().optional(),
+    PASSWORD: z.string().min(1).optional(),
+  },
+  env: process.env,
+  // Custom schema transformation for complex interdependent validation
+  transform: (shape, isServer) =>
+    z.object(shape).transform((env, ctx) => {
+      if (env.SKIP_AUTH || !isServer) return { SKIP_AUTH: true } as const;
+      if (!env.EMAIL || !env.PASSWORD) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "EMAIL and PASSWORD are required if SKIP_AUTH is false",
+        });
+        return z.NEVER;
+      }
+      return {
+        EMAIL: env.EMAIL,
+        PASSWORD: env.PASSWORD,
+      };
+    }),
+});
+```

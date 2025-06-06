@@ -1,5 +1,80 @@
 ---
 title: Recipes
+description: Learn how to parse different types of environment variables in different runtimes.
 ---
 
-# Recipes
+`envin` leverages the full power of [all supported schema validators](/docs/validators), allowing you to use transforms, default values, and other advanced features to create powerful and flexible validation schemas for your environment variables. Below are several example recipes for common use cases.
+
+<Callout type="info">
+  All environment variables are strings, so ensure that the first validator is
+  for strings (e.g. for `zod` is `z.string()`). This will be enforced at the
+  type level in the future.
+</Callout>
+
+## Booleans
+
+Coercing booleans from strings is a common use case. Below are two examples of how to accomplish this, though you can implement any coercion logic that suits your needs.
+
+<Callout type="warn">
+  Default primitive coercion should not be used for booleans, since every
+  non-empty string gets coerced to `true`.
+</Callout>
+
+```ts
+export default defineEnv({
+  server: {
+    COERCED_BOOLEAN: z
+      .string()
+      // Transform to boolean using preferred coercion logic
+      .transform(s => s !== "false" && s !== "0"),
+
+    ONLY_BOOLEAN: z
+      .string()
+      // Only allow "true" or "false"
+      .refine(s => s === "true" || s === "false")
+      // Transform to boolean
+      .transform(s => s === "true"),
+  },
+  // ...
+});
+```
+
+## Numbers
+
+Converting numbers from strings is another common use case that requires careful handling.
+
+```ts
+export default defineEnv({
+  server: {
+    SOME_NUMBER: z
+      .string()
+      // Transform to number
+      .transform(s => parseInt(s, 10))
+      // Ensure transform worked correctly
+      .pipe(z.number()),
+
+    // Alternatively, use Zod's built-in primitive coercion
+    // https://zod.dev/?id=coercion-for-primitives
+    ZOD_NUMBER_COERCION: z.coerce.number(),
+  },
+  // ...
+});
+```
+
+## Storybook
+
+[Storybook](https://storybook.js.org/) uses its own bundler that is unaware of envin and doesn't call `env` to validate environment variables. You can use Storybook's built-in support for environment variables to ensure all required variables are available in your Storybook environment:
+
+```ts title=".storybook/main.ts"
+import env from "~/env.config";
+
+const config: StorybookConfig = {
+  // Other Storybook configuration...
+  env: config => ({
+    ...config,
+    ...env,
+  }),
+};
+
+export default config;
+```

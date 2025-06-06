@@ -1,14 +1,23 @@
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
-import { GITHUB_URL } from "@/lib/constants";
+import { GITHUB_URL, TURBOSTARTER_URL, X_USERNAME } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-export default function HomePage() {
+export default function Home() {
+  return (
+    <div className="flex flex-col min-h-screen w-full">
+      <Hero />
+      <Footer />
+    </div>
+  );
+}
+
+const Hero = () => {
   return (
     <div className="flex flex-1 flex-col justify-center items-center text-center gap-6">
       <Link
-        href="/docs"
+        href="/docs/validators"
         target="_blank"
         className="inline-flex overflow-hidden w-fit items-center gap-2 rounded-full border bg-background py-1 pr-3 pl-1 text-foreground text-sm leading-6 shadow-xs"
         rel="noreferrer"
@@ -74,4 +83,31 @@ export default function HomePage() {
       </div>
     </div>
   );
-}
+};
+
+const Footer = () => {
+  return (
+    <footer className="py-4 md:py-6 text-center border-t border-dotted">
+      <p className="text-muted-foreground text-sm">
+        Made with ❤️ and{" "}
+        <a
+          href={TURBOSTARTER_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="text-primary underline"
+        >
+          TurboStarter
+        </a>{" "}
+        by{" "}
+        <a
+          href={`https://x.com/${X_USERNAME}`}
+          target="_blank"
+          rel="noreferrer"
+          className="text-primary underline"
+        >
+          @{X_USERNAME}
+        </a>
+      </p>
+    </footer>
+  );
+};

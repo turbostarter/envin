@@ -24,8 +24,12 @@ export default async function Page(props: {
       full={page.data.full}
       tableOfContent={{ style: "clerk" }}
     >
-      <DocsTitle>{page.data.title}</DocsTitle>
-      <DocsDescription>{page.data.description}</DocsDescription>
+      <div className="flex flex-col gap-2">
+        <DocsTitle>{page.data.title}</DocsTitle>
+        <DocsDescription className="mb-4">
+          {page.data.description}
+        </DocsDescription>
+      </div>
       <DocsBody>
         <MDXContent
           components={getMDXComponents({
