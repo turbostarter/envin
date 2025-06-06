@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 export default function HomePage() {
   return (
-    <main className="flex flex-1 flex-col justify-center items-center text-center gap-6 px-4 sm:px-16">
+    <div className="flex flex-1 flex-col justify-center items-center text-center gap-6">
       <Link
         href="/docs"
         target="_blank"
@@ -72,6 +72,6 @@ export default function HomePage() {
           Documentation
         </Link>
       </div>
-    </main>
+    </div>
   );
 }

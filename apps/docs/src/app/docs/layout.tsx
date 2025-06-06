@@ -1,25 +1,18 @@
 import { DocsLayout } from "fumadocs-ui/layouts/notebook";
 import type { ReactNode } from "react";
-import { baseOptions } from "@/app/layout.config";
+import { baseOptions } from "@/lib/layout.config";
 import { source } from "@/lib/source";
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
     <DocsLayout
-      tree={source.pageTree}
       {...baseOptions}
-      // links={[
-      //   {
-      //     type: "custom",
-      //     children: (
-      //       <GithubInfo
-      //         owner="fuma-nama"
-      //         repo="fumadocs"
-      //         className="lg:-mx-2"
-      //       />
-      //     ),
-      //   },
-      // ]}
+      tree={source.pageTree}
+      sidebar={{ collapsible: false, tabs: false }}
+      nav={{
+        ...baseOptions.nav,
+        mode: "top",
+      }}
     >
       {children}
     </DocsLayout>
