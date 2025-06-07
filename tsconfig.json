@@ -18,6 +18,6 @@
     "incremental": true,
     "tsBuildInfoFile": "${configDir}/.cache/tsbuildinfo.json"
   },
-  "include": ["**/*.ts"],
+  "include": ["**/*.ts", "apps/example/env"],
   "exclude": ["node_modules", "packages"]
 }

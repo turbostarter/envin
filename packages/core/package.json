@@ -1,6 +1,7 @@
 {
   "name": "envin",
   "version": "0.0.1",
+  "description": "Type-safe env validation with live previews",
   "keywords": [
     "turbostarter",
     "environment variables",
@@ -14,6 +15,10 @@
     "url": "git+https://github.com/turbostarter/envin.git",
     "directory": "packages/core"
   },
+  "homepage": "https://envin.turbostarter.dev",
+  "bugs": {
+    "url": "https://github.com/turbostarter/envin/issues"
+  },
   "license": "MIT",
   "author": "Bartosz Zagrodzki",
   "type": "module",
@@ -21,17 +26,14 @@
     "./package.json": "./package.json",
     ".": {
       "types": "./dist/index.d.ts",
-      "require": "./dist/index.js",
       "default": "./dist/index.js"
     },
     "./presets/*": {
       "types": "./dist/presets/*.d.ts",
-      "require": "./dist/presets/*.js",
       "default": "./dist/presets/*.js"
     },
     "./types": {
       "types": "./dist/types.d.ts",
-      "require": "./dist/types.js",
       "default": "./dist/types.js"
     }
   },
@@ -47,13 +49,14 @@
     "dev": "tsup --watch",
     "start": "node dist/index.js",
     "test": "bun test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepack": "bun run ../../scripts/populate-readme.ts"
   },
   "devDependencies": {
     "tsup": "^8.5.0",
     "typescript": "5.8.3",
     "valibot": "1.1.0",
-    "zod": "3.24.1"
+    "zod": "3.25.56"
   },
   "peerDependencies": {
     "arktype": "^2.1.0",

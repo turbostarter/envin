@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "fumadocs-ui/css/shadcn.css";
 @import "fumadocs-ui/css/preset.css";
+@import "fumadocs-twoslash/twoslash.css";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
@@ -120,11 +121,49 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground h-screen flex flex-col overflow-hidden;
+    @apply bg-background text-foreground flex flex-col;
     overscroll-behavior: none;
   }
 
   &::selection {
     @apply bg-primary text-primary-foreground;
   }
+}
+
+h1,
+h2,
+h3 {
+  @apply tracking-tight;
+}
+
+[data-theme-toggle] svg {
+  @apply fill-none;
+}
+
+#nd-subnav [data-active="true"] {
+  @apply font-medium text-primary;
+}
+
+#nd-subnav > div {
+  @apply container border-x border-dotted;
+}
+
+#nd-docs-layout {
+  @apply container mx-auto p-0 border-x border-dotted;
+}
+
+#nd-sidebar > div {
+  @apply border-dotted;
+}
+
+#nd-tocnav {
+  @apply translate-y-px border-dotted;
+}
+
+#nd-sidebar [data-hide-if-empty] {
+  @apply hidden;
+}
+
+#nd-subnav button[data-search] + button {
+  @apply hidden!;
 }

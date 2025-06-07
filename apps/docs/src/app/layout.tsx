@@ -1,18 +1,11 @@
+import { fonts } from "@/lib/fonts";
 import "./global.css";
+import { Analytics } from "@vercel/analytics/react";
 import { RootProvider } from "fumadocs-ui/provider";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import type { ReactNode } from "react";
-
-const geistSans = Geist({
-  variable: "--font-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-mono",
-  subsets: ["latin"],
-});
+import { cn } from "@/lib/utils";
+import { ThemeProvider } from "@/providers/theme";
 
 export const metadata: Metadata = {
   title: {
@@ -25,13 +18,12 @@ export const metadata: Metadata = {
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} font-sans`}
-      suppressHydrationWarning
-    >
-      <body className="flex flex-col min-h-screen">
-        <RootProvider>{children}</RootProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body className={cn("flex min-h-screen flex-col", fonts)}>
+        <ThemeProvider>
+          <RootProvider>{children}</RootProvider>
+          <Analytics />
+        </ThemeProvider>
       </body>
     </html>
   );

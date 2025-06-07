@@ -1,13 +1,85 @@
 ---
 title: Overview
-description: Your first document
+description: Framework-agnostic, type-safe tool to validate and preview your environment variables - powered by your favorite schema validator.
 ---
 
-Welcome to the docs! You can start writing documents in `/content/docs`.
+Environment variables are essential but tricky to manage safely. Missing or invalid variables can cause hard-to-debug runtime errors.
 
-## What is Next?
+This package provides type-safe validation with minimal setup. Define your schema once and access your environment variables with full TypeScript support.
+
+It also includes an **interactive CLI** with realtime previews for easy environment configuration validation during development.
+
+## Reasoning
+
+Most applications require some form of environment variable validation, but implementing this correctly becomes increasingly complex as your project grows. You might start with simple existence checks, but soon find yourself writing custom validation logic, handling type conversions, and managing different environments.
+
+Rather than reinventing this wheel in every project, this library provides a battle-tested solution that handles all the common challenges. It abstracts away the implementation details while giving you powerful customization options when needed.
+
+The design is framework-agnostic, meaning whether you're using Next.js, Vite, or any other JavaScript framework, you get the same robust validation strategy that has been refined through countless real-world applications.
+
+## Core
+
+The core package provides type-safe environment variable validation for any JavaScript framework. Define your schema once using any [Standard Schema validator](/docs/validators) and get full TypeScript support throughout your application.
+
+```ts twoslash title="env.config.ts"
+import { defineEnv } from "envin";
+import { z } from "zod";
+
+const env = defineEnv({
+  shared: {
+    NODE_ENV: z.enum(["development", "production"]),
+  },
+  server: {
+    DATABASE_URL: z.string().url(),
+  },
+  client: {
+    NEXT_PUBLIC_API_URL: z.string().url(),
+    NEXT_PUBLIC_APP_URL: z.string().url(),
+  },
+  clientPrefix: "NEXT_PUBLIC_",
+});
+
+env.DATABASE_URL;
+//    ^?
+```
+
+Key features include client/server variable separation, extendable presets for popular platforms, and comprehensive error handling. Works seamlessly with Next.js, Vite, Astro, and any other framework.
 
 <Cards>
-  <Card title="Learn more about Next.js" href="https://nextjs.org/docs" />
-  <Card title="Learn more about Fumadocs" href="https://fumadocs.vercel.app" />
+
+<Card title="Installation" href="/docs/installation" description="Install the core package and your favorite schema validator." />
+<Card title="Usage" href="/docs/recipes" description="Learn how to use the core package to validate your environment variables." />
+<Card title="Customization" href="/docs/customization" description="Learn how to customize the core package to your needs." />
 </Cards>
+
+<Callout type="info">
+
+Your server-side environment variables are strictly protected from client-side access. If you try to access a server variable on the client, you'll receive a clear error message to help identify and fix the issue.
+
+```ts title="client.tsx"
+"use client";
+
+import env from "../../env.config";
+
+export const Client = () => {
+  return <div>{env.DATABASE_URL}</div>;
+};
+```
+
+![Invalid access](/images/docs/invalid-access.png)
+
+</Callout>
+
+## CLI
+
+The interactive CLI provides a real-time preview of your environment variables during development. It processes your `.env` files, validates them against your schema, and displays the results in a beautiful web interface.
+
+![Live Preview](/images/docs/live-preview.png)
+
+Perfect for debugging configuration issues, onboarding new team members, and ensuring your production environment is properly configured before deployment.
+
+<Card
+  title="Live Preview"
+  href="/docs/live-preview"
+  description="Learn how to use the CLI to preview your environment variables."
+/>
