@@ -1,11 +1,281 @@
 ---
 title: Installation
+description: Install the core package and get started with envin.
 ---
 
-# Installation
+The core package can be used in any framework of your choice. To use it, figure out what prefix your framework uses for exposing environment variables to the client. For example, [Astro](https://astro.build) uses `PUBLIC_*`, while [Vite](https://vite.dev) uses `VITE_*`. You should be able to find this in the framework's documentation.
 
-## Prerequisites
+<Steps>
 
-- Node.js 18+
-- npm 9+
-- pnpm 9+
+<Step>
+
+## Install dependencies
+
+First, install the core package:
+
+```package-install
+envin
+```
+
+Then install a schema validator. `envin` supports any validator that implements the [Standard Schema](/docs/validators) specification:
+
+```package-install
+zod
+```
+
+<Callout type="info">
+  Although we'll use Zod as examples throughout these docs, you can use any
+  validator that supports [Standard Schema](/docs/validators), including
+  Valibot, ArkType, and others.
+</Callout>
+
+<Callout type="info">`envin` requires a minimum of `typescript@5.0.0`.</Callout>
+
+<Callout type="info">
+  `envin` is an ESM only package. Make sure that your tsconfig uses a module
+  resolution that can read `package.json#exports` (`Bundler` is recommended).
+</Callout>
+
+</Step>
+
+<Step>
+
+## Create your schema
+
+Create an environment configuration file (we recommend `env.config.ts`, but you can name it whatever you want):
+
+<Callout type="info">
+  Some frameworks generate an `env.d.ts` file that will collide with `env.ts`,
+  which means you may need to name it something else like `env.config.ts`.
+</Callout>
+
+```ts twoslash title="env.config.ts"
+import { defineEnv } from "envin";
+import { z } from "zod";
+
+const env = defineEnv({
+  //    ^?
+  /**
+   * Specify environment variables that can be accessed on both client and server.
+   * You'll get a type error if you try to access a server-side env var on the client.
+   */
+  shared: {
+    NODE_ENV: z
+      .enum(["development", "production", "test"])
+      .default("development"),
+  },
+
+  /**
+   * Specify your server-side environment variables schema here.
+   * This way you can ensure the app isn't built with invalid env vars.
+   */
+  server: {
+    DATABASE_URL: z.string().url(),
+    OPENAI_API_KEY: z.string().min(1),
+    JWT_SECRET: z.string().min(32),
+  },
+
+  /**
+   * The prefix that client-side variables must have. This is enforced both at
+   * a type-level and at runtime.
+   */
+  clientPrefix: "NEXT_PUBLIC_",
+
+  /**
+   * Specify your client-side environment variables schema here.
+   * For them to be exposed to the client, prefix them with your framework's public prefix.
+   */
+  client: {
+    NEXT_PUBLIC_PUBLISHABLE_KEY: z.string().min(1),
+  },
+
+  /**
+   * What object holds the environment variables at runtime.
+   * This is usually `process.env` or `import.meta.env`.
+   */
+  env: process.env,
+});
+
+export default env;
+```
+
+If you only need server-side variables, you can omit the `client` and `clientPrefix` properties:
+
+```ts twoslash title="env.config.ts"
+import { defineEnv } from "envin";
+import { z } from "zod";
+
+export default defineEnv({
+  server: {
+    DATABASE_URL: z.string().url(),
+    OPENAI_API_KEY: z.string().min(1),
+  },
+  shared: {
+    NODE_ENV: z.enum(["development", "production", "test"]),
+  },
+  env: process.env,
+});
+```
+
+<Callout type="warn">
+  While defining both client and server schemas in a single file provides the
+  best developer experience, it also means that your validation schemas for the
+  server variables will be shipped to the client. If you consider the **names**
+  of your variables sensitive, you should split your schemas into separate
+  files.
+
+```ts twoslash title="env/server.ts"
+import { defineEnv } from "envin";
+import { z } from "zod";
+
+export const env = defineEnv({
+  server: {
+    DATABASE_URL: z.string().url(),
+    OPENAI_API_KEY: z.string().min(1),
+  },
+  env: process.env,
+});
+```
+
+```ts twoslash title="env/client.ts"
+import { defineEnv } from "envin";
+import { z } from "zod";
+
+export const env = defineEnv({
+  clientPrefix: "NEXT_PUBLIC_",
+  client: {
+    NEXT_PUBLIC_PUBLISHABLE_KEY: z.string().min(1),
+  },
+  env: process.env,
+});
+```
+
+</Callout>
+
+For all available options, see [Customization](/docs/customization).
+
+You'll notice that if your clientPrefix is `PUBLIC_`, you won't be allowed to enter any other keys in the client object without getting type-errors. Below you can see we get a descriptive error when we set `VITE_PUBLIC_API_URL` instead of `PUBLIC_API_URL`:
+
+```ts twoslash title="env.config.ts"
+// @errors: 2322
+import { defineEnv } from "envin";
+import { z } from "zod";
+
+export default defineEnv({
+  clientPrefix: "PUBLIC_",
+  client: {
+    VITE_PUBLIC_API_URL: z.string().url(),
+  },
+  env: process.env,
+});
+```
+
+</Step>
+
+<Step>
+
+## Validate on build (recommended)
+
+The steps required to validate your schema on build will vary from framework to framework, but you'll usually be able to import the env file in your configuration file, or in any file that's pulled in at the beginning of the build process.
+
+For Next.js, you can import your env config in `next.config.ts`:
+
+```ts twoslash title="next.config.ts"
+import type { NextConfig } from "next";
+import "./env.config";
+
+const nextConfig: NextConfig = {
+  // Your Next.js config
+};
+
+export default nextConfig;
+```
+
+<Callout type="info">
+  Note that some frameworks don't import their environment variables in their
+  configuration file, so you may need to import your env config in a different
+  location.
+</Callout>
+
+</Step>
+
+<Step>
+
+## Use your environment variables
+
+Import the env object in your application and use it with full type-safety and auto-completion:
+
+```ts title="app/api/auth/route.ts"
+import env from "~/env.config";
+
+export async function POST() {
+  // ✅ Fully typed and validated
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    headers: {
+      Authorization: `Bearer ${env.OPENAI_API_KEY}`, // string
+    },
+  });
+
+  // ✅ Access shared variables anywhere
+  if (env.NODE_ENV === "development") {
+    console.log("Development mode");
+  }
+
+  return Response.json({ success: true });
+}
+```
+
+```tsx title="components/ClientComponent.tsx"
+"use client";
+
+import env from "~/env.config";
+
+export function ClientComponent() {
+  // ✅ Works on client
+  const publishableKey = env.NEXT_PUBLIC_PUBLISHABLE_KEY;
+
+  // ❌ This will throw a runtime error on the client
+  // const apiKey = env.OPENAI_API_KEY;
+
+  return <div>Client component</div>;
+}
+```
+
+</Step>
+
+</Steps>
+
+## Strict runtime - `envStrict`
+
+<Callout type="info">
+  Exactly one of `envStrict` or `env` must be provided.
+</Callout>
+
+If your framework doesn't bundle all environment variables by default, but instead only bundles the ones you use, you can use the `envStrict` option to ensure you don't forget to add any variables to your runtime:
+
+```ts twoslash title="env.config.ts"
+// @errors: 2741
+import { defineEnv } from "envin";
+import { z } from "zod";
+
+export default defineEnv({
+  server: {
+    DATABASE_URL: z.string().url(),
+    OPENAI_API_KEY: z.string().min(1),
+  },
+  client: {
+    NEXT_PUBLIC_PUBLISHABLE_KEY: z.string().min(1),
+  },
+  clientPrefix: "NEXT_PUBLIC_",
+  /**
+   * Makes sure you explicitly access **all** environment variables
+   * from `server` and `client` in your `envStrict`.
+   */
+  envStrict: {
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+    NEXT_PUBLIC_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_PUBLISHABLE_KEY,
+  },
+});
+```
+
+When using the strict option, missing any of the variables in `envStrict` will result in a type error.
