@@ -34,7 +34,7 @@ jobs:
 
       - name: Create Release
         id: changeset
-        uses: changesets/action@v1.4.1
+        uses: changesets/action@v1.5.3
         with:
           commit: "chore(release): 📦 version packages"
           title: "chore(release): 📦  version packages"
