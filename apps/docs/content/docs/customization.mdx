@@ -15,7 +15,7 @@ Below are examples of how you can customize the behavior of envin. The default v
   present when building the image.
 </Callout>
 
-```ts title="env.config.ts"
+```ts twoslash title="env.config.ts"
 import { defineEnv } from "envin";
 
 export default defineEnv({
@@ -29,7 +29,7 @@ export default defineEnv({
 
 You can customize how validation errors and invalid access attempts are handled:
 
-```ts title="env.config.ts"
+```ts twoslash title="env.config.ts"
 import { defineEnv } from "envin";
 
 export default defineEnv({
@@ -52,7 +52,7 @@ export default defineEnv({
 
 Tell the library when we're in a server context. This is used to determine whether server-side environment variables should be accessible:
 
-```ts title="env.config.ts"
+```ts twoslash title="env.config.ts"
 import { defineEnv } from "envin";
 
 export default defineEnv({
@@ -66,20 +66,21 @@ export default defineEnv({
 
 Your env object may extend other presets by using the `extends` property. This can be used to include system environment variables for your deployment provider, or if you have a monorepo with multiple packages that share some environment variables.
 
-```ts title="env.config.ts"
+```ts twoslash title="env.config.ts"
 import { defineEnv } from "envin";
 import { vercel } from "envin/presets/zod";
 
-export default defineEnv({
+export const env = defineEnv({
   // ... your schema
   // Extend the Vercel preset.
   extends: [vercel],
 });
 
-// env.VERCEL_URL; // string | undefined
+env.VERCEL_URL;
+//    ^?
 ```
 
-Envin ships the following presets out of the box, all importable from the `/presets` entrypoint:
+`envin` ships the following presets out of the box, all importable from the `/presets` entrypoint:
 
 - `vercel` - [Vercel](https://vercel.com) environment variables. [See full list](https://vercel.com/docs/projects/environment-variables/system-environment-variables).
 - `neonVercel` - [Neon](https://neon.tech) for Vercel environment variables. [See full list](https://neon.tech/docs/guides/vercel-native-integration#environment-variables-set-by-the-integration).
@@ -95,11 +96,11 @@ Envin ships the following presets out of the box, all importable from the `/pres
 
 A preset is just like any other envin configuration object, so you can easily create your own:
 
-```ts title="packages/billing/env.config.ts"
+```ts twoslash title="env.config.ts"
 import { defineEnv } from "envin";
 import { z } from "zod";
 
-export const stripe = {
+const stripe = {
   clientPrefix: "NEXT_PUBLIC_",
   client: {
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().min(1),
@@ -109,27 +110,25 @@ export const stripe = {
     STRIPE_WEBHOOK_SECRET: z.string().min(1),
   },
 } as const;
-```
 
-```ts title="apps/web/env.config.ts"
-import { defineEnv } from "envin";
-import { stripe } from "@repo/billing/env.config";
-
-export default defineEnv({
+const env = defineEnv({
   // ... your schema
   extends: [stripe],
 });
+
+env.STRIPE_SECRET_KEY;
+//    ^?
 ```
 
 ## Custom transformations and refinements
 
 You can use custom transformations to process environment variables or add complex validation logic:
 
-```ts title="env.config.ts"
+```ts twoslash title="env.config.ts"
 import { defineEnv } from "envin";
 import { z } from "zod";
 
-export default defineEnv({
+const env = defineEnv({
   server: {
     // Transform string to number with default
     PORT: z.string().transform(Number).default("3000"),
@@ -166,4 +165,7 @@ export default defineEnv({
       };
     }),
 });
+
+env.SKIP_AUTH;
+//    ^?
 ```

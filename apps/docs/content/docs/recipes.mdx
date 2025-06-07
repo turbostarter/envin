@@ -20,8 +20,12 @@ Coercing booleans from strings is a common use case. Below are two examples of h
   non-empty string gets coerced to `true`.
 </Callout>
 
-```ts
-export default defineEnv({
+```ts twoslash title="env.config.ts"
+import { defineEnv } from "envin";
+import { z } from "zod";
+
+const env = defineEnv({
+  //    ^?
   server: {
     COERCED_BOOLEAN: z
       .string()
@@ -43,8 +47,12 @@ export default defineEnv({
 
 Converting numbers from strings is another common use case that requires careful handling.
 
-```ts
-export default defineEnv({
+```ts twoslash title="env.config.ts"
+import { defineEnv } from "envin";
+import { z } from "zod";
+
+const env = defineEnv({
+  //    ^?
   server: {
     SOME_NUMBER: z
       .string()

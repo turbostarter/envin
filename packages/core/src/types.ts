@@ -9,7 +9,7 @@ type Impossible<T extends Record<string, any>> = Partial<
 
 type Merge<A, B> = Omit<A, keyof B> & B;
 
-type Simplify<T> = {
+export type Simplify<T> = {
   [P in keyof T]: T[P];
 } & {};
 
@@ -281,8 +281,10 @@ export type FinalSchema<
   >
 >;
 
-export type DefineEnv<TFinalSchema extends TSchema = TSchema> = Readonly<
-  Simplify<StandardSchemaV1.InferOutput<TFinalSchema>>
-> & {
-  _schema: TFinalSchema;
-};
+export type DefineEnv<TFinalSchema extends TSchema = TSchema> = Simplify<
+  Readonly<
+    StandardSchemaV1.InferOutput<TFinalSchema> & {
+      _schema: TFinalSchema;
+    }
+  >
+>;

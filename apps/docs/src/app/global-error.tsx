@@ -17,7 +17,7 @@ const GlobalError = ({ error, reset }: GlobalErrorProperties) => {
 
   return (
     <html lang="en" className={fonts}>
-      <body>
+      <body className="flex h-screen flex-col items-center justify-center gap-4">
         <h1>Oops, something went wrong</h1>
         <Button onClick={() => reset()}>Try again</Button>
       </body>

@@ -17,7 +17,7 @@ First, install the core package:
 envin
 ```
 
-Then install a schema validator. Envin supports any validator that implements the [Standard Schema](/docs/validators) specification:
+Then install a schema validator. `envin` supports any validator that implements the [Standard Schema](/docs/validators) specification:
 
 ```package-install
 zod
@@ -33,7 +33,7 @@ zod
 
 <Callout type="info">
   `envin` is an ESM only package. Make sure that your tsconfig uses a module
-  resolution that can read package.json#exports (Bundler is recommended).
+  resolution that can read `package.json#exports` (`Bundler` is recommended).
 </Callout>
 
 </Step>
@@ -49,11 +49,12 @@ Create an environment configuration file (we recommend `env.config.ts`, but you 
   which means you may need to name it something else like `env.config.ts`.
 </Callout>
 
-```ts title="env.config.ts"
+```ts twoslash title="env.config.ts"
 import { defineEnv } from "envin";
 import { z } from "zod";
 
-export default defineEnv({
+const env = defineEnv({
+  //    ^?
   /**
    * Specify environment variables that can be accessed on both client and server.
    * You'll get a type error if you try to access a server-side env var on the client.
@@ -94,11 +95,13 @@ export default defineEnv({
    */
   env: process.env,
 });
+
+export default env;
 ```
 
 If you only need server-side variables, you can omit the `client` and `clientPrefix` properties:
 
-```ts title="env.config.ts"
+```ts twoslash title="env.config.ts"
 import { defineEnv } from "envin";
 import { z } from "zod";
 
@@ -121,7 +124,7 @@ export default defineEnv({
   of your variables sensitive, you should split your schemas into separate
   files.
 
-```ts title="env/server.ts"
+```ts twoslash title="env/server.ts"
 import { defineEnv } from "envin";
 import { z } from "zod";
 
@@ -134,7 +137,7 @@ export const env = defineEnv({
 });
 ```
 
-```ts title="env/client.ts"
+```ts twoslash title="env/client.ts"
 import { defineEnv } from "envin";
 import { z } from "zod";
 
@@ -153,6 +156,20 @@ For all available options, see [Customization](/docs/customization).
 
 You'll notice that if your clientPrefix is `PUBLIC_`, you won't be allowed to enter any other keys in the client object without getting type-errors. Below you can see we get a descriptive error when we set `VITE_PUBLIC_API_URL` instead of `PUBLIC_API_URL`:
 
+```ts twoslash title="env.config.ts"
+// @errors: 2322
+import { defineEnv } from "envin";
+import { z } from "zod";
+
+export default defineEnv({
+  clientPrefix: "PUBLIC_",
+  client: {
+    VITE_PUBLIC_API_URL: z.string().url(),
+  },
+  env: process.env,
+});
+```
+
 </Step>
 
 <Step>
@@ -163,11 +180,11 @@ The steps required to validate your schema on build will vary from framework to 
 
 For Next.js, you can import your env config in `next.config.ts`:
 
-```js title="next.config.ts"
+```ts twoslash title="next.config.ts"
+import type { NextConfig } from "next";
 import "./env.config";
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig: NextConfig = {
   // Your Next.js config
 };
 
@@ -210,6 +227,7 @@ export async function POST() {
 
 ```tsx title="components/ClientComponent.tsx"
 "use client";
+
 import env from "~/env.config";
 
 export function ClientComponent() {
@@ -235,7 +253,8 @@ export function ClientComponent() {
 
 If your framework doesn't bundle all environment variables by default, but instead only bundles the ones you use, you can use the `envStrict` option to ensure you don't forget to add any variables to your runtime:
 
-```ts title="env.config.ts"
+```ts twoslash title="env.config.ts"
+// @errors: 2741
 import { defineEnv } from "envin";
 import { z } from "zod";
 
@@ -253,7 +272,6 @@ export default defineEnv({
    * from `server` and `client` in your `envStrict`.
    */
   envStrict: {
-    DATABASE_URL: process.env.DATABASE_URL,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     NEXT_PUBLIC_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_PUBLISHABLE_KEY,
   },

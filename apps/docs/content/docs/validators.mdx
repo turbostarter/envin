@@ -1,3 +1,180 @@
 ---
 title: Schema validators
+description: envin supports any schema validator that implements the Standard Schema specification.
 ---
+
+`envin` supports any schema validator that implements the [Standard Schema](https://standardschema.dev/) specification. This means you can use your preferred validation library without being locked into a specific one.
+
+## What is Standard Schema?
+
+Standard Schema is a common interface designed to be implemented by JavaScript and TypeScript schema libraries. It allows ecosystem tools like `envin` to accept user-defined type validators without needing custom logic or adapters for each supported library.
+
+The specification consists of a single TypeScript interface `StandardSchemaV1` that validation libraries can implement. This provides:
+
+- **Runtime validation** - Validate data and get standardized error messages
+- **Static type inference** - Extract TypeScript types from schemas
+- **Library interoperability** - Switch between validation libraries without changing your code
+- **Zero runtime dependencies** - The spec is types-only
+
+## Examples
+
+`envin` works with any library that implements Standard Schema. Here are the most popular options:
+
+### Zod
+
+[Zod](https://zod.dev) is a TypeScript-first schema validation library with static type inference.
+
+```ts title="env.config.ts"
+import { defineEnv } from "envin";
+import { z } from "zod";
+
+export default defineEnv({
+  server: {
+    DATABASE_URL: z.string().url(),
+    PORT: z.coerce.number().default(3000),
+    API_KEY: z.string().min(1),
+  },
+  shared: {
+    NODE_ENV: z.enum(["development", "production", "test"]),
+  },
+  client: {
+    NEXT_PUBLIC_APP_URL: z.string().url(),
+  },
+  clientPrefix: "NEXT_PUBLIC_",
+  env: process.env,
+});
+```
+
+### Valibot
+
+[Valibot](https://valibot.dev/) is a modular and type-safe schema library with bundle size optimization.
+
+```ts title="env.config.ts"
+import { defineEnv } from "envin";
+import * as v from "valibot";
+
+export default defineEnv({
+  server: {
+    DATABASE_URL: v.pipe(v.string(), v.url()),
+    PORT: v.pipe(v.string(), v.transform(Number), v.number()),
+    API_KEY: v.pipe(v.string(), v.minLength(1)),
+  },
+  shared: {
+    NODE_ENV: v.picklist(["development", "production", "test"]),
+  },
+  client: {
+    NEXT_PUBLIC_APP_URL: v.pipe(v.string(), v.url()),
+  },
+  clientPrefix: "NEXT_PUBLIC_",
+  env: process.env,
+});
+```
+
+### ArkType
+
+[ArkType](https://arktype.io/) provides TypeScript syntax at runtime with excellent performance.
+
+```ts title="env.config.ts"
+import { defineEnv } from "envin";
+import { type } from "arktype";
+
+export default defineEnv({
+  server: {
+    DATABASE_URL: type("string"),
+    PORT: type("string").pipe(s => +s),
+    API_KEY: type("string>0"),
+  },
+  shared: {
+    NODE_ENV: type("'development'|'production'|'test'"),
+  },
+  client: {
+    NEXT_PUBLIC_APP_URL: type("string"),
+  },
+  clientPrefix: "NEXT_PUBLIC_",
+  env: process.env,
+});
+```
+
+### Effect Schema
+
+[Effect Schema](https://effect.website/docs/schema/introduction/) is part of the Effect ecosystem with advanced composition capabilities.
+
+```ts title="env.config.ts"
+import { defineEnv } from "envin";
+import { Schema as S } from "@effect/schema";
+
+export default defineEnv({
+  server: {
+    DATABASE_URL: S.String.pipe(
+      S.filter(s => {
+        try {
+          new URL(s);
+          return true;
+        } catch {
+          return false;
+        }
+      })
+    ),
+    PORT: S.NumberFromString,
+    API_KEY: S.String.pipe(S.minLength(1)),
+  },
+  shared: {
+    NODE_ENV: S.Literal("development", "production", "test"),
+  },
+  client: {
+    NEXT_PUBLIC_APP_URL: S.String.pipe(
+      S.filter(s => {
+        try {
+          new URL(s);
+          return true;
+        } catch {
+          return false;
+        }
+      })
+    ),
+  },
+  clientPrefix: "NEXT_PUBLIC_",
+  env: process.env,
+});
+```
+
+## Mixing libraries
+
+Since all Standard Schema-compliant libraries use the same interface, you can even mix different validation libraries in the same configuration:
+
+```ts title="env.config.ts"
+import { defineEnv } from "envin";
+import { z } from "zod";
+import * as v from "valibot";
+import { type } from "arktype";
+
+export default defineEnv({
+  server: {
+    // Using Zod
+    DATABASE_URL: z.string().url(),
+    // Using Valibot
+    PORT: v.pipe(v.string(), v.transform(Number)),
+    // Using ArkType
+    API_KEY: type("string>0"),
+  },
+  shared: {
+    NODE_ENV: z.enum(["development", "production", "test"]),
+  },
+  client: {
+    NEXT_PUBLIC_APP_URL: v.pipe(v.string(), v.url()),
+  },
+  clientPrefix: "NEXT_PUBLIC_",
+  env: process.env,
+});
+```
+
+## Why it's important?
+
+Standard Schema enables:
+
+- **Ecosystem compatibility** - Tools can support multiple validation libraries without custom integrations
+- **Developer choice** - Pick the validation library that best fits your needs
+- **Future-proofing** - Switch libraries without rewriting your configuration
+- **Reduced bundle size** - No need for adapter libraries or wrappers
+
+For more information about Standard Schema, visit [standardschema.dev](https://standardschema.dev/).

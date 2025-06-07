@@ -3,10 +3,76 @@ title: Comparisons
 description: How is envin different from other existing solutions?
 ---
 
-## `process.env` + validation library
+## `process.env`
+
+Validating envs are quite easy and can be done in a few lines of code. You can also infer the result from the validation onto your `process.env` object to benefit from autocompletion throughout your application as explained in [this video](https://www.youtube.com/watch?v=q1im-hMlKhM).
+
+```ts twoslash
+import { z } from "zod";
+
+const envVariables = z.object({
+  DATABASE_URL: z.string(),
+  CUSTOM_STUFF: z.string(),
+});
+
+envVariables.parse(process.env);
+
+declare global {
+  namespace NodeJS {
+    interface ProcessEnv extends z.infer<typeof envVariables> {}
+  }
+}
+
+const url = process.env.DATABASE_URL;
+//    ^?
+```
+
+Although, it's missing a few important features like extendable presets, differentation of server and client envs, robust error handling and more.
+
+| Feature                     | envin | process.env |
+| --------------------------- | :---: | :---------: |
+| Type-safety                 |  ✅   |     ✅      |
+| Framework-agnostic          |  ✅   |     ✅      |
+| Built-in CLI                |  ✅   |     ❌      |
+| Standard Schema compatible  |  ✅   |     ✅      |
+| Live Preview                |  ✅   |     ❌      |
+| Extendable presets          |  ✅   |     ❌      |
+| Transforms / default values |  ✅   |     ✅      |
+| Client/server boundaries    |  ✅   |     ✅      |
+| Error handling              |  ✅   |     🟡      |
 
 ## t3-env
 
+`envin` is highly inspired by [t3-env](https://github.com/t3-oss/t3-env) and shares the same philosophy of being framework-agnostic and providing a simple and easy to use API.
+
+It enhances the experience of t3-env by solving most common issues reported by the community (e.g. about presets) and adding a CLI with a live preview on top of it.
+
+| Feature                     | envin | t3-env |
+| --------------------------- | :---: | :----: |
+| Type-safety                 |  ✅   |   ✅   |
+| Framework-agnostic          |  ✅   |   ✅   |
+| Built-in CLI                |  ✅   |   ❌   |
+| Standard Schema compatible  |  ✅   |   ✅   |
+| Live Preview                |  ✅   |   ❌   |
+| Extendable presets          |  ✅   |   🟡   |
+| Transforms / default values |  ✅   |   ✅   |
+| Client/server boundaries    |  ✅   |   ✅   |
+| Error handling              |  ✅   |   ✅   |
+
 ## envkit
 
-## env-ts
+[Envkit](https://github.com/onboardbase/envkit) is a framework-agnostic environment variable management toolkit that focuses on developer onboarding experience.
+
+Its standout feature is providing a beautiful, customizable UI fallback when environment variables are missing, making it particularly valuable for teams where new developers need to quickly get up and running.
+
+| Feature                     | envin | envkit |
+| --------------------------- | :---: | :----: |
+| Type-safety                 |  ✅   |   ✅   |
+| Framework-agnostic          |  ✅   |   ✅   |
+| Built-in CLI                |  ✅   |   ❌   |
+| Standard Schema compatible  |  ✅   |   ❌   |
+| Live Preview                |  ✅   |   ❌   |
+| Extendable presets          |  ✅   |   ❌   |
+| Transforms / default values |  ✅   |   ✅   |
+| Client/server boundaries    |  ✅   |   ✅   |
+| Error handling              |  ✅   |   ✅   |

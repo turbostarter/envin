@@ -1,3 +1,4 @@
+import * as Twoslash from "fumadocs-twoslash/ui";
 import { ImageZoom } from "fumadocs-ui/components/image-zoom";
 import { Step, Steps } from "fumadocs-ui/components/steps";
 import { Tab, Tabs } from "fumadocs-ui/components/tabs";
@@ -14,13 +15,14 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     Steps,
     Step,
     img: (props) => (
-      <div className="p-2 bg-muted rounded-lg">
+      <span className="p-2 bg-muted rounded-lg inline-block">
         <ImageZoom
           {...props}
           className={cn("rounded-md my-0!", props.className)}
         />
-      </div>
+      </span>
     ),
+    ...Twoslash,
     ...components,
   };
 }
