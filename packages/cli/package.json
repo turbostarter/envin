@@ -64,7 +64,7 @@
     "@rjsf/shadcn": "^6.0.0-beta.1",
     "@rjsf/utils": "^6.0.0-beta.1",
     "@rjsf/validator-ajv8": "^6.0.0-beta.1",
-    "@swc/core": "1.11.21",
+    "@swc/core": "1.11.31",
     "@tailwindcss/postcss": "^4.1.5",
     "@types/babel__core": "7.20.5",
     "@types/babel__traverse": "7.20.7",
