@@ -19,9 +19,17 @@ export default async function Page(props: {
   const MDXContent = page.data.body;
 
   return (
-    <DocsPage toc={page.data.toc} full={page.data.full}>
-      <DocsTitle>{page.data.title}</DocsTitle>
-      <DocsDescription>{page.data.description}</DocsDescription>
+    <DocsPage
+      toc={page.data.toc}
+      full={page.data.full}
+      tableOfContent={{ style: "clerk" }}
+    >
+      <div className="flex flex-col gap-2">
+        <DocsTitle>{page.data.title}</DocsTitle>
+        <DocsDescription className="mb-4">
+          {page.data.description}
+        </DocsDescription>
+      </div>
       <DocsBody>
         <MDXContent
           components={getMDXComponents({
@@ -44,7 +52,11 @@ export async function generateMetadata({
 }) {
   const { slug = [] } = await params;
   const page = source.getPage(slug);
-  if (!page) notFound();
+
+  if (!page) {
+    return notFound();
+  }
+
   const image = ["/api/og", ...slug, "image.png"].join("/");
 
   return {
@@ -53,6 +65,7 @@ export async function generateMetadata({
     openGraph: {
       url: page.url,
       images: image,
+      type: "website",
     },
     twitter: {
       card: "summary_large_image",

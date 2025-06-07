@@ -6,10 +6,21 @@ export const baseOptions: BaseLayoutProps = {
   nav: {
     title: (
       <>
-        <Shrub className="size-6.5" />
+        <Shrub className="size-6" />
         <span className="text-lg font-semibold">Envin</span>
       </>
     ),
   },
   githubUrl: GITHUB_URL,
+  links: [
+    {
+      text: "Home",
+      url: "/",
+    },
+    {
+      text: "Docs",
+      url: "/docs",
+      active: "nested-url",
+    },
+  ],
 };

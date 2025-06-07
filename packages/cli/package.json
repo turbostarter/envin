@@ -1,6 +1,7 @@
 {
   "name": "@envin/cli",
   "version": "0.0.1",
+  "description": "Type-safe env validation with live previews",
   "keywords": [
     "turbostarter",
     "environment variables",
@@ -9,6 +10,10 @@
     "arktype",
     "valibot"
   ],
+  "homepage": "https://envin.turbostarter.dev",
+  "bugs": {
+    "url": "https://github.com/turbostarter/envin/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/turbostarter/envin.git",
@@ -26,7 +31,8 @@
     "dev": "tsup-node --watch",
     "dev:preview": "cd ../../apps/example && tsx ../../packages/cli/src/cli/index.ts dev",
     "start": "node dist/cli/index.mjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepack": "bun ../../scripts/replace-workspace-protocol.ts && bun ../../scripts/populate-readme.ts"
   },
   "dependencies": {
     "@babel/parser": "^7.27.0",
@@ -47,10 +53,10 @@
     "esbuild": "^0.25.0",
     "log-symbols": "^7.0.0",
     "mime-types": "^3.0.1",
-    "next": "^15.3.1",
+    "next": "^15.3.3",
     "ora": "^8.2.0",
     "react-hook-form": "^7.56.4",
-    "zod": "^3.25.17"
+    "zod": "^3.25.56"
   },
   "devDependencies": {
     "@babel/core": "7.26.10",

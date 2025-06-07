@@ -9,7 +9,7 @@ type Impossible<T extends Record<string, any>> = Partial<
 
 type Merge<A, B> = Omit<A, keyof B> & B;
 
-type Simplify<T> = {
+export type Simplify<T> = {
   [P in keyof T]: T[P];
 } & {};
 
@@ -86,6 +86,9 @@ export type TPreset<
 export type TSchema = StandardSchemaV1<object, object>;
 
 export interface BaseOptions<TExtends extends TExtendsFormat> {
+  /**
+   * Array of preset configurations to extend from.
+   */
   extends?: TExtends;
   /**
    * Whether to skip validation of environment variables.
@@ -114,12 +117,15 @@ export interface BaseOptions<TExtends extends TExtendsFormat> {
 
 export interface LooseOptions<TExtends extends TExtendsFormat>
   extends BaseOptions<TExtends> {
+  /**
+   * Must be undefined when using loose options. Use `env` instead.
+   */
   envStrict?: never;
   /**
    * What object holds the environment variables at runtime. This is usually
    * `process.env` or `import.meta.env`.
+   * This doesn't enforce that all environment variables are set.
    */
-  // This doesn't enforce that all environment variables are set.
   env?: Record<string, string | boolean | number | undefined>;
 }
 
@@ -154,10 +160,16 @@ export interface StrictOptions<
       }[keyof TShared],
     string | boolean | number | undefined
   >;
+  /**
+   * Must be undefined when using strict options. Use `envStrict` instead.
+   */
   env?: never;
 }
 
 export interface SharedOptions<TShared extends TSharedFormat> {
+  /**
+   * Specify your shared environment variables schema here. These variables are available on both client and server.
+   */
   shared?: TShared;
 }
 
@@ -269,8 +281,10 @@ export type FinalSchema<
   >
 >;
 
-export type DefineEnv<TFinalSchema extends TSchema = TSchema> = Readonly<
-  Simplify<StandardSchemaV1.InferOutput<TFinalSchema>>
-> & {
-  _schema: TFinalSchema;
-};
+export type DefineEnv<TFinalSchema extends TSchema = TSchema> = Simplify<
+  Readonly<
+    StandardSchemaV1.InferOutput<TFinalSchema> & {
+      _schema: TFinalSchema;
+    }
+  >
+>;
