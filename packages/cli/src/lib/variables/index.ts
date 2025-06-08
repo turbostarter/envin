@@ -1,10 +1,15 @@
 "use server";
 
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { parse } from "dotenv";
 import type { TPreset } from "envin/types";
-import { config, FILES, files } from "@/lib/config";
+import { envDirectoryAbsolutePath } from "@/app/env";
 import {
+  type Config,
   DEFAULT_PRESET,
   Environment,
+  FILES,
   type FileValues,
   type Variable,
   VariableGroup,
@@ -12,7 +17,7 @@ import {
 import { getDefault } from "./default";
 import { getDescription } from "./description";
 
-export const getVariables = async () => {
+export const getVariables = async (config: Config) => {
   if (!config) {
     return {};
   }
@@ -93,13 +98,30 @@ const getVariable = (key: string, preset: TPreset): Variable | null => {
   };
 };
 
+const getFiles = () => {
+  return Object.fromEntries(
+    Object.entries(FILES).map(([environment, files]) => [
+      environment,
+      files.map((file) => {
+        try {
+          return parse(
+            readFileSync(
+              path.join(envDirectoryAbsolutePath ?? "", file),
+              "utf8",
+            ),
+          );
+        } catch {
+          return {};
+        }
+      }),
+    ]),
+  );
+};
+
 export const getFileValues = async (
   environment: Environment = Environment.DEVELOPMENT,
 ): Promise<FileValues> => {
-  if (!config) {
-    return {};
-  }
-
+  const files = getFiles();
   const variablesFromFiles = files[environment];
 
   const result: FileValues = {};

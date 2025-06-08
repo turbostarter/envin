@@ -1,9 +1,18 @@
+import path from "node:path";
 import { Ban } from "lucide-react";
 import { Envin } from "@/components/envin";
-import { config } from "@/lib/config";
 import { getVariables } from "@/lib/variables";
+import { getConfigFile } from "@/utils/get-config-file";
+import { envDirectoryAbsolutePath } from "./env";
+
+export const envConfigFilePath = path.join(
+  envDirectoryAbsolutePath ?? "",
+  "env.config.ts",
+);
 
 export default async function Home() {
+  const { config } = await getConfigFile(envConfigFilePath);
+
   if (!config) {
     return (
       <div className="flex grow h-full border-destructive border-dashed border-2 rounded-lg flex-col items-center justify-center">
@@ -18,7 +27,7 @@ export default async function Home() {
     );
   }
 
-  const variables = await getVariables();
+  const variables = await getVariables(config);
 
   return <Envin variables={variables} />;
 }

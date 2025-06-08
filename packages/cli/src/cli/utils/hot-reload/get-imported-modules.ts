@@ -1,4 +1,3 @@
-import fs from "node:fs";
 import { parse } from "@babel/parser";
 import traverseModule from "@babel/traverse";
 
@@ -12,7 +11,6 @@ const traverse =
 
 export const getImportedModules = (contents: string) => {
   const importedPaths: string[] = [];
-  fs.writeFileSync("contents.txt", contents);
   const parsedContents = parse(contents, {
     sourceType: "unambiguous",
     strictMode: false,

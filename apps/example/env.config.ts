@@ -31,7 +31,7 @@ export default defineEnv({
   client: {
     NEXT_PUBLIC_API_URL: z
       .string()
-      .url()
+      .email()
       .describe("The URL of the API endpoint."),
   },
   server: {

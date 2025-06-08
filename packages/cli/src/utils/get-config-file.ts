@@ -1,3 +1,5 @@
+"use server";
+
 import path from "node:path";
 import { type BuildFailure, build, type OutputFile } from "esbuild";
 import { z } from "zod";

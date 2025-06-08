@@ -58,6 +58,7 @@
     "ora": "^8.2.0",
     "react-hook-form": "^7.56.4",
     "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
     "tsconfig-paths": "^4.2.0",
     "zod": "^3.25.56"
   },

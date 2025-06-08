@@ -47,8 +47,6 @@ export const setupHotreloading = async (
     envDirRelativePath,
   );
 
-  console.log("absolutePathToEnvDirectory", absolutePathToEnvDirectory);
-
   const [dependencyGraph, updateDependencyGraph, { resolveDependentsOf }] =
     await createDependencyGraph(absolutePathToEnvDirectory);
 
