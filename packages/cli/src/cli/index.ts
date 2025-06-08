@@ -15,7 +15,11 @@ program
 program
   .command("dev")
   .description("Starts the live preview of your environment variables")
-  .option("-d, --dir <path>", "Directory with your email templates", "./")
+  .option(
+    "-d, --dir <path>",
+    "Directory with your envin configuration and .env files",
+    "./",
+  )
   .option("-p --port <port>", "Port to run dev server on", "3000")
   .action(dev);
 

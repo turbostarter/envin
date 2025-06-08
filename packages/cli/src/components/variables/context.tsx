@@ -1,14 +1,17 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import {
   createContext,
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { type UseFormReturn, useForm } from "react-hook-form";
 import { useFilters } from "@/components/filters/context";
+import { useHotreload } from "@/lib/hooks/use-hot-reload";
 import type { StandardSchemaV1 } from "@/lib/standard";
 import { type FileValues, Status, type Variables } from "@/lib/types";
 import { validate } from "@/lib/validate";
@@ -37,8 +40,10 @@ export const VariablesProvider = ({
   children: React.ReactNode;
   variables: Variables;
 }) => {
+  const router = useRouter();
   const { query, status, environment } = useFilters();
   const [fileValues, setFileValues] = useState<FileValues>({});
+  const isResettingRef = useRef(false);
   const form = useForm({
     defaultValues: Object.fromEntries(
       Object.entries(variables).map(([key, value]) => [
@@ -50,19 +55,6 @@ export const VariablesProvider = ({
   const [issues, setIssues] = useState<VariablesContextType["issues"]>([]);
   const [filteredKeys, setFilteredKeys] = useState(Object.keys(variables));
 
-  useEffect(() => {
-    const { touchedFields } = form.formState;
-    const newValues = Object.fromEntries(
-      Object.entries(variables).map(([key, value]) => {
-        if (touchedFields[key]) {
-          return [key, form.getValues(key)];
-        }
-        return [key, fileValues[key]?.value ?? value.default ?? ""];
-      }),
-    );
-    form.reset(newValues, { keepDirtyValues: true });
-  }, [fileValues, variables, form]);
-
   const onValidate = useCallback(async (data: Record<string, unknown>) => {
     const result = await validate(data);
     setIssues(result.issues ?? []);
@@ -73,10 +65,12 @@ export const VariablesProvider = ({
       formState: {
         values: true,
       },
-      callback: (data) => onValidate(data.values),
+      callback: (data) => {
+        if (!isResettingRef.current) {
+          onValidate(data.values);
+        }
+      },
     });
-
-    onValidate(form.getValues());
 
     return () => unsubscribe();
   }, [form, onValidate]);
@@ -115,6 +109,10 @@ export const VariablesProvider = ({
     [variables],
   );
 
+  useHotreload(() => {
+    router.refresh();
+  });
+
   useEffect(() => {
     setFilteredKeys(
       filterByStatus(filterByQuery(Object.keys(variables), query), status),
@@ -122,8 +120,22 @@ export const VariablesProvider = ({
   }, [filterByStatus, filterByQuery, query, status, variables]);
 
   useEffect(() => {
-    getFileValues(environment).then(setFileValues);
-  }, [environment]);
+    getFileValues(environment).then((newFileValues) => {
+      setFileValues(newFileValues);
+      const newValues = Object.fromEntries(
+        Object.entries(variables).map(([key, value]) => [
+          key,
+          newFileValues[key]?.value ?? value.default ?? "",
+        ]),
+      );
+
+      isResettingRef.current = true;
+      form.reset(newValues, { keepDirtyValues: true });
+      isResettingRef.current = false;
+
+      onValidate(newValues);
+    });
+  }, [environment, variables, form, onValidate]);
 
   return (
     <VariablesContext.Provider

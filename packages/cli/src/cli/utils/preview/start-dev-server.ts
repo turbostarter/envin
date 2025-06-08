@@ -38,7 +38,7 @@ export const previewServerLocation = isDev
   : path.resolve(dirname, "../preview");
 
 export const startDevServer = async (
-  emailsDirRelativePath: string,
+  envDirRelativePath: string,
   staticBaseDirRelativePath: string,
   port: number,
 ): Promise<http.Server> => {
@@ -92,7 +92,7 @@ export const startDevServer = async (
       ` ${logSymbols.warning} Port ${port} is already in use, trying ${nextPortToTry}`,
     );
     return startDevServer(
-      emailsDirRelativePath,
+      envDirRelativePath,
       staticBaseDirRelativePath,
       nextPortToTry,
     );
@@ -126,7 +126,7 @@ export const startDevServer = async (
       NODE_ENV?: NodeJS.ProcessEnv["NODE_ENV"];
     }),
     ...getEnvVariablesForPreviewApp(
-      path.normalize(emailsDirRelativePath),
+      path.normalize(envDirRelativePath),
       process.cwd(),
     ),
   };

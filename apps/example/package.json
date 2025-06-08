@@ -7,6 +7,6 @@
   },
   "devDependencies": {
     "typescript": "5.8.3",
-    "@types/node": "22.14.1"
+    "zod": "3.25.56"
   }
 }

@@ -1,7 +1,8 @@
 "use server";
 
-import { config } from "@/lib/config";
+import { envConfigFilePath } from "@/app/page";
 import { parseWithDictionary, type StandardSchemaV1 } from "@/lib/standard";
+import { getConfigFile } from "@/utils/get-config-file";
 
 const toIssue = (issue: StandardSchemaV1.Issue) => {
   return {
@@ -11,6 +12,7 @@ const toIssue = (issue: StandardSchemaV1.Issue) => {
 };
 
 export const validate = async (variables: Record<string, unknown>) => {
+  const { config } = await getConfigFile(envConfigFilePath);
   if (!config?.env._schema) {
     return {
       issues: [],

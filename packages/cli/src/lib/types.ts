@@ -32,6 +32,16 @@ export type Environment = (typeof Environment)[keyof typeof Environment];
 
 export const DEFAULT_PRESET = "root";
 
+export const FILES = {
+  [Environment.DEVELOPMENT]: [".env", ".env.development", ".env.local"],
+  [Environment.PRODUCTION]: [
+    ".env",
+    ".env.production",
+    ".env.local",
+    ".env.production.local",
+  ],
+} as const;
+
 export interface Variable {
   preset: string;
   group: VariableGroup;
