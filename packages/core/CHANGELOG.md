@@ -1,5 +1,11 @@
 # envin
 
+## 1.1.0
+
+### Minor Changes
+
+- [#20](https://github.com/turbostarter/envin/pull/20) [`bd7f32f`](https://github.com/turbostarter/envin/commit/bd7f32fd796af56ffa0bdb986c681a9c9d41a8d3) Thanks [@Bartek532](https://github.com/Bartek532)! - Setup hot reloading for live preview
+
 ## 1.0.0
 
 ### Major Changes
