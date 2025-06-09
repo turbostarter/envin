@@ -97,6 +97,7 @@ export const createDependencyGraph = async (directory: string) => {
     const importedPaths = isJavascriptModule(filePath)
       ? resolvePathAliases(getImportedModules(contents), path.dirname(filePath))
       : [];
+
     const importedPathsRelativeToDirectory = importedPaths.map(
       (dependencyPath) => {
         const isModulePath = !dependencyPath.startsWith(".");
@@ -239,10 +240,6 @@ export const createDependencyGraph = async (directory: string) => {
       }
     }
   };
-
-  for (const filePath of modulePaths) {
-    await updateModuleDependenciesInGraph(filePath);
-  }
 
   const removeModuleFromGraph = (filePath: string) => {
     const module = graph[filePath];

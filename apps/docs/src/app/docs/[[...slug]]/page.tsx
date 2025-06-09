@@ -6,6 +6,7 @@ import {
   DocsTitle,
 } from "fumadocs-ui/page";
 import { notFound } from "next/navigation";
+import { createMetadata } from "@/lib/metadata";
 import { source } from "@/lib/source";
 import { getMDXComponents } from "@/mdx-components";
 
@@ -59,17 +60,17 @@ export async function generateMetadata({
 
   const image = ["/api/og", ...slug, "image.png"].join("/");
 
-  return {
+  return createMetadata({
     title: page.data.title,
-    description: page.data.description,
     openGraph: {
-      url: page.url,
-      images: image,
-      type: "website",
+      url: `/docs/${page.slugs.join("/")}`,
+      images: [image],
     },
     twitter: {
-      card: "summary_large_image",
-      images: image,
+      images: [image],
     },
-  };
+    ...(page.data.description && {
+      description: page.data.description,
+    }),
+  });
 }

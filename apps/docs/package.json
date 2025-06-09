@@ -6,6 +6,7 @@
     "build": "next build",
     "clean": "rm -rf .next .turbo .source node_modules",
     "dev": "next dev --turbopack",
+    "env": "bunx @envin/cli dev",
     "start": "next start",
     "postinstall": "fumadocs-mdx"
   },

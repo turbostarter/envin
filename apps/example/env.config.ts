@@ -3,7 +3,7 @@ import { vercel } from "envin/presets/zod";
 import { z } from "zod";
 
 const stripe = {
-  id: "stripe",
+  // id: "stripe",
   clientPrefix: "NEXT_PUBLIC_",
   client: {
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z
