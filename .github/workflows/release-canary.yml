@@ -2,7 +2,7 @@ name: Release - Canary
 
 on:
   pull_request:
-    types: [labeled, edited, synchronize]
+    types: [opened, labeled, edited, synchronize]
     branches:
       - main
 
@@ -11,8 +11,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
 
@@ -78,20 +76,19 @@ jobs:
     runs-on: ubuntu-latest
     environment: Preview
     needs: [checks]
+    permissions:
+      id-token: write
+      pull-requests: write
+      deployments: write
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
       - uses: ./.github/setup
 
-      - name: Install Vercel CLI
-        run: bun install --global vercel@latest
-
-      - name: Pull environment information
-        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Build
-        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Publish!
-        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+      - uses: amondnet/vercel-action@v25
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID}}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID}}
