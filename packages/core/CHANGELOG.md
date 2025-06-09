@@ -1,5 +1,11 @@
 # envin
 
+## 1.1.1
+
+### Patch Changes
+
+- [#22](https://github.com/turbostarter/envin/pull/22) [`5d278e1`](https://github.com/turbostarter/envin/commit/5d278e16b0ad7557c021bfd445ce0527727125c2) Thanks [@Bartek532](https://github.com/Bartek532)! - Minor enhancements and fixes
+
 ## 1.1.0
 
 ### Minor Changes
