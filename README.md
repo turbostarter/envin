@@ -1,4 +1,4 @@
-![Envin](./apps/docs/src/app/opengraph-image.png)
+![Envin](https://envin.turbostarter.dev/images/banner.png)
 
 ## Installation
 
@@ -90,6 +90,6 @@ One of the most powerful features of this package is the ability to preview your
 npx @envin/cli@latest dev
 ```
 
-![Live Preview](./apps/docs/public/images/docs/live-preview.png)
+![Live Preview](https://envin.turbostarter.dev/images/docs/live-preview.png)
 
 This will start a live preview server that will automatically update your environment variables when you change them allowing you to find and fix errors before deploying your app.

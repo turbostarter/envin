@@ -19,14 +19,16 @@ export function createMetadata(override: Metadata): Metadata {
       title: override.title ?? undefined,
       description: override.description ?? undefined,
       images: "/images/banner.png",
+      site: "@turbostarter_",
       ...override.twitter,
     },
   };
 }
 
+console.log(process.env);
+console.log(env);
+
 export const baseUrl =
-  env.NODE_ENV === "development"
+  env.NODE_ENV === "development" || !env.VERCEL_URL
     ? new URL("http://localhost:3000")
-    : new URL(
-        `https://${env.VERCEL_ENV === "production" ? env.VERCEL_PROJECT_PRODUCTION_URL : env.VERCEL_URL}`,
-      );
+    : new URL(`https://${env.VERCEL_URL}`);
