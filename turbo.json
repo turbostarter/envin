@@ -18,6 +18,9 @@
     "clean": {
       "cache": false
     },
-    "test": {}
+    "test": {},
+    "test:watch": {
+      "persistent": true
+    }
   }
 }

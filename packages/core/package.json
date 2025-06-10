@@ -48,14 +48,17 @@
     "clean": "rm -rf dist .turbo node_modules",
     "dev": "tsup --watch",
     "start": "node dist/index.js",
-    "test": "bun test",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "prepack": "bun run ../../scripts/populate-readme.ts"
   },
   "devDependencies": {
+    "arktype": "2.1.0",
     "tsup": "^8.5.0",
     "typescript": "5.8.3",
     "valibot": "1.1.0",
+    "vitest": "3.2.3",
     "zod": "3.25.56"
   },
   "peerDependencies": {

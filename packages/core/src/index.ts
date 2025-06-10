@@ -141,7 +141,7 @@ export function defineEnv<
   ensureSynchronous(parsed, "Validation must be synchronous!");
 
   if (parsed.issues) {
-    onError(parsed.issues);
+    return onError(parsed.issues);
   }
 
   const isServerAccess = (prop: string) => {

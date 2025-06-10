@@ -25,10 +25,7 @@ export function createMetadata(override: Metadata): Metadata {
   };
 }
 
-console.log(process.env);
-console.log(env);
-
 export const baseUrl =
-  env.NODE_ENV === "development" || !env.VERCEL_URL
+  env.NODE_ENV === "development"
     ? new URL("http://localhost:3000")
-    : new URL(`https://${env.VERCEL_URL}`);
+    : new URL(`https://${env.VERCEL_URL ?? "envin.turbostarter.dev"}`);
