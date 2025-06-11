@@ -25,6 +25,8 @@ export default defineEnv({
 });
 ```
 
+When skipping validation, the default values are still used when possible. This is useful for development environments where you want to use the default values but still have the type safety.
+
 ## Custom error handling
 
 You can customize how validation errors and invalid access attempts are handled:

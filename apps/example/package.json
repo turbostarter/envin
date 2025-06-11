@@ -7,6 +7,8 @@
   },
   "devDependencies": {
     "typescript": "5.8.3",
+    "arktype": "0.1.1",
+    "valibot": "1.1.0",
     "zod": "3.25.56"
   }
 }

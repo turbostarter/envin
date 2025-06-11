@@ -629,19 +629,19 @@ describe("skip validation", () => {
     expect(env.BAR).toBeUndefined();
   });
 
-  // test("should return default values if skip is true", () => {
-  //   const env = defineEnv({
-  //     server: { BAR: v.optional(v.string(), "bar") },
-  //     env: {},
-  //     skip: true,
-  //   });
-  //   expectTypeOf(env).toMatchObjectType<
-  //     Readonly<{
-  //       BAR: string;
-  //     }>
-  //   >();
-  //   expect(env.BAR).toBe("bar");
-  // });
+  test("should return default values if skip is true", () => {
+    const env = defineEnv({
+      server: { BAR: v.optional(v.string(), "bar") },
+      env: {},
+      skip: true,
+    });
+    expectTypeOf(env).toMatchObjectType<
+      Readonly<{
+        BAR: string;
+      }>
+    >();
+    expect(env.BAR).toBe("bar");
+  });
 });
 
 test("empty strings are removed from env before validation", () => {
