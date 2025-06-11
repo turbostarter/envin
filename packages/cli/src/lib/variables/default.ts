@@ -3,7 +3,7 @@ import type { StandardSchemaV1 } from "@/lib/standard";
 
 const zodSchema = z.object({
   _def: z.object({
-    defaultValue: z.function().optional(),
+    defaultValue: z.union([z.function(), z.unknown()]).optional(),
   }),
 });
 
@@ -25,7 +25,10 @@ export const getDefault = (schema: StandardSchemaV1) => {
   }
 
   if ("_def" in result.data) {
-    return result.data._def.defaultValue?.() as string | undefined;
+    if (typeof result.data._def.defaultValue === "function") {
+      return result.data._def.defaultValue?.() as string | undefined;
+    }
+    return result.data._def.defaultValue as string | undefined;
   }
 
   return undefined;

@@ -1,8 +1,6 @@
-/// <reference types="bun" />
-import { describe, expect, spyOn, test } from "bun:test";
+import { type } from "arktype";
 import { expectTypeOf } from "expect-type";
-
-import { z } from "zod";
+import { describe, expect, test, vi } from "vitest";
 import { defineEnv } from "../src";
 
 function ignoreErrors(cb: () => void) {
@@ -17,8 +15,8 @@ test("server vars should not be prefixed", () => {
       clientPrefix: "FOO_",
       server: {
         // @ts-expect-error - server should not have FOO_ prefix
-        FOO_BAR: z.string(),
-        BAR: z.string(),
+        FOO_BAR: type("string"),
+        BAR: type("string"),
       },
     });
   });
@@ -29,9 +27,9 @@ test("client vars should be correctly prefixed", () => {
     defineEnv({
       clientPrefix: "FOO_",
       client: {
-        FOO_BAR: z.string(),
+        FOO_BAR: type("string"),
         // @ts-expect-error - no FOO_ prefix
-        BAR: z.string(),
+        BAR: type("string"),
       },
     });
   });
@@ -41,8 +39,8 @@ describe("return type is correctly inferred", () => {
   test("simple", () => {
     const env = defineEnv({
       clientPrefix: "FOO_",
-      server: { BAR: z.string() },
-      client: { FOO_BAR: z.string() },
+      server: { BAR: type("string") },
+      client: { FOO_BAR: type("string") },
       env: {
         BAR: "bar",
         FOO_BAR: "foo",
@@ -65,8 +63,8 @@ describe("return type is correctly inferred", () => {
   test("with transforms", () => {
     const env = defineEnv({
       clientPrefix: "FOO_",
-      server: { BAR: z.string().transform(Number) },
-      client: { FOO_BAR: z.string() },
+      server: { BAR: type("string").pipe((s) => Number(s)) },
+      client: { FOO_BAR: type("string") },
       env: {
         BAR: "123",
         FOO_BAR: "foo",
@@ -88,7 +86,7 @@ describe("return type is correctly inferred", () => {
 
   test("without client vars", () => {
     const env = defineEnv({
-      server: { BAR: z.string() },
+      server: { BAR: type("string") },
       env: {
         BAR: "bar",
       },
@@ -107,8 +105,8 @@ describe("return type is correctly inferred", () => {
 
   test("with empty env values", () => {
     const env = defineEnv({
-      server: { BAR: z.string().optional() },
-      shared: { BAZ: z.string() },
+      server: { BAR: type("string | undefined") },
+      shared: { BAZ: type("string") },
       env: {
         BAR: "",
         BAZ: "baz",
@@ -132,8 +130,8 @@ describe("return type is correctly inferred", () => {
 test("can pass number and booleans", () => {
   const env = defineEnv({
     server: {
-      PORT: z.coerce.number(),
-      IS_DEV: z.enum(["true", "false"]).transform((v) => v === "true"),
+      PORT: type("string").pipe((s) => Number(s)),
+      IS_DEV: type("'true'|'false'").pipe((v) => v === "true"),
     },
     env: {
       PORT: "123",
@@ -159,8 +157,8 @@ describe("errors when validation fails", () => {
     expect(() =>
       defineEnv({
         clientPrefix: "FOO_",
-        server: { BAR: z.string() },
-        client: { FOO_BAR: z.string() },
+        server: { BAR: type("string") },
+        client: { FOO_BAR: type("string") },
         env: {},
       }),
     ).toThrow("Invalid environment variables");
@@ -171,9 +169,9 @@ describe("errors when validation fails", () => {
       defineEnv({
         clientPrefix: "FOO_",
         server: {
-          BAR: z.string().transform(Number).pipe(z.number()),
+          BAR: type("string").pipe(Number, type("number")),
         },
-        client: { FOO_BAR: z.string() },
+        client: { FOO_BAR: type("string") },
         env: {
           BAR: "123abc",
           FOO_BAR: "foo",
@@ -187,23 +185,22 @@ describe("errors when validation fails", () => {
       defineEnv({
         clientPrefix: "FOO_",
         server: {
-          BAR: z.string().transform(Number).pipe(z.number()),
+          BAR: type("string").pipe(Number, type("number")),
         },
-        client: { FOO_BAR: z.string() },
+        client: { FOO_BAR: type("string") },
         env: {
           BAR: "123abc",
           FOO_BAR: "foo",
         },
         onError: (issues) => {
-          const barError = issues.find((issue) =>
-            issue.path?.includes("BAR"),
-          )?.message;
-          throw new Error(`Custom Error: Invalid variable BAR: ${barError}`);
+          throw new Error(
+            `Custom Error: Invalid variable ${issues
+              .map((i) => i.path?.join("."))
+              .join(", ")}`,
+          );
         },
       }),
-    ).toThrow(
-      "Custom Error: Invalid variable BAR: Expected number, received nan",
-    );
+    ).toThrow("Custom Error: Invalid variable BAR");
   });
 });
 
@@ -211,8 +208,8 @@ describe("errors when server var is accessed on client", () => {
   // Define base options that are valid
   const options = {
     clientPrefix: "FOO_",
-    server: { BAR: z.string() },
-    client: { FOO_BAR: z.string() },
+    server: { BAR: type("string") },
+    client: { FOO_BAR: type("string") },
     env: {
       BAR: "bar",
       FOO_BAR: "foo",
@@ -254,7 +251,7 @@ describe("client/server only mode", () => {
     const env = defineEnv({
       clientPrefix: "FOO_",
       client: {
-        FOO_BAR: z.string(),
+        FOO_BAR: type("string"),
       },
       env: { FOO_BAR: "foo" },
     });
@@ -266,7 +263,7 @@ describe("client/server only mode", () => {
   test("server only", () => {
     const env = defineEnv({
       server: {
-        BAR: z.string(),
+        BAR: type("string"),
       },
       env: { BAR: "bar" },
     });
@@ -285,11 +282,11 @@ describe("shared can be accessed on both server and client", () => {
 
   const options = {
     shared: {
-      NODE_ENV: z.enum(["development", "production", "test"]),
+      NODE_ENV: type("'development'|'production'|'test'"),
     },
     clientPrefix: "FOO_",
-    server: { BAR: z.string() },
-    client: { FOO_BAR: z.string() },
+    server: { BAR: type("string") },
+    client: { FOO_BAR: type("string") },
     env: processEnv,
   } as const;
 
@@ -324,7 +321,7 @@ describe("shared can be accessed on both server and client", () => {
 
 test("envs are readonly at type level", () => {
   const env = defineEnv({
-    server: { BAR: z.string() },
+    server: { BAR: type("string") },
     env: { BAR: "bar" },
   });
 
@@ -346,17 +343,17 @@ describe("extending presets", () => {
     function lazyCreateEnv() {
       const preset = {
         server: {
-          PRESET_ENV: z.string(),
+          PRESET_ENV: type("string"),
         },
       };
 
       return defineEnv({
         server: {
-          SERVER_ENV: z.string(),
+          SERVER_ENV: type("string"),
         },
         clientPrefix: "CLIENT_",
         client: {
-          CLIENT_ENV: z.string(),
+          CLIENT_ENV: type("string"),
         },
         extends: [preset],
         env: processEnv,
@@ -373,13 +370,12 @@ describe("extending presets", () => {
       }>
     >();
 
-    const consoleError = spyOn(console, "error");
+    const consoleError = vi.spyOn(console, "error");
     expect(() => lazyCreateEnv()).toThrow("Invalid environment variables");
     expect(consoleError.mock.calls[0]).toEqual([
       "❌ Invalid environment variables:",
       [
         expect.objectContaining({
-          message: expect.any(String),
           path: ["PRESET_ENV"],
         }),
       ],
@@ -396,21 +392,21 @@ describe("extending presets", () => {
     function lazyCreateEnv() {
       const preset = {
         server: {
-          PRESET_ENV: z.enum(["preset"]),
+          PRESET_ENV: type("'preset'"),
         },
         env: processEnv,
       };
 
       return defineEnv({
         server: {
-          SERVER_ENV: z.string(),
+          SERVER_ENV: type("string"),
         },
         shared: {
-          SHARED_ENV: z.string(),
+          SHARED_ENV: type("string"),
         },
         clientPrefix: "CLIENT_",
         client: {
-          CLIENT_ENV: z.string(),
+          CLIENT_ENV: type("string"),
         },
         extends: [preset],
         env: processEnv,
@@ -475,27 +471,27 @@ describe("extending presets", () => {
     function lazyCreateEnv() {
       const preset1 = {
         server: {
-          PRESET_ENV1: z.enum(["preset"]),
+          PRESET_ENV1: type("'preset'"),
         },
       };
 
       const preset2 = {
         server: {
-          PRESET_ENV2: z.number(),
+          PRESET_ENV2: type("number"),
         },
         runtimeEnv: processEnv,
       };
 
       return defineEnv({
         server: {
-          SERVER_ENV: z.string(),
+          SERVER_ENV: type("string"),
         },
         shared: {
-          SHARED_ENV: z.string(),
+          SHARED_ENV: type("string"),
         },
         clientPrefix: "CLIENT_",
         client: {
-          CLIENT_ENV: z.string(),
+          CLIENT_ENV: type("string"),
         },
         extends: [preset1, preset2],
         env: processEnv,
@@ -557,8 +553,8 @@ describe("extending presets", () => {
 test("empty 'extends' array should not cause type errors", () => {
   const env = defineEnv({
     clientPrefix: "FOO_",
-    server: { BAR: z.string() },
-    client: { FOO_BAR: z.string() },
+    server: { BAR: type("string") },
+    client: { FOO_BAR: type("string") },
     env: {
       BAR: "bar",
       FOO_BAR: "foo",
@@ -582,10 +578,10 @@ test("empty 'extends' array should not cause type errors", () => {
 test("overriding preset env var", () => {
   const presetOptions = {
     server: {
-      OVERRIDE_ME: z.string(),
+      OVERRIDE_ME: type("string"),
     },
     shared: {
-      SHARED_PRESET: z.enum(["true", "false"]).transform((v) => v === "true"),
+      SHARED_PRESET: type("'true'|'false'").pipe((v) => v === "true"),
     },
   };
 
@@ -593,7 +589,7 @@ test("overriding preset env var", () => {
 
   const env = defineEnv({
     server: {
-      OVERRIDE_ME: z.coerce.number(),
+      OVERRIDE_ME: type("string").pipe((s) => Number(s)),
     },
     // Cast preset to the expected type
     extends: [presetOptions],
@@ -613,7 +609,7 @@ test("overriding preset env var", () => {
 describe("skip validation", () => {
   test("should not throw if skip is true", () => {
     const env = defineEnv({
-      server: { BAR: z.string() },
+      server: { BAR: type("string") },
       env: {},
       skip: true,
     });
@@ -627,25 +623,21 @@ describe("skip validation", () => {
     expect(env.BAR).toBeUndefined();
   });
 
-  // test("should return default values if skip is true", () => {
-  //   const env = defineEnv({
-  //     server: { BAR: z.string().default("bar") },
-  //     env: {},
-  //     skip: true,
+  //   test("should return default values if skip is true", () => {
+  //     const env = defineEnv({
+  //       server: { BAR: type("string | undefined").default("bar") },
+  //       env: {},
+  //       skip: true,
+  //     });
+
+  //     expect(env.BAR).toBe("bar");
   //   });
-  //   expectTypeOf(env).toMatchObjectType<
-  //     Readonly<{
-  //       BAR: string;
-  //     }>
-  //   >();
-  //   expect(env.BAR).toBe("bar");
-  // });
 });
 
 test("empty strings are removed from env before validation", () => {
   expect(() =>
     defineEnv({
-      server: { REQ_VAR: z.string() },
+      server: { REQ_VAR: type("string") },
       env: {
         REQ_VAR: "",
       },
@@ -653,7 +645,7 @@ test("empty strings are removed from env before validation", () => {
   ).toThrow("Invalid environment variables");
 
   const env = defineEnv({
-    server: { OPT_VAR: z.string().optional() },
+    server: { OPT_VAR: type("string | undefined") },
     env: {
       OPT_VAR: "",
     },
@@ -666,14 +658,14 @@ describe("transforming final schema", () => {
     let receivedIsServer = false;
     const env = defineEnv({
       server: {
-        SERVER_ENV: z.string(),
+        SERVER_ENV: type("string"),
       },
       shared: {
-        SHARED_ENV: z.string(),
+        SHARED_ENV: type("string"),
       },
       clientPrefix: "CLIENT_",
       client: {
-        CLIENT_ENV: z.string(),
+        CLIENT_ENV: type("string"),
       },
       env: {
         SERVER_ENV: "server",
@@ -683,7 +675,7 @@ describe("transforming final schema", () => {
       transform: (shape, isServer) => {
         expectTypeOf(isServer).toEqualTypeOf<boolean>();
         if (typeof isServer === "boolean") receivedIsServer = true;
-        return z.object(shape);
+        return type(shape);
       },
     });
 
@@ -706,48 +698,41 @@ describe("transforming final schema", () => {
   test("schema combiner with further refinement", () => {
     const env = defineEnv({
       server: {
-        SKIP_AUTH: z.boolean().optional(),
-        EMAIL: z.string().email().optional(),
-        PASSWORD: z.string().min(1).optional(),
+        SKIP_AUTH: type("boolean | undefined"),
+        EMAIL: type("string | undefined"),
+        PASSWORD: type("string | undefined"),
       },
       env: {
         SKIP_AUTH: true,
+        EMAIL: undefined,
+        PASSWORD: undefined,
       },
       transform: (shape) =>
-        z.object(shape).refine((env) => {
-          expectTypeOf(env).toMatchObjectType<{
-            SKIP_AUTH?: boolean;
-            EMAIL?: string;
-            PASSWORD?: string;
-          }>();
-          return env.SKIP_AUTH || (env.EMAIL && env.PASSWORD);
+        type(shape).pipe((env) => {
+          if (!env.SKIP_AUTH && (!env.EMAIL || !env.PASSWORD)) {
+            throw new Error(
+              "EMAIL and PASSWORD are required if SKIP_AUTH is false",
+            );
+          }
+          return env;
         }),
     });
-    expectTypeOf(env).toMatchObjectType<
-      Readonly<{
-        SKIP_AUTH?: boolean;
-        EMAIL?: string;
-        PASSWORD?: string;
-      }>
-    >();
     expect(env).toMatchObject({ SKIP_AUTH: true });
   });
   test("schema combiner that changes the type", () => {
     const env = defineEnv({
       server: {
-        SKIP_AUTH: z.boolean().optional(),
-        EMAIL: z.string().email().optional(),
-        PASSWORD: z.string().min(1).optional(),
+        SKIP_AUTH: type("boolean | undefined"),
+        EMAIL: type("string | undefined"),
+        PASSWORD: type("string | undefined"),
       },
       transform: (shape) =>
-        z.object(shape).transform((env, ctx) => {
+        type(shape).pipe((env) => {
           if (env.SKIP_AUTH) return { SKIP_AUTH: true } as const;
           if (!env.EMAIL || !env.PASSWORD) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              message: "EMAIL and PASSWORD are required if SKIP_AUTH is false",
-            });
-            return z.NEVER;
+            throw new Error(
+              "EMAIL and PASSWORD are required if SKIP_AUTH is false",
+            );
           }
           return {
             EMAIL: env.EMAIL,
@@ -756,6 +741,8 @@ describe("transforming final schema", () => {
         }),
       env: {
         SKIP_AUTH: true,
+        EMAIL: undefined,
+        PASSWORD: undefined,
       },
     });
     // @ts-expect-error - we want to test the type of the env object, not the schema

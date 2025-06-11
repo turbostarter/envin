@@ -222,3 +222,71 @@ export const coolify = {
 } as const;
 
 export type CoolifyEnv = InferPresetOutput<typeof coolify>;
+
+/**
+ * Supabase for Vercel Environment Variables
+ * @see https://vercel.com/marketplace/supabase
+ */
+export const supabaseVercel = {
+  id: "supabase-vercel",
+  clientPrefix: "NEXT_PUBLIC_",
+  server: {
+    POSTGRES_URL: v.pipe(v.string(), v.url()),
+    POSTGRES_PRISMA_URL: v.optional(v.pipe(v.string(), v.url())),
+    POSTGRES_URL_NON_POOLING: v.optional(v.pipe(v.string(), v.url())),
+    POSTGRES_USER: v.optional(v.string()),
+    POSTGRES_HOST: v.optional(v.string()),
+    POSTGRES_PASSWORD: v.optional(v.string()),
+    POSTGRES_DATABASE: v.optional(v.string()),
+    SUPABASE_SERVICE_ROLE_KEY: v.optional(v.string()),
+    SUPABASE_ANON_KEY: v.optional(v.string()),
+    SUPABASE_URL: v.optional(v.pipe(v.string(), v.url())),
+    SUPABASE_JWT_SECRET: v.optional(v.string()),
+  },
+  client: {
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: v.optional(v.string()),
+    NEXT_PUBLIC_SUPABASE_URL: v.optional(v.pipe(v.string(), v.url())),
+  },
+} as const;
+
+export type SupabaseVercelEnv = InferPresetOutput<typeof supabaseVercel>;
+
+/**
+ * Vite Environment Variables
+ * @see https://vite.dev/guide/env-and-mode
+ */
+export const vite = {
+  id: "vite",
+  server: {
+    BASE_URL: v.optional(v.string()),
+    MODE: v.optional(v.string()),
+    DEV: v.optional(v.boolean()),
+    PROD: v.optional(v.boolean()),
+    SSR: v.optional(v.boolean()),
+  },
+} as const;
+
+export type ViteEnv = InferPresetOutput<typeof vite>;
+
+/**
+ * WXT Environment Variables
+ * @see https://wxt.dev/guide/essentials/config/environment-variables.html#built-in-environment-variables
+ */
+export const wxt = {
+  id: "wxt",
+  server: {
+    MANIFEST_VERSION: v.optional(
+      v.pipe(v.union([v.literal(2), v.literal(3)]), v.transform(Number)),
+    ),
+    BROWSER: v.optional(
+      v.picklist(["chrome", "firefox", "safari", "edge", "opera"]),
+    ),
+    CHROME: v.optional(v.boolean()),
+    FIREFOX: v.optional(v.boolean()),
+    SAFARI: v.optional(v.boolean()),
+    EDGE: v.optional(v.boolean()),
+    OPERA: v.optional(v.boolean()),
+  },
+} as const;
+
+export type WxtEnv = InferPresetOutput<typeof wxt>;

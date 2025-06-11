@@ -69,6 +69,7 @@ export declare namespace StandardSchemaV1 {
   >["output"];
 }
 
+/** A dictionary of Standard Schema objects mapping input keys to their corresponding schemas. */
 export type StandardSchemaDictionary<
   Input = Record<string, unknown>,
   Output extends Record<keyof Input, unknown> = Input,
@@ -77,14 +78,17 @@ export type StandardSchemaDictionary<
 };
 
 export namespace StandardSchemaDictionary {
+  /** Infers the input types from a Standard Schema Dictionary. */
   export type InferInput<T extends StandardSchemaDictionary> = {
     [K in keyof T]: StandardSchemaV1.InferInput<T[K]>;
   };
+  /** Infers the output types from a Standard Schema Dictionary. */
   export type InferOutput<T extends StandardSchemaDictionary> = {
     [K in keyof T]: StandardSchemaV1.InferOutput<T[K]>;
   };
 }
 
+/** Ensures a value is synchronous by throwing an error if it's a Promise. */
 export function ensureSynchronous<T>(
   value: T | Promise<T>,
   message: string,
@@ -94,6 +98,7 @@ export function ensureSynchronous<T>(
   }
 }
 
+/** Parses a value using a dictionary of Standard Schema objects. */
 export function parseWithDictionary<TDict extends StandardSchemaDictionary>(
   dictionary: TDict,
   value: Record<string, unknown>,
@@ -124,3 +129,53 @@ export function parseWithDictionary<TDict extends StandardSchemaDictionary>(
   }
   return { value: result as never };
 }
+
+/** Checks if a value is a Standard Schema object. */
+export const isStandardSchema = (
+  schema: unknown,
+): schema is StandardSchemaV1 => {
+  return (
+    ["function", "object"].includes(typeof schema) &&
+    !!schema &&
+    // @ts-expect-error - we want to check if the schema is a Standard Schema object (even if it's a function)
+    "~standard" in schema &&
+    typeof schema["~standard"] === "object" &&
+    !!schema["~standard"] &&
+    "validate" in schema["~standard"]
+  );
+};
+
+/** Gets the default value from a Standard Schema object. */
+export const getDefault = (schema: StandardSchemaV1) => {
+  if (typeof schema !== "object" || schema === null) {
+    return undefined;
+  }
+
+  if (
+    "default" in schema &&
+    !["object", "function"].includes(typeof schema.default)
+  ) {
+    return schema.default;
+  }
+
+  if (
+    "_def" in schema &&
+    typeof schema._def === "object" &&
+    schema._def !== null &&
+    "defaultValue" in schema._def
+  ) {
+    if (typeof schema._def.defaultValue === "function") {
+      return schema._def.defaultValue?.();
+    }
+    return schema._def.defaultValue;
+  }
+
+  return undefined;
+};
+
+/** Gets default values from a dictionary of Standard Schema objects. */
+export const getDefaultDictionary = (schema: StandardSchemaDictionary) => {
+  return Object.fromEntries(
+    Object.entries(schema).map(([key, value]) => [key, getDefault(value)]),
+  );
+};

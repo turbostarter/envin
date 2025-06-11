@@ -32,12 +32,20 @@ const env = defineEnv({
       // Transform to boolean using preferred coercion logic
       .transform(s => s !== "false" && s !== "0"),
 
+    // Alternatively, use Zod's built-in primitive coercion
+    // https://zod.dev/?id=coercion-for-primitives
+    NATIVE_COERCION: z.coerce.boolean(),
+
     ONLY_BOOLEAN: z
       .string()
       // Only allow "true" or "false"
       .refine(s => s === "true" || s === "false")
       // Transform to boolean
       .transform(s => s === "true"),
+
+    // Alternatively, use Zod's new syntax for string boolean coercion
+    // https://zod.dev/v4?id=stringbool
+    STRING_BOOLEAN: z.stringbool(),
   },
   // ...
 });

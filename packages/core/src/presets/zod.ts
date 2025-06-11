@@ -222,3 +222,71 @@ export const coolify = {
 } as const;
 
 export type CoolifyEnv = InferPresetOutput<typeof coolify>;
+
+/**
+ * Supabase for Vercel Environment Variables
+ * @see https://vercel.com/marketplace/supabase
+ */
+export const supabaseVercel = {
+  id: "supabase-vercel",
+  clientPrefix: "NEXT_PUBLIC_",
+  server: {
+    POSTGRES_URL: z.string().url(),
+    POSTGRES_PRISMA_URL: z.string().url().optional(),
+    POSTGRES_URL_NON_POOLING: z.string().url().optional(),
+    POSTGRES_USER: z.string().optional(),
+    POSTGRES_HOST: z.string().optional(),
+    POSTGRES_PASSWORD: z.string().optional(),
+    POSTGRES_DATABASE: z.string().optional(),
+    SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
+    SUPABASE_ANON_KEY: z.string().optional(),
+    SUPABASE_URL: z.string().url().optional(),
+    SUPABASE_JWT_SECRET: z.string().optional(),
+  },
+  client: {
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().optional(),
+    NEXT_PUBLIC_SUPABASE_URL: z.string().url().optional(),
+  },
+} as const;
+
+export type SupabaseVercelEnv = InferPresetOutput<typeof supabaseVercel>;
+
+/**
+ * Vite Environment Variables
+ * @see https://vite.dev/guide/env-and-mode
+ */
+export const vite = {
+  id: "vite",
+  server: {
+    BASE_URL: z.string().optional(),
+    MODE: z.string().optional(),
+    DEV: z.boolean().optional(),
+    PROD: z.boolean().optional(),
+    SSR: z.boolean().optional(),
+  },
+} as const;
+
+export type ViteEnv = InferPresetOutput<typeof vite>;
+
+/**
+ * WXT Environment Variables
+ * @see https://wxt.dev/guide/essentials/config/environment-variables.html#built-in-environment-variables
+ */
+export const wxt = {
+  id: "wxt",
+  server: {
+    MANIFEST_VERSION: z
+      .preprocess(Number, z.union([z.literal(2), z.literal(3)]))
+      .optional(),
+    BROWSER: z
+      .enum(["chrome", "firefox", "safari", "edge", "opera"])
+      .optional(),
+    CHROME: z.boolean().optional(),
+    FIREFOX: z.boolean().optional(),
+    SAFARI: z.boolean().optional(),
+    EDGE: z.boolean().optional(),
+    OPERA: z.boolean().optional(),
+  },
+} as const;
+
+export type WxtEnv = InferPresetOutput<typeof wxt>;

@@ -6,7 +6,8 @@
     "envin": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "5.8.3",
+    "arktype": "2.1.0",
+    "valibot": "1.1.0",
     "zod": "3.25.56"
   }
 }

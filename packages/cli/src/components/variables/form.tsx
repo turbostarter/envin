@@ -30,9 +30,12 @@ import {
   Netlify,
   Railway,
   Render,
+  Supabase,
   Uploadthing,
   Upstash,
   Vercel,
+  Vite,
+  Wxt,
 } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -55,6 +58,9 @@ const PresetIcons = {
   fly: Fly,
   netlify: Netlify,
   "upstash-redis": Upstash,
+  "supabase-vercel": Supabase,
+  vite: Vite,
+  wxt: Wxt,
 } as const;
 
 export const Form = () => {
@@ -86,6 +92,7 @@ export const Form = () => {
                 key in PresetIcons
                   ? PresetIcons[key as keyof typeof PresetIcons]
                   : null;
+
               return (
                 <AccordionItem
                   key={key}

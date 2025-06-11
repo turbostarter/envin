@@ -1,27 +1,35 @@
 import type { StandardSchemaDictionary, StandardSchemaV1 } from "./standard";
 
+/** Type for error messages that must be strings */
 export type ErrorMessage<T extends string> = T;
 
+/** Creates a type where all properties are impossible to set */
 // biome-ignore lint/suspicious/noExplicitAny: needs to be any
 type Impossible<T extends Record<string, any>> = Partial<
   Record<keyof T, never>
 >;
 
+/** Merges two types, with B taking precedence over A */
 type Merge<A, B> = Omit<A, keyof B> & B;
 
+/** Simplifies a type by removing intersections and making it more readable */
 export type Simplify<T> = {
   [P in keyof T]: T[P];
 } & {};
 
+/** Gets all keys from T that can be undefined */
 type PossiblyUndefinedKeys<T> = {
   [K in keyof T]: undefined extends T[K] ? K : never;
 }[keyof T];
 
+/** Makes properties that can be undefined optional */
 type UndefinedOptional<T> = Partial<Pick<T, PossiblyUndefinedKeys<T>>> &
   Omit<T, PossiblyUndefinedKeys<T>>;
 
+/** Converts a readonly type to a mutable type */
 type Mutable<T> = T extends Readonly<infer U> ? U : T;
 
+/** Extracts the combined schema from validation options */
 type ExtractCombinedSchema<T> = T extends ValidationOptions<
   TPrefixFormat,
   infer TShared,
@@ -40,6 +48,7 @@ type ExtractCombinedSchema<T> = T extends ValidationOptions<
     ? CombinedSchema<TShared, TServer, TClient>
     : never;
 
+/** Reduces an array of schemas to a single schema */
 type Reduce<
   TArr extends readonly unknown[] | unknown[],
   TAcc extends StandardSchemaDictionary<

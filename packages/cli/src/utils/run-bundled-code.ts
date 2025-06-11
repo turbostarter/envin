@@ -1,6 +1,7 @@
 import path from "node:path";
 import vm from "node:vm";
 import * as env from "envin";
+import * as envPresetsArktype from "envin/presets/arktype";
 import * as envPresetsValibot from "envin/presets/valibot";
 import * as envPresetsZod from "envin/presets/zod";
 import { err, ok, type Result } from "./result";
@@ -23,6 +24,7 @@ const internalModules = {
   },
   "envin/presets/zod": envPresetsZod,
   "envin/presets/valibot": envPresetsValibot,
+  "envin/presets/arktype": envPresetsArktype,
 } as const;
 
 export const runBundledCode = (
@@ -32,10 +34,12 @@ export const runBundledCode = (
   const fakeContext = {
     ...global,
     console,
+    Blob,
     Buffer,
     AbortSignal,
     Event,
     EventTarget,
+    FormData,
     TextDecoder,
     Request,
     Response,

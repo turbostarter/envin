@@ -1,4 +1,4 @@
-![Envin](https://envin.turbostarter.dev/images/banner.png)
+[![Envin](https://envin.turbostarter.dev/images/banner.png)](https://envin.turbostarter.dev)
 
 ## Installation
 
@@ -93,3 +93,8 @@ npx @envin/cli@latest dev
 ![Live Preview](https://envin.turbostarter.dev/images/docs/live-preview.png)
 
 This will start a live preview server that will automatically update your environment variables when you change them allowing you to find and fix errors before deploying your app.
+
+
+## Contributing
+
+See [CONTRIBUTING.md](./.github/CONTRIBUTING.md).

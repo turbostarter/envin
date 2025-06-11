@@ -1,4 +1,11 @@
-import { ensureSynchronous, parseWithDictionary } from "./standard";
+import {
+  ensureSynchronous,
+  getDefault,
+  getDefaultDictionary,
+  isStandardSchema,
+  parseWithDictionary,
+  type StandardSchemaDictionary,
+} from "./standard";
 import type {
   DefineEnv,
   EnvOptions,
@@ -24,7 +31,7 @@ const getCombinedSchema = <
 >(
   options: ValidationOptions<TPrefix, TShared, TServer, TClient>,
   isServer: boolean,
-) => {
+): StandardSchemaDictionary => {
   return {
     ...(options.shared && options.shared),
     ...(options.server && isServer && options.server),
@@ -49,17 +56,15 @@ const getFinalSchema = <
     TFinalSchema
   >,
   isServer: boolean,
-) => {
+): StandardSchemaDictionary => {
   const presets = options.extends?.reduce(
-    (acc, preset) => {
-      return {
-        // biome-ignore lint/performance/noAccumulatingSpread: necessary for merging preset schemas
-        ...acc,
-        ...getCombinedSchema(preset, isServer),
-      };
-    },
-    {} as ValidationOptions<string, TShared, TServer, TClient>,
-  );
+    (acc, preset) => ({
+      // biome-ignore lint/performance/noAccumulatingSpread: necessary for merging preset schemas
+      ...acc,
+      ...getCombinedSchema(preset, isServer),
+    }),
+    {},
+  ) as StandardSchemaDictionary;
 
   return {
     ...presets,
@@ -124,24 +129,29 @@ export function defineEnv<
 
   const skip = !!options.skip;
   const schema = getFinalSchema(options, isServer);
+  const finalSchema = options.transform?.(schema as never, isServer) ?? schema;
+
+  const defaultValues = isStandardSchema(finalSchema)
+    ? getDefault(finalSchema)
+    : getDefaultDictionary(finalSchema);
 
   if (skip) {
     return {
+      ...defaultValues,
       ...values,
       _schema: schema,
       // biome-ignore lint/suspicious/noExplicitAny: we set the type explicitly
     } as any;
   }
 
-  const parsed =
-    options
-      .transform?.(schema as never, isServer)
-      ["~standard"].validate(values) ?? parseWithDictionary(schema, values);
+  const parsed = isStandardSchema(finalSchema)
+    ? finalSchema["~standard"].validate(values)
+    : parseWithDictionary(schema, values);
 
   ensureSynchronous(parsed, "Validation must be synchronous!");
 
   if (parsed.issues) {
-    onError(parsed.issues);
+    return onError(parsed.issues);
   }
 
   const isServerAccess = (prop: string) => {
