@@ -1,4 +1,3 @@
-import env from "env.config";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
@@ -15,7 +14,6 @@ export default function Home() {
 }
 
 const Hero = () => {
-  console.log(env.NEXT_PUBLIC_API_URL);
   return (
     <div className="flex flex-1 flex-col justify-center items-center text-center gap-6">
       <Link

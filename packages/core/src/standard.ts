@@ -134,7 +134,15 @@ export function parseWithDictionary<TDict extends StandardSchemaDictionary>(
 export const isStandardSchema = (
   schema: unknown,
 ): schema is StandardSchemaV1 => {
-  return typeof schema === "object" && schema !== null && "~standard" in schema;
+  return (
+    ["function", "object"].includes(typeof schema) &&
+    !!schema &&
+    // @ts-expect-error - we want to check if the schema is a Standard Schema object (even if it's a function)
+    "~standard" in schema &&
+    typeof schema["~standard"] === "object" &&
+    !!schema["~standard"] &&
+    "validate" in schema["~standard"]
+  );
 };
 
 /** Gets the default value from a Standard Schema object. */
