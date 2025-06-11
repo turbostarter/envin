@@ -8,4 +8,4 @@ import { defineEnv } from "envin";
 // import { config } from "./validators/arktype";
 import { config } from "./validators/zod";
 
-export default defineEnv(config);
+export default defineEnv(config.v4);

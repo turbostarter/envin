@@ -1,6 +1,6 @@
 import { expectTypeOf } from "expect-type";
 import { describe, expect, test, vi } from "vitest";
-import { z } from "zod";
+import { z } from "zod/v4";
 import { defineEnv } from "../src";
 
 function ignoreErrors(cb: () => void) {
@@ -200,7 +200,7 @@ describe("errors when validation fails", () => {
         },
       }),
     ).toThrow(
-      "Custom Error: Invalid variable BAR: Expected number, received nan",
+      "Custom Error: Invalid variable BAR: Invalid input: expected number, received NaN",
     );
   });
 });
@@ -705,7 +705,7 @@ describe("transforming final schema", () => {
     const env = defineEnv({
       server: {
         SKIP_AUTH: z.boolean().optional(),
-        EMAIL: z.string().email().optional(),
+        EMAIL: z.email().optional(),
         PASSWORD: z.string().min(1).optional(),
       },
       env: {
@@ -734,7 +734,7 @@ describe("transforming final schema", () => {
     const env = defineEnv({
       server: {
         SKIP_AUTH: z.boolean().optional(),
-        EMAIL: z.string().email().optional(),
+        EMAIL: z.email().optional(),
         PASSWORD: z.string().min(1).optional(),
       },
       transform: (shape) =>
@@ -742,7 +742,7 @@ describe("transforming final schema", () => {
           if (env.SKIP_AUTH) return { SKIP_AUTH: true } as const;
           if (!env.EMAIL || !env.PASSWORD) {
             ctx.addIssue({
-              code: z.ZodIssueCode.custom,
+              code: "custom",
               message: "EMAIL and PASSWORD are required if SKIP_AUTH is false",
             });
             return z.NEVER;

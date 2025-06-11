@@ -162,10 +162,12 @@ export const getDefault = (schema: StandardSchemaV1) => {
     "_def" in schema &&
     typeof schema._def === "object" &&
     schema._def !== null &&
-    "defaultValue" in schema._def &&
-    typeof schema._def.defaultValue === "function"
+    "defaultValue" in schema._def
   ) {
-    return schema._def.defaultValue?.();
+    if (typeof schema._def.defaultValue === "function") {
+      return schema._def.defaultValue?.();
+    }
+    return schema._def.defaultValue;
   }
 
   return undefined;
