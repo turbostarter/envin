@@ -1,5 +1,14 @@
 # @envin/cli
 
+## 1.1.2
+
+### Patch Changes
+
+- [#24](https://github.com/turbostarter/envin/pull/24) [`c33ac19`](https://github.com/turbostarter/envin/commit/c33ac1940469bcd437b4665b1ac27c2d46509c15) Thanks [@Bartek532](https://github.com/Bartek532)! - Enhanced Arktype support
+
+- Updated dependencies [[`c33ac19`](https://github.com/turbostarter/envin/commit/c33ac1940469bcd437b4665b1ac27c2d46509c15)]:
+  - envin@1.1.2
+
 ## 1.1.1
 
 ### Patch Changes
