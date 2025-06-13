@@ -45,6 +45,7 @@ export const getConfigFile = async (configFilePath: string) => {
     outputFiles = buildData.outputFiles;
   } catch (exception) {
     const buildFailure = exception as BuildFailure;
+    console.error("Build failure:", buildFailure);
     return {
       error: {
         message: buildFailure.message,
@@ -75,6 +76,7 @@ export const getConfigFile = async (configFilePath: string) => {
     const { error } = runningResult;
     if (error instanceof Error) {
       error.stack &&= error.stack.split("at Script.runInContext (node:vm")[0];
+      console.error("Error running bundled code:", error);
 
       return {
         error: improveErrorWithSourceMap(
@@ -85,12 +87,14 @@ export const getConfigFile = async (configFilePath: string) => {
       };
     }
 
+    console.error("Unknown error running bundled code:", error);
     throw error;
   }
 
   const parseResult = configSchema.safeParse(runningResult.value.exports);
 
   if (parseResult.error) {
+    console.error("Config schema validation error:", parseResult.error);
     return {
       error: improveErrorWithSourceMap(
         new Error(

@@ -3,7 +3,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { parse } from "dotenv";
-import type { TPreset } from "envin/types";
+import type { Preset } from "envin/types";
 import { envDirectoryAbsolutePath } from "@/app/env";
 import {
   type Config,
@@ -46,7 +46,7 @@ export const getVariables = async (config: Config) => {
   return variables;
 };
 
-const getVariableGroup = (key: string, preset: TPreset) => {
+const getVariableGroup = (key: string, preset: Preset) => {
   if (preset.shared && key in preset.shared) {
     return {
       group: VariableGroup.SHARED,
@@ -71,7 +71,7 @@ const getVariableGroup = (key: string, preset: TPreset) => {
   return null;
 };
 
-const getVariable = (key: string, preset: TPreset): Variable | null => {
+const getVariable = (key: string, preset: Preset): Variable | null => {
   const keys = new Set([
     ...Object.keys(preset.shared ?? {}),
     ...Object.keys(preset.client ?? {}),
