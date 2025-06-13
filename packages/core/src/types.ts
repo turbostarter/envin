@@ -31,74 +31,74 @@ type Mutable<T> = T extends Readonly<infer U> ? U : T;
 
 /** Extracts the combined schema from validation options */
 type ExtractCombinedSchema<T> = T extends ValidationOptions<
-  TPrefixFormat,
-  infer TShared,
-  infer TServer,
-  infer TClient
+  PrefixFormat,
+  infer Shared,
+  infer Server,
+  infer Client
 >
-  ? CombinedSchema<TShared, TServer, TClient>
+  ? CombinedSchema<Shared, Server, Client>
   : T extends Readonly<
         ValidationOptions<
-          TPrefixFormat,
-          infer TShared,
-          infer TServer,
-          infer TClient
+          PrefixFormat,
+          infer Shared,
+          infer Server,
+          infer Client
         >
       >
-    ? CombinedSchema<TShared, TServer, TClient>
+    ? CombinedSchema<Shared, Server, Client>
     : never;
 
 /** Reduces an array of schemas to a single schema */
 type Reduce<
-  TArr extends readonly unknown[] | unknown[],
-  TAcc extends StandardSchemaDictionary<
+  Arr extends readonly unknown[] | unknown[],
+  Acc extends StandardSchemaDictionary<
     object,
     object
   > = StandardSchemaDictionary<object, object>,
-> = TArr extends readonly [] | []
-  ? TAcc
-  : TArr extends
+> = Arr extends readonly [] | []
+  ? Acc
+  : Arr extends
         | readonly [infer Head, ...infer Tail]
         // biome-ignore lint/suspicious/noRedeclare: it's not the same type
         | [infer Head, ...infer Tail]
     ? Tail extends readonly unknown[] | unknown[]
-      ? Mutable<Reduce<Tail, CombinedSchema<TAcc, ExtractCombinedSchema<Head>>>>
+      ? Mutable<Reduce<Tail, CombinedSchema<Acc, ExtractCombinedSchema<Head>>>>
       : never
     : never;
 
-export type InferPresetOutput<T extends TExtendsFormat[number]> =
+export type InferPresetOutput<T extends ExtendsFormat[number]> =
   StandardSchemaDictionary.InferOutput<ExtractCombinedSchema<T>>;
 
 export type CombinedSchema<
-  TShared extends TSharedFormat = TSharedFormat,
-  TServer extends TServerFormat = TServerFormat,
-  TClient extends TClientFormat = TClientFormat,
-> = Merge<TShared, Merge<TServer, TClient>>;
+  Shared extends SharedFormat = SharedFormat,
+  Server extends ServerFormat = ServerFormat,
+  Client extends ClientFormat = ClientFormat,
+> = Merge<Shared, Merge<Server, Client>>;
 
-export type TPrefixFormat = string | undefined;
-export type TSharedFormat = StandardSchemaDictionary<object, object>;
-export type TServerFormat = StandardSchemaDictionary<object, object>;
-export type TClientFormat = StandardSchemaDictionary<object, object>;
-export type TExtendsFormat =
-  | (TPreset | Readonly<TPreset>)[]
-  | ReadonlyArray<TPreset>;
+export type PrefixFormat = string | undefined;
+export type SharedFormat = StandardSchemaDictionary<object, object>;
+export type ServerFormat = StandardSchemaDictionary<object, object>;
+export type ClientFormat = StandardSchemaDictionary<object, object>;
+export type ExtendsFormat =
+  | (Preset | Readonly<Preset>)[]
+  | ReadonlyArray<Preset>;
 
-export type TPreset<
-  TPrefix extends TPrefixFormat = TPrefixFormat,
-  TShared extends TSharedFormat = TSharedFormat,
-  TServer extends TServerFormat = TServerFormat,
-  TClient extends TClientFormat = TClientFormat,
-> = ValidationOptions<TPrefix, TShared, TServer, TClient> & {
+export type Preset<
+  Prefix extends PrefixFormat = PrefixFormat,
+  Shared extends SharedFormat = SharedFormat,
+  Server extends ServerFormat = ServerFormat,
+  Client extends ClientFormat = ClientFormat,
+> = ValidationOptions<Prefix, Shared, Server, Client> & {
   id?: string;
 };
 
-export type TSchema = StandardSchemaV1<object, object>;
+export type Schema = StandardSchemaV1<object, object>;
 
-export interface BaseOptions<TExtends extends TExtendsFormat> {
+export interface BaseOptions<Extends extends ExtendsFormat> {
   /**
    * Array of preset configurations to extend from.
    */
-  extends?: TExtends;
+  extends?: Extends;
   /**
    * Whether to skip validation of environment variables.
    * @default false
@@ -124,8 +124,8 @@ export interface BaseOptions<TExtends extends TExtendsFormat> {
   onInvalidAccess?: (variable: string) => never;
 }
 
-export interface LooseOptions<TExtends extends TExtendsFormat>
-  extends BaseOptions<TExtends> {
+export interface LooseOptions<Extends extends ExtendsFormat>
+  extends BaseOptions<Extends> {
   /**
    * Must be undefined when using loose options. Use `env` instead.
    */
@@ -139,34 +139,34 @@ export interface LooseOptions<TExtends extends TExtendsFormat>
 }
 
 export interface StrictOptions<
-  TPrefix extends TPrefixFormat,
-  TServer extends TServerFormat,
-  TClient extends TClientFormat,
-  TShared extends TSharedFormat,
-  TExtends extends TExtendsFormat,
-> extends BaseOptions<TExtends> {
+  Prefix extends PrefixFormat,
+  Server extends ServerFormat,
+  Client extends ClientFormat,
+  Shared extends SharedFormat,
+  Extends extends ExtendsFormat,
+> extends BaseOptions<Extends> {
   /**
    * Runtime Environment variables to use for validation - `process.env`, `import.meta.env` or similar.
    * Enforces all environment variables to be set. Required in for example Next.js Edge and Client runtimes.
    */
   envStrict?: Record<
     | {
-        [TKey in keyof TClient]: TPrefix extends undefined
+        [Key in keyof Client]: Prefix extends undefined
           ? never
-          : TKey extends `${TPrefix}${string}`
-            ? TKey
+          : Key extends `${Prefix}${string}`
+            ? Key
             : never;
-      }[keyof TClient]
+      }[keyof Client]
     | {
-        [TKey in keyof TServer]: TPrefix extends undefined
-          ? TKey
-          : TKey extends `${TPrefix}${string}`
+        [Key in keyof Server]: Prefix extends undefined
+          ? Key
+          : Key extends `${Prefix}${string}`
             ? never
-            : TKey;
-      }[keyof TServer]
+            : Key;
+      }[keyof Server]
     | {
-        [TKey in keyof TShared]: TKey extends string ? TKey : never;
-      }[keyof TShared],
+        [Key in keyof Shared]: Key extends string ? Key : never;
+      }[keyof Shared],
     string | boolean | number | undefined
   >;
   /**
@@ -175,125 +175,125 @@ export interface StrictOptions<
   env?: never;
 }
 
-export interface SharedOptions<TShared extends TSharedFormat> {
+export interface SharedOptions<Shared extends SharedFormat> {
   /**
    * Specify your shared environment variables schema here. These variables are available on both client and server.
    */
-  shared?: TShared;
+  shared?: Shared;
 }
 
 export interface ClientOptions<
-  TPrefix extends TPrefixFormat,
-  TClient extends TClientFormat,
+  Prefix extends PrefixFormat,
+  Client extends ClientFormat,
 > {
   /**
    * The prefix that client-side variables must have. This is enforced both at
    * a type-level and at runtime.
    */
-  clientPrefix?: TPrefix;
+  clientPrefix?: Prefix;
 
   /**
    * Specify your client-side environment variables schema here. This way you can ensure the app isn't
    * built with invalid env vars.
    */
   client?: Partial<{
-    [TKey in keyof TClient]: TKey extends `${TPrefix}${string}`
-      ? TClient[TKey]
-      : ErrorMessage<`${TKey extends string
-          ? TKey
-          : never} is not prefixed with ${TPrefix}.`>;
+    [Key in keyof Client]: Key extends `${Prefix}${string}`
+      ? Client[Key]
+      : ErrorMessage<`${Key extends string
+          ? Key
+          : never} is not prefixed with ${Prefix}.`>;
   }>;
 }
 
 export interface ServerOptions<
-  TPrefix extends TPrefixFormat,
-  TServer extends TServerFormat,
+  Prefix extends PrefixFormat,
+  Server extends ServerFormat,
 > {
   /**
    * Specify your server-side environment variables schema here. This way you can ensure the app isn't
    * built with invalid env vars.
    */
   server: Partial<{
-    [TKey in keyof TServer]: TPrefix extends undefined
-      ? TServer[TKey]
-      : TPrefix extends ""
-        ? TServer[TKey]
-        : TKey extends `${TPrefix}${string}`
-          ? ErrorMessage<`${TKey extends `${TPrefix}${string}`
-              ? TKey
-              : never} should not prefixed with ${TPrefix}.`>
-          : TServer[TKey];
+    [Key in keyof Server]: Prefix extends undefined
+      ? Server[Key]
+      : Prefix extends ""
+        ? Server[Key]
+        : Key extends `${Prefix}${string}`
+          ? ErrorMessage<`${Key extends `${Prefix}${string}`
+              ? Key
+              : never} should not prefixed with ${Prefix}.`>
+          : Server[Key];
   }>;
 }
 
 export type ValidationOptions<
-  TPrefix extends TPrefixFormat = TPrefixFormat,
-  TShared extends TSharedFormat = TSharedFormat,
-  TServer extends TServerFormat = TServerFormat,
-  TClient extends TClientFormat = TClientFormat,
+  Prefix extends PrefixFormat = PrefixFormat,
+  Shared extends SharedFormat = SharedFormat,
+  Server extends ServerFormat = ServerFormat,
+  Client extends ClientFormat = ClientFormat,
 > = (
-  | (ClientOptions<TPrefix, TClient> & ServerOptions<TPrefix, TServer>)
-  | (ServerOptions<TPrefix, TServer> & Impossible<ClientOptions<never, never>>)
-  | (ClientOptions<TPrefix, TClient> & Impossible<ServerOptions<never, never>>)
+  | (ClientOptions<Prefix, Client> & ServerOptions<Prefix, Server>)
+  | (ServerOptions<Prefix, Server> & Impossible<ClientOptions<never, never>>)
+  | (ClientOptions<Prefix, Client> & Impossible<ServerOptions<never, never>>)
 ) &
-  SharedOptions<TShared>;
+  SharedOptions<Shared>;
 
 export interface TransformSchemaOptions<
-  TShared extends TSharedFormat,
-  TServer extends TServerFormat,
-  TClient extends TClientFormat,
-  TExtends extends TExtendsFormat,
-  TFinalSchema extends TSchema,
+  Shared extends SharedFormat,
+  Server extends ServerFormat,
+  Client extends ClientFormat,
+  Extends extends ExtendsFormat,
+  FinalSchema extends Schema,
 > {
   /**
    * A custom function to combine the schemas.
    * Can be used to add further refinement or transformation.
    */
   transform?: (
-    shape: Simplify<FullSchemaShape<TShared, TServer, TClient, TExtends>>,
+    shape: Simplify<FullSchemaShape<Shared, Server, Client, Extends>>,
     isServer: boolean,
-  ) => TFinalSchema;
+  ) => FinalSchema;
 }
 
 export type EnvOptions<
-  TPrefix extends TPrefixFormat = TPrefixFormat,
-  TShared extends TSharedFormat = TSharedFormat,
-  TServer extends TServerFormat = TServerFormat,
-  TClient extends TClientFormat = TClientFormat,
-  TExtends extends TExtendsFormat = TExtendsFormat,
-  TFinalSchema extends TSchema = TSchema,
+  Prefix extends PrefixFormat = PrefixFormat,
+  Shared extends SharedFormat = SharedFormat,
+  Server extends ServerFormat = ServerFormat,
+  Client extends ClientFormat = ClientFormat,
+  Extends extends ExtendsFormat = ExtendsFormat,
+  FinalSchema extends Schema = Schema,
 > = (
-  | LooseOptions<TExtends>
-  | StrictOptions<TPrefix, TServer, TClient, TShared, TExtends>
+  | LooseOptions<Extends>
+  | StrictOptions<Prefix, Server, Client, Shared, Extends>
 ) &
-  ValidationOptions<TPrefix, TShared, TServer, TClient> &
-  TransformSchemaOptions<TShared, TServer, TClient, TExtends, TFinalSchema>;
+  ValidationOptions<Prefix, Shared, Server, Client> &
+  TransformSchemaOptions<Shared, Server, Client, Extends, FinalSchema>;
 
 export type FullSchemaShape<
-  TShared extends TSharedFormat,
-  TServer extends TServerFormat,
-  TClient extends TClientFormat,
-  TExtends extends TExtendsFormat,
-> = CombinedSchema<Reduce<TExtends>, CombinedSchema<TShared, TServer, TClient>>;
+  Shared extends SharedFormat,
+  Server extends ServerFormat,
+  Client extends ClientFormat,
+  Extends extends ExtendsFormat,
+> = CombinedSchema<Reduce<Extends>, CombinedSchema<Shared, Server, Client>>;
 
 export type FinalSchema<
-  TShared extends TSharedFormat,
-  TServer extends TServerFormat,
-  TClient extends TClientFormat,
-  TExtends extends TExtendsFormat,
+  Shared extends SharedFormat,
+  Server extends ServerFormat,
+  Client extends ClientFormat,
+  Extends extends ExtendsFormat,
 > = StandardSchemaV1<
   object,
   UndefinedOptional<
     StandardSchemaDictionary.InferOutput<
-      FullSchemaShape<TShared, TServer, TClient, TExtends>
+      FullSchemaShape<Shared, Server, Client, Extends>
     >
   >
 >;
 
-export type DefineEnv<TFinalSchema extends TSchema = TSchema> = Simplify<
+export type DefineEnv<FinalSchema extends Schema = Schema> = Simplify<
   Readonly<
-    StandardSchemaV1.InferOutput<TFinalSchema> & {
-      _schema: TFinalSchema;
+    StandardSchemaV1.InferOutput<FinalSchema> & {
+      _schema: FinalSchema;
     }
   >
 >;

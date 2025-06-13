@@ -7,15 +7,15 @@ import {
   type StandardSchemaDictionary,
 } from "./standard";
 import type {
+  ClientFormat,
   DefineEnv,
   EnvOptions,
+  ExtendsFormat,
   FinalSchema,
-  TClientFormat,
-  TExtendsFormat,
-  TPrefixFormat,
-  TSchema,
-  TServerFormat,
-  TSharedFormat,
+  PrefixFormat,
+  Schema,
+  ServerFormat,
+  SharedFormat,
   ValidationOptions,
 } from "./types";
 
@@ -24,12 +24,12 @@ const ignoreProp = (prop: string) => {
 };
 
 const getCombinedSchema = <
-  TPrefix extends TPrefixFormat,
-  TShared extends TSharedFormat,
-  TServer extends TServerFormat,
-  TClient extends TClientFormat,
+  Prefix extends PrefixFormat,
+  Shared extends SharedFormat,
+  Server extends ServerFormat,
+  Client extends ClientFormat,
 >(
-  options: ValidationOptions<TPrefix, TShared, TServer, TClient>,
+  options: ValidationOptions<Prefix, Shared, Server, Client>,
   isServer: boolean,
 ): StandardSchemaDictionary => {
   return {
@@ -40,21 +40,14 @@ const getCombinedSchema = <
 };
 
 const getFinalSchema = <
-  TPrefix extends TPrefixFormat,
-  TShared extends TSharedFormat,
-  TServer extends TServerFormat,
-  TClient extends TClientFormat,
-  TExtends extends TExtendsFormat,
-  TFinalSchema extends TSchema,
+  Prefix extends PrefixFormat,
+  Shared extends SharedFormat,
+  Server extends ServerFormat,
+  Client extends ClientFormat,
+  Extends extends ExtendsFormat,
+  FinalSchema extends Schema,
 >(
-  options: EnvOptions<
-    TPrefix,
-    TShared,
-    TServer,
-    TClient,
-    TExtends,
-    TFinalSchema
-  >,
+  options: EnvOptions<Prefix, Shared, Server, Client, Extends, FinalSchema>,
   isServer: boolean,
 ): StandardSchemaDictionary => {
   const presets = options.extends?.reduce(
@@ -80,27 +73,15 @@ class EnvError extends Error {
 }
 
 export function defineEnv<
-  TPrefix extends TPrefixFormat,
-  TShared extends TSharedFormat = NonNullable<unknown>,
-  TServer extends TServerFormat = NonNullable<unknown>,
-  TClient extends TClientFormat = NonNullable<unknown>,
-  const TExtends extends TExtendsFormat = [],
-  TFinalSchema extends TSchema = FinalSchema<
-    TShared,
-    TServer,
-    TClient,
-    TExtends
-  >,
+  Prefix extends PrefixFormat,
+  Shared extends SharedFormat = NonNullable<unknown>,
+  Server extends ServerFormat = NonNullable<unknown>,
+  Client extends ClientFormat = NonNullable<unknown>,
+  const Extends extends ExtendsFormat = [],
+  FinalSchemaType extends Schema = FinalSchema<Shared, Server, Client, Extends>,
 >(
-  options: EnvOptions<
-    TPrefix,
-    TShared,
-    TServer,
-    TClient,
-    TExtends,
-    TFinalSchema
-  >,
-): DefineEnv<TFinalSchema> {
+  options: EnvOptions<Prefix, Shared, Server, Client, Extends, FinalSchemaType>,
+): DefineEnv<FinalSchemaType> {
   const values = options.envStrict ?? options.env ?? process.env;
 
   for (const [key, value] of Object.entries(values)) {
