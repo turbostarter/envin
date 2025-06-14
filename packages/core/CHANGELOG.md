@@ -1,5 +1,11 @@
 # envin
 
+## 1.1.3
+
+### Patch Changes
+
+- [`c93509c`](https://github.com/turbostarter/envin/commit/c93509c573fdacc24d0be541b2339e3ef6f76ebe) Thanks [@Bartek532](https://github.com/Bartek532)! - Enhanced error handling
+
 ## 1.1.2
 
 ### Patch Changes
