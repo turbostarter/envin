@@ -50,7 +50,7 @@
     "chokidar": "^4.0.3",
     "commander": "^13.1.0",
     "debounce": "^2.2.0",
-    "dotenv": "^16.5.0",
+    "dotenv": "^17.0.0",
     "envin": "workspace:*",
     "esbuild": "^0.25.0",
     "log-symbols": "^7.0.0",
