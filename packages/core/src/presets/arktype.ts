@@ -255,7 +255,7 @@ export type SupabaseVercelEnv = InferPresetOutput<typeof supabaseVercel>;
  */
 export const vite = {
   id: "vite",
-  server: {
+  shared: {
     BASE_URL: type("string | undefined"),
     MODE: type("string | undefined"),
     DEV: type("boolean | undefined"),
