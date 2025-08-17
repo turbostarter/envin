@@ -1,6 +1,6 @@
 import { defineEnv } from "envin";
 import { vercel } from "envin/presets/zod";
-import { z } from "zod";
+import * as z from "zod";
 
 export default defineEnv({
   extends: [vercel],

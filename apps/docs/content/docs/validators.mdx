@@ -26,11 +26,11 @@ The specification consists of a single TypeScript interface `StandardSchemaV1` t
 
 ```ts title="env.config.ts"
 import { defineEnv } from "envin";
-import { z } from "zod";
+import * as z from "zod"; 
 
 export default defineEnv({
   server: {
-    DATABASE_URL: z.string().url(),
+    DATABASE_URL: z.url(),
     PORT: z.coerce.number().default(3000),
     API_KEY: z.string().min(1),
   },
@@ -38,7 +38,7 @@ export default defineEnv({
     NODE_ENV: z.enum(["development", "production", "test"]),
   },
   client: {
-    NEXT_PUBLIC_APP_URL: z.string().url(),
+    NEXT_PUBLIC_APP_URL: z.url(),
   },
   clientPrefix: "NEXT_PUBLIC_",
   env: process.env,
@@ -144,14 +144,14 @@ Since all Standard Schema-compliant libraries use the same interface, you can ev
 
 ```ts title="env.config.ts"
 import { defineEnv } from "envin";
-import { z } from "zod";
+import * as z from "zod"; 
 import * as v from "valibot";
 import { type } from "arktype";
 
 export default defineEnv({
   server: {
     // Using Zod
-    DATABASE_URL: z.string().url(),
+    DATABASE_URL: z.url(),
     // Using Valibot
     PORT: v.pipe(v.string(), v.transform(Number)),
     // Using ArkType

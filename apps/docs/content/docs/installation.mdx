@@ -51,7 +51,7 @@ Create an environment configuration file (we recommend `env.config.ts`, but you 
 
 ```ts twoslash title="env.config.ts"
 import { defineEnv } from "envin";
-import { z } from "zod";
+import * as z from "zod"; 
 
 const env = defineEnv({
   //    ^?
@@ -70,7 +70,7 @@ const env = defineEnv({
    * This way you can ensure the app isn't built with invalid env vars.
    */
   server: {
-    DATABASE_URL: z.string().url(),
+    DATABASE_URL: z.url(),
     OPENAI_API_KEY: z.string().min(1),
     JWT_SECRET: z.string().min(32),
   },
@@ -103,11 +103,11 @@ If you only need server-side variables, you can omit the `client` and `clientPre
 
 ```ts twoslash title="env.config.ts"
 import { defineEnv } from "envin";
-import { z } from "zod";
+import * as z from "zod"; 
 
 export default defineEnv({
   server: {
-    DATABASE_URL: z.string().url(),
+    DATABASE_URL: z.url(),
     OPENAI_API_KEY: z.string().min(1),
   },
   shared: {
@@ -126,11 +126,11 @@ export default defineEnv({
 
 ```ts twoslash title="env/server.ts"
 import { defineEnv } from "envin";
-import { z } from "zod";
+import * as z from "zod"; 
 
 export const env = defineEnv({
   server: {
-    DATABASE_URL: z.string().url(),
+    DATABASE_URL: z.url(),
     OPENAI_API_KEY: z.string().min(1),
   },
   env: process.env,
@@ -139,7 +139,7 @@ export const env = defineEnv({
 
 ```ts twoslash title="env/client.ts"
 import { defineEnv } from "envin";
-import { z } from "zod";
+import * as z from "zod"; 
 
 export const env = defineEnv({
   clientPrefix: "NEXT_PUBLIC_",
@@ -159,12 +159,12 @@ You'll notice that if your clientPrefix is `PUBLIC_`, you won't be allowed to en
 ```ts twoslash title="env.config.ts"
 // @errors: 2322
 import { defineEnv } from "envin";
-import { z } from "zod";
+import * as z from "zod"; 
 
 export default defineEnv({
   clientPrefix: "PUBLIC_",
   client: {
-    VITE_PUBLIC_API_URL: z.string().url(),
+    VITE_PUBLIC_API_URL: z.url(),
   },
   env: process.env,
 });
@@ -256,11 +256,11 @@ If your framework doesn't bundle all environment variables by default, but inste
 ```ts twoslash title="env.config.ts"
 // @errors: 2741
 import { defineEnv } from "envin";
-import { z } from "zod";
+import * as z from "zod"; 
 
 export default defineEnv({
   server: {
-    DATABASE_URL: z.string().url(),
+    DATABASE_URL: z.url(),
     OPENAI_API_KEY: z.string().min(1),
   },
   client: {

@@ -7,7 +7,7 @@ import type {
   ControllerRenderProps,
   FieldValues,
 } from "react-hook-form";
-import { z } from "zod";
+import * as z from "zod";
 import {
   Accordion,
   AccordionContent,

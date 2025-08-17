@@ -2,7 +2,7 @@
 
 import path from "node:path";
 import { type BuildFailure, build, type OutputFile } from "esbuild";
-import { z } from "zod";
+import * as z from "zod";
 import type { Config } from "@/lib/types";
 import { improveErrorWithSourceMap } from "@/utils/improve-error-with-sourcemap";
 import { isErr } from "@/utils/result";

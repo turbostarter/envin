@@ -103,7 +103,7 @@ A preset is just like any other envin configuration object, so you can easily cr
 
 ```ts twoslash title="env.config.ts"
 import { defineEnv } from "envin";
-import { z } from "zod";
+import * as z from "zod"; 
 
 const stripe = {
   clientPrefix: "NEXT_PUBLIC_",
@@ -131,7 +131,7 @@ You can use custom transformations to process environment variables or add compl
 
 ```ts twoslash title="env.config.ts"
 import { defineEnv } from "envin";
-import { z } from "zod";
+import * as z from "zod"; 
 
 const env = defineEnv({
   server: {
@@ -149,7 +149,7 @@ const env = defineEnv({
       ),
     // Conditional validation
     SKIP_AUTH: z.boolean().optional(),
-    EMAIL: z.string().email().optional(),
+    EMAIL: z.email().optional(),
     PASSWORD: z.string().min(1).optional(),
   },
   env: process.env,

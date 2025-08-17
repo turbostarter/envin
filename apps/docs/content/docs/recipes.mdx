@@ -57,7 +57,7 @@ Converting numbers from strings is another common use case that requires careful
 
 ```ts twoslash title="env.config.ts"
 import { defineEnv } from "envin";
-import { z } from "zod";
+import * as z from "zod"; 
 
 const env = defineEnv({
   //    ^?

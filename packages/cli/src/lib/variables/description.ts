@@ -1,4 +1,4 @@
-import { z } from "zod";
+import * as z from "zod";
 import type { StandardSchemaV1 } from "@/lib/standard";
 
 const zodSchema = z.object({
