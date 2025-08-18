@@ -9,17 +9,25 @@ import { isErr } from "@/utils/result";
 import { logger } from "../cli/utils/logger";
 import { runBundledCode } from "./run-bundled-code";
 
-const presetSchema = z.object({
-  id: z.string().optional(),
+const optionsSchema = z.object({
   clientPrefix: z.string().optional(),
   client: z.record(z.string(), z.unknown()).optional(),
   server: z.record(z.string(), z.unknown()).optional(),
   shared: z.record(z.string(), z.unknown()).optional(),
 });
 
+const presetSchema = optionsSchema.extend({
+  id: z.string().optional(),
+  get extends() {
+    return z.array(presetSchema).optional();
+  },
+});
+
 const configSchema = z.object({
   default: z.object({
-    options: presetSchema.extend({ extends: z.array(presetSchema).optional() }),
+    options: optionsSchema.extend({
+      extends: z.array(presetSchema).optional(),
+    }),
     env: z.record(z.string(), z.unknown()),
   }),
 });

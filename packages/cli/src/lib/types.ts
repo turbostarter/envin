@@ -43,7 +43,10 @@ export const FILES = {
 } as const;
 
 export interface Variable {
-  preset: string;
+  preset: {
+    id: string;
+    path: string[];
+  };
   group: VariableGroup;
   default: string | undefined;
   description: string | undefined;

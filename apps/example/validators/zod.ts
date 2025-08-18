@@ -4,7 +4,7 @@ import { z as v4 } from "zod/v4";
 
 const zodV3 = () => {
   const stripe = {
-    id: "stripe",
+    // id: "stripe",
     clientPrefix: "NEXT_PUBLIC_",
     client: {
       NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: v3
@@ -43,7 +43,7 @@ const zodV3 = () => {
 
 const zodV4 = () => {
   const stripe = {
-    id: "stripe",
+    // id: "stripe",
     clientPrefix: "NEXT_PUBLIC_",
     client: {
       NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: v4

@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertCircle, Check, Copy, File, Lock, ShieldOff } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type {
   Control,
   ControllerRenderProps,
@@ -63,58 +63,178 @@ const PresetIcons = {
   wxt: Wxt,
 } as const;
 
+const getIconComponent = (key: string) =>
+  key in PresetIcons ? PresetIcons[key as keyof typeof PresetIcons] : null;
+
+const toDisplayLabel = (key: string) => key.replaceAll("-", " ");
+
+type TreeNode = {
+  name: string;
+  variables: VariableWithKey[];
+  children: Record<string, TreeNode>;
+};
+
+const createNode = (name: string): TreeNode => ({
+  name,
+  variables: [],
+  children: {},
+});
+
+type Tree = {
+  rootVariables: VariableWithKey[];
+  children: Record<string, TreeNode>;
+};
+
+const buildTree = (items: VariableWithKey[]): Tree => {
+  const tree: Tree = { rootVariables: [], children: {} };
+
+  for (const item of items) {
+    const fullPath = item.preset?.path ?? [DEFAULT_PRESET];
+    const path = fullPath.filter((segment) => segment !== DEFAULT_PRESET);
+
+    if (!path.length) {
+      tree.rootVariables.push(item);
+      continue;
+    }
+
+    const top = path[0] ?? "";
+    if (!tree.children[top]) {
+      tree.children[top] = createNode(top);
+    }
+    let current = tree.children[top];
+
+    if (path.length === 1) {
+      current.variables.push(item);
+      continue;
+    }
+
+    for (let i = 1; i < path.length; i++) {
+      const segment = path[i] ?? "";
+      if (!current.children[segment]) {
+        current.children[segment] = createNode(segment);
+      }
+
+      current = current.children[segment];
+      if (i === path.length - 1) {
+        current.variables.push(item);
+      }
+    }
+  }
+
+  return tree;
+};
+
 export const Form = () => {
   const { form, variables, filteredKeys } = useVariables();
+
+  const items = useMemo(
+    () =>
+      filteredKeys
+        .map((key) => ({
+          ...variables[key],
+          key,
+        }))
+        .filter((variable): variable is VariableWithKey => Boolean(variable)),
+    [filteredKeys, variables],
+  );
+
+  const tree = useMemo(() => buildTree(items), [items]);
+
+  const topLevelKeys = useMemo(
+    () => [DEFAULT_PRESET, ...Object.keys(tree.children).reverse()],
+    [tree.children],
+  );
 
   if (!filteredKeys.length) {
     return <Empty />;
   }
 
-  const sections = Object.groupBy(
-    filteredKeys.map((key) => {
-      return {
-        ...variables[key],
-        key,
-      };
-    }),
-    ({ preset }) => preset ?? DEFAULT_PRESET,
-  );
+  const renderNode = (node: TreeNode) => {
+    const childKeys = Object.keys(node.children);
+    return (
+      <>
+        {node.variables.length > 0 && (
+          <div
+            className={cn({
+              "pb-5": childKeys.length > 0,
+            })}
+          >
+            {node.variables.map((variable) => (
+              <Variable
+                key={variable.key}
+                variable={variable}
+                control={form.control}
+              />
+            ))}
+          </div>
+        )}
+        {childKeys.length > 0 && (
+          <Accordion type="multiple">
+            {childKeys.map((child) => {
+              const childNode = node.children[child];
+              const Icon = getIconComponent(child);
 
-  const presets = Object.keys(sections).reverse();
+              if (!childNode) {
+                return null;
+              }
+
+              return (
+                <AccordionItem
+                  key={child}
+                  value={child}
+                  className="mb-3 last:mb-0"
+                >
+                  <AccordionTrigger>
+                    <div className="flex items-center gap-2 uppercase">
+                      {Icon && <Icon className="size-4" />}
+                      {toDisplayLabel(child)}
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>{renderNode(childNode)}</AccordionContent>
+                </AccordionItem>
+              );
+            })}
+          </Accordion>
+        )}
+      </>
+    );
+  };
 
   return (
     <ScrollArea className="w-full h-full">
-      <Accordion type="multiple" defaultValue={presets}>
+      <Accordion type="multiple" defaultValue={topLevelKeys}>
         <Root {...form}>
           <form className="space-y-3">
-            {presets.map((key) => {
-              const Icon =
-                key in PresetIcons
-                  ? PresetIcons[key as keyof typeof PresetIcons]
-                  : null;
+            {topLevelKeys.map((key) => {
+              const Icon = getIconComponent(key);
 
               return (
                 <AccordionItem
                   key={key}
-                  className={cn("flex flex-col", key === "root" && "pt-5")}
+                  className={cn(
+                    "flex flex-col",
+                    key === DEFAULT_PRESET && "pt-5",
+                  )}
                   value={key}
                 >
-                  {key !== "root" && (
+                  {key !== DEFAULT_PRESET && (
                     <AccordionTrigger>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 uppercase">
                         {Icon && <Icon className="size-4" />}
-                        {key.replace("-", " ")}
+                        {toDisplayLabel(key)}
                       </div>
                     </AccordionTrigger>
                   )}
                   <AccordionContent>
-                    {sections[key]?.map((variable) => (
-                      <Variable
-                        key={variable.key}
-                        variable={variable as VariableWithKey}
-                        control={form.control}
-                      />
-                    ))}
+                    {key === DEFAULT_PRESET
+                      ? renderNode({
+                          name: DEFAULT_PRESET,
+                          variables: tree.rootVariables,
+                          children: {},
+                        })
+                      : tree.children[key]
+                        ? renderNode(tree.children[key])
+                        : null}
                   </AccordionContent>
                 </AccordionItem>
               );

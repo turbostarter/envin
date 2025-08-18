@@ -2,7 +2,7 @@ import { vercel } from "envin/presets/valibot";
 import * as v from "valibot";
 
 const stripe = {
-  id: "stripe",
+  // id: "stripe",
   clientPrefix: "NEXT_PUBLIC_",
   client: {
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: v.pipe(

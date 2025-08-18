@@ -19,9 +19,9 @@ export const vercel = {
       .optional()
       .default("development"),
     VERCEL_TARGET_ENV: z.string().optional(),
-    VERCEL_URL: z.url().optional(),
-    VERCEL_PROJECT_PRODUCTION_URL: z.url().optional(),
-    VERCEL_BRANCH_URL: z.url().optional(),
+    VERCEL_URL: z.string().optional(),
+    VERCEL_PROJECT_PRODUCTION_URL: z.string().optional(),
+    VERCEL_BRANCH_URL: z.string().optional(),
     VERCEL_REGION: z.string().optional(),
     VERCEL_DEPLOYMENT_ID: z.string().optional(),
     VERCEL_SKEW_PROTECTION_ENABLED: z.string().optional(),
