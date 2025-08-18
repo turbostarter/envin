@@ -22,7 +22,7 @@
   "license": "MIT",
   "author": "Bartosz Zagrodzki",
   "bin": {
-    "cli": "dist/cli/index.mjs"
+    "envin": "dist/cli/index.mjs"
   },
   "scripts": {
     "build": "tsup-node && bun run build:preview",
