@@ -1,5 +1,14 @@
 # @envin/cli
 
+## 1.1.4
+
+### Patch Changes
+
+- [#34](https://github.com/turbostarter/envin/pull/34) [`75a4ce0`](https://github.com/turbostarter/envin/commit/75a4ce097262c2f661c984246419abef60c2e302) Thanks [@Bartek532](https://github.com/Bartek532)! - minor adjustments - zod v4, presets fixes and --verbose flag
+
+- Updated dependencies [[`75a4ce0`](https://github.com/turbostarter/envin/commit/75a4ce097262c2f661c984246419abef60c2e302)]:
+  - envin@1.1.4
+
 ## 1.1.3
 
 ### Patch Changes
