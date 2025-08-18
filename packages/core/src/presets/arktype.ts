@@ -4,7 +4,7 @@
  * @module
  */
 import { type } from "arktype";
-import type { InferPresetOutput } from "../types";
+import type { InferPresetOutput, Preset } from "../types";
 
 /**
  * Vercel System Environment Variables
@@ -35,7 +35,7 @@ export const vercel = {
     VERCEL_GIT_PREVIOUS_SHA: type("string | undefined"),
     VERCEL_GIT_PULL_REQUEST_ID: type("string | undefined"),
   },
-} as const;
+} as const satisfies Preset;
 
 export type VercelEnv = InferPresetOutput<typeof vercel>;
 
@@ -62,7 +62,7 @@ export const neonVercel = {
     POSTGRES_URL_NO_SSL: type("string.url | undefined"),
     POSTGRES_PRISMA_URL: type("string.url | undefined"),
   },
-} as const;
+} as const satisfies Preset;
 
 export type NeonVercelEnv = InferPresetOutput<typeof neonVercel>;
 
@@ -74,7 +74,7 @@ export const uploadthing = {
   server: {
     UPLOADTHING_TOKEN: type("string"),
   },
-} as const;
+} as const satisfies Preset;
 
 export type UploadthingEnv = InferPresetOutput<typeof uploadthing>;
 
@@ -100,7 +100,7 @@ export const render = {
     ),
     RENDER: type("string | undefined"),
   },
-} as const;
+} as const satisfies Preset;
 
 export type RenderEnv = InferPresetOutput<typeof render>;
 
@@ -135,7 +135,7 @@ export const railway = {
     RAILWAY_GIT_REPO_OWNER: type("string | undefined"),
     RAILWAY_GIT_COMMIT_MESSAGE: type("string | undefined"),
   },
-} as const;
+} as const satisfies Preset;
 
 export type RailwayEnv = InferPresetOutput<typeof railway>;
 
@@ -158,7 +158,7 @@ export const fly = {
     FLY_VM_MEMORY_MB: type("string | undefined"),
     PRIMARY_REGION: type("string | undefined"),
   },
-} as const;
+} as const satisfies Preset;
 
 export type FlyEnv = InferPresetOutput<typeof fly>;
 
@@ -183,7 +183,7 @@ export const netlify = {
     SITE_NAME: type("string | undefined"),
     SITE_ID: type("string | undefined"),
   },
-} as const;
+} as const satisfies Preset;
 
 export type NetlifyEnv = InferPresetOutput<typeof netlify>;
 
@@ -197,7 +197,7 @@ export const upstashRedis = {
     UPSTASH_REDIS_REST_URL: type("string.url"),
     UPSTASH_REDIS_REST_TOKEN: type("string"),
   },
-} as const;
+} as const satisfies Preset;
 
 export type UpstashRedisEnv = InferPresetOutput<typeof upstashRedis>;
 
@@ -217,7 +217,7 @@ export const coolify = {
     PORT: type("string | undefined"),
     HOST: type("string | undefined"),
   },
-} as const;
+} as const satisfies Preset;
 
 export type CoolifyEnv = InferPresetOutput<typeof coolify>;
 
@@ -245,7 +245,7 @@ export const supabaseVercel = {
     NEXT_PUBLIC_SUPABASE_ANON_KEY: type("string | undefined"),
     NEXT_PUBLIC_SUPABASE_URL: type("string | undefined"),
   },
-} as const;
+} as const satisfies Preset;
 
 export type SupabaseVercelEnv = InferPresetOutput<typeof supabaseVercel>;
 
@@ -262,7 +262,7 @@ export const vite = {
     PROD: type("boolean | undefined"),
     SSR: type("boolean | undefined"),
   },
-} as const;
+} as const satisfies Preset;
 
 export type ViteEnv = InferPresetOutput<typeof vite>;
 
@@ -283,6 +283,6 @@ export const wxt = {
     EDGE: type("boolean | undefined"),
     OPERA: type("boolean | undefined"),
   },
-} as const;
+} as const satisfies Preset;
 
 export type WxtEnv = InferPresetOutput<typeof wxt>;

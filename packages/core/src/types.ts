@@ -30,13 +30,22 @@ type UndefinedOptional<T> = Partial<Pick<T, PossiblyUndefinedKeys<T>>> &
 type Mutable<T> = T extends Readonly<infer U> ? U : T;
 
 /** Extracts the combined schema from validation options */
+type ExtractExtendsArray<T> = T extends { extends?: infer E }
+  ? E extends ExtendsFormat
+    ? E
+    : []
+  : [];
+
 type ExtractCombinedSchema<T> = T extends ValidationOptions<
   PrefixFormat,
   infer Shared,
   infer Server,
   infer Client
 >
-  ? CombinedSchema<Shared, Server, Client>
+  ? CombinedSchema<
+      Reduce<ExtractExtendsArray<T>>,
+      CombinedSchema<Shared, Server, Client>
+    >
   : T extends Readonly<
         ValidationOptions<
           PrefixFormat,
@@ -45,7 +54,10 @@ type ExtractCombinedSchema<T> = T extends ValidationOptions<
           infer Client
         >
       >
-    ? CombinedSchema<Shared, Server, Client>
+    ? CombinedSchema<
+        Reduce<ExtractExtendsArray<T>>,
+        CombinedSchema<Shared, Server, Client>
+      >
     : never;
 
 /** Reduces an array of schemas to a single schema */
@@ -88,8 +100,10 @@ export type Preset<
   Shared extends SharedFormat = SharedFormat,
   Server extends ServerFormat = ServerFormat,
   Client extends ClientFormat = ClientFormat,
+  Extends extends ExtendsFormat = ExtendsFormat,
 > = ValidationOptions<Prefix, Shared, Server, Client> & {
   id?: string;
+  extends?: Extends;
 };
 
 export type Schema = StandardSchemaV1<object, object>;

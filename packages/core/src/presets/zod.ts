@@ -3,7 +3,7 @@
  *  * @module
  */
 import * as z from "zod";
-import type { InferPresetOutput } from "../types";
+import type { InferPresetOutput, Preset } from "../types";
 
 /**
  * Vercel System Environment Variables
@@ -38,7 +38,7 @@ export const vercel = {
     VERCEL_GIT_PREVIOUS_SHA: z.string().optional(),
     VERCEL_GIT_PULL_REQUEST_ID: z.string().optional(),
   },
-} as const;
+} as const satisfies Preset;
 
 export type VercelEnv = InferPresetOutput<typeof vercel>;
 
@@ -65,7 +65,7 @@ export const neonVercel = {
     POSTGRES_URL_NO_SSL: z.url().optional(),
     POSTGRES_PRISMA_URL: z.url().optional(),
   },
-} as const;
+} as const satisfies Preset;
 
 export type NeonVercelEnv = InferPresetOutput<typeof neonVercel>;
 
@@ -77,7 +77,7 @@ export const uploadthing = {
   server: {
     UPLOADTHING_TOKEN: z.string(),
   },
-} as const;
+} as const satisfies Preset;
 
 export type UploadthingEnv = InferPresetOutput<typeof uploadthing>;
 
@@ -103,7 +103,7 @@ export const render = {
       .optional(),
     RENDER: z.string().optional(),
   },
-} as const;
+} as const satisfies Preset;
 
 export type RenderEnv = InferPresetOutput<typeof render>;
 
@@ -138,7 +138,7 @@ export const railway = {
     RAILWAY_GIT_REPO_OWNER: z.string().optional(),
     RAILWAY_GIT_COMMIT_MESSAGE: z.string().optional(),
   },
-} as const;
+} as const satisfies Preset;
 
 export type RailwayEnv = InferPresetOutput<typeof railway>;
 
@@ -161,7 +161,7 @@ export const fly = {
     FLY_VM_MEMORY_MB: z.string().optional(),
     PRIMARY_REGION: z.string().optional(),
   },
-} as const;
+} as const satisfies Preset;
 
 export type FlyEnv = InferPresetOutput<typeof fly>;
 
@@ -186,7 +186,7 @@ export const netlify = {
     SITE_NAME: z.string().optional(),
     SITE_ID: z.string().optional(),
   },
-} as const;
+} as const satisfies Preset;
 
 export type NetlifyEnv = InferPresetOutput<typeof netlify>;
 
@@ -200,7 +200,7 @@ export const upstashRedis = {
     UPSTASH_REDIS_REST_URL: z.url(),
     UPSTASH_REDIS_REST_TOKEN: z.string(),
   },
-} as const;
+} as const satisfies Preset;
 
 export type UpstashRedisEnv = InferPresetOutput<typeof upstashRedis>;
 
@@ -220,7 +220,7 @@ export const coolify = {
     PORT: z.string().optional(),
     HOST: z.string().optional(),
   },
-} as const;
+} as const satisfies Preset;
 
 export type CoolifyEnv = InferPresetOutput<typeof coolify>;
 
@@ -248,7 +248,7 @@ export const supabaseVercel = {
     NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().optional(),
     NEXT_PUBLIC_SUPABASE_URL: z.url().optional(),
   },
-} as const;
+} as const satisfies Preset;
 
 export type SupabaseVercelEnv = InferPresetOutput<typeof supabaseVercel>;
 
@@ -265,7 +265,7 @@ export const vite = {
     PROD: z.boolean().optional(),
     SSR: z.boolean().optional(),
   },
-} as const;
+} as const satisfies Preset;
 
 export type ViteEnv = InferPresetOutput<typeof vite>;
 
@@ -288,6 +288,6 @@ export const wxt = {
     EDGE: z.boolean().optional(),
     OPERA: z.boolean().optional(),
   },
-} as const;
+} as const satisfies Preset;
 
 export type WxtEnv = InferPresetOutput<typeof wxt>;
