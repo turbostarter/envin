@@ -58,7 +58,26 @@ type ExtractCombinedSchema<T> = T extends ValidationOptions<
         Reduce<ExtractExtendsArray<T>>,
         CombinedSchema<Shared, Server, Client>
       >
-    : never;
+    : CombinedSchema<
+        Reduce<ExtractExtendsArray<T>>,
+        CombinedSchema<
+          T extends { shared: infer S }
+            ? S extends SharedFormat
+              ? S
+              : StandardSchemaDictionary<object, object>
+            : StandardSchemaDictionary<object, object>,
+          T extends { server: infer Sv }
+            ? Sv extends ServerFormat
+              ? Sv
+              : StandardSchemaDictionary<object, object>
+            : StandardSchemaDictionary<object, object>,
+          T extends { client: infer C }
+            ? C extends ClientFormat
+              ? C
+              : StandardSchemaDictionary<object, object>
+            : StandardSchemaDictionary<object, object>
+        >
+      >;
 
 /** Reduces an array of schemas to a single schema */
 type Reduce<
