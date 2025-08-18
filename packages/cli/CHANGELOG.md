@@ -1,5 +1,14 @@
 # @envin/cli
 
+## 1.1.5
+
+### Patch Changes
+
+- [#36](https://github.com/turbostarter/envin/pull/36) [`323980c`](https://github.com/turbostarter/envin/commit/323980cb33d8ef48a6b9386ba1fd0d0d5bf48387) Thanks [@Bartek532](https://github.com/Bartek532)! - fix config not found error
+
+- Updated dependencies [[`323980c`](https://github.com/turbostarter/envin/commit/323980cb33d8ef48a6b9386ba1fd0d0d5bf48387)]:
+  - envin@1.1.5
+
 ## 1.1.4
 
 ### Patch Changes
