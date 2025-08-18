@@ -4,6 +4,7 @@ import type http from "node:http";
 import path from "node:path";
 import type url from "node:url";
 import { lookup } from "mime-types";
+import { logger } from "../../utils/logger";
 
 export const serveStaticFile = async (
   res: http.ServerResponse,
@@ -37,8 +38,10 @@ export const serveStaticFile = async (
       res.end();
     } else {
       const sanitizedFilePath = fileAbsolutePath.replace(/\n|\r/g, "");
-      console.error(
-        `Could not read file at ${sanitizedFilePath} to be served, here's the exception:`,
+      logger.error(
+        new Error(
+          `Could not read file at ${sanitizedFilePath} to be served, here's the exception:`,
+        ),
         exception,
       );
 

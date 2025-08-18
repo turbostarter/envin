@@ -3,20 +3,36 @@ import path from "node:path";
 import { watch } from "chokidar";
 import debounce from "debounce";
 import { type Socket, Server as SocketServer } from "socket.io";
+import { logger } from "../../utils/logger";
 import { createDependencyGraph } from "./create-dependency-graph";
 import type { HotReloadChange } from "./types";
 
-export const setupHotreloading = async (
-  devServer: http.Server,
-  envDirRelativePath: string,
-) => {
+export const setupHotreloading = async ({
+  devServer,
+  envDirRelativePath,
+  verbose,
+}: {
+  devServer: http.Server;
+  envDirRelativePath: string;
+  verbose: boolean;
+}) => {
+  if (verbose) {
+    logger.start("Initializing socket.io server for hot reloading...");
+  }
+
   let clients: Socket[] = [];
   const io = new SocketServer(devServer);
 
   io.on("connection", (client) => {
+    if (verbose) {
+      logger.debug("Client connected to hot reload socket");
+    }
     clients.push(client);
 
     client.on("disconnect", () => {
+      if (verbose) {
+        logger.debug("Client disconnected from hot reload socket");
+      }
       clients = clients.filter((item) => item !== client);
     });
   });
@@ -27,6 +43,14 @@ export const setupHotreloading = async (
 
   const reload = debounce(() => {
     // we detect these using the useHotreload hook on the Next app
+    if (verbose) {
+      logger.debug(
+        "Emitting reload event to",
+        clients.length,
+        "clients",
+        changes,
+      );
+    }
     clients.forEach((client) => {
       client.emit(
         "reload",
@@ -49,6 +73,12 @@ export const setupHotreloading = async (
 
   const [dependencyGraph, updateDependencyGraph, { resolveDependentsOf }] =
     await createDependencyGraph(absolutePathToEnvDirectory);
+  if (verbose) {
+    logger.info("Dependency graph created", {
+      modules: Object.keys(dependencyGraph).length,
+      root: absolutePathToEnvDirectory,
+    });
+  }
 
   const watcher = watch("", {
     ignoreInitial: true,
@@ -67,12 +97,21 @@ export const setupHotreloading = async (
   }
 
   const exit = async () => {
+    if (verbose) {
+      logger.info("Stopping file watcher and cleaning up...");
+    }
     await watcher.close();
   };
   process.on("SIGINT", exit);
   process.on("uncaughtException", exit);
 
   watcher.on("all", async (event, relativePathToChangeTarget) => {
+    if (verbose) {
+      logger.debug("File system event", {
+        event,
+        file: relativePathToChangeTarget,
+      });
+    }
     const file = relativePathToChangeTarget.split(path.sep);
     if (file.length === 0) {
       return;
