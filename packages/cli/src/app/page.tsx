@@ -5,6 +5,8 @@ import { getVariables } from "@/lib/variables";
 import { getConfigFile } from "@/utils/get-config-file";
 import { envDirectoryAbsolutePath } from "./env";
 
+export const dynamic = "force-dynamic";
+
 export const envConfigFilePath = path.join(
   envDirectoryAbsolutePath ?? "",
   "env.config.ts",
