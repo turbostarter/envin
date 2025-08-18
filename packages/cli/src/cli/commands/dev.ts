@@ -1,27 +1,51 @@
 import fs from "node:fs";
-import { setupHotreloading, startDevServer } from "../utils";
+import { setupHotreloading } from "../utils/hot-reload/setup-hot-reloading";
+import { logger } from "../utils/logger";
+import { startDevServer } from "../utils/preview";
 
 interface Args {
   dir: string;
   port: string;
+  verbose: boolean;
 }
 
-export const dev = async ({ dir: envDirRelativePath, port }: Args) => {
+export const dev = async ({ dir: envDirRelativePath, port, verbose }: Args) => {
   try {
+    if (verbose) {
+      logger.debug("Starting dev command...", {
+        cwd: process.cwd(),
+        dir: envDirRelativePath,
+        port,
+      });
+    }
+
     if (!fs.existsSync(envDirRelativePath)) {
-      console.error(`Missing ${envDirRelativePath} folder`);
+      logger.error(`Missing ${envDirRelativePath} folder!`);
       process.exit(1);
     }
 
-    const devServer = await startDevServer(
+    const devServer = await startDevServer({
       envDirRelativePath,
-      envDirRelativePath,
-      Number.parseInt(port),
-    );
+      staticBaseDirRelativePath: envDirRelativePath,
+      port: Number.parseInt(port),
+      verbose,
+    });
 
-    await setupHotreloading(devServer, envDirRelativePath);
+    if (verbose) {
+      logger.start("Dev server started, setting up hot reloading...");
+    }
+
+    await setupHotreloading({
+      devServer,
+      envDirRelativePath,
+      verbose,
+    });
+
+    if (verbose) {
+      logger.success("Hot reloading setup complete");
+    }
   } catch (error) {
-    console.log(error);
+    logger.error(new Error("Error while running dev!"), error);
     process.exit(1);
   }
 };

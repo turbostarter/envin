@@ -8,7 +8,7 @@ description: How is envin different from other existing solutions?
 Validating envs are quite easy and can be done in a few lines of code. You can also infer the result from the validation onto your `process.env` object to benefit from autocompletion throughout your application as explained in [this video](https://www.youtube.com/watch?v=q1im-hMlKhM).
 
 ```ts twoslash
-import { z } from "zod";
+import * as z from "zod"; 
 
 const envVariables = z.object({
   DATABASE_URL: z.string(),

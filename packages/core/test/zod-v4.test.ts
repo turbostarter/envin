@@ -2,6 +2,7 @@ import { expectTypeOf } from "expect-type";
 import { describe, expect, test, vi } from "vitest";
 import { z } from "zod/v4";
 import { defineEnv } from "../src";
+import type { Preset } from "../src/types";
 
 function ignoreErrors(cb: () => void) {
   try {
@@ -542,6 +543,110 @@ describe("extending presets", () => {
         "❌ Attempted to access a server-side environment variable on the client",
       );
       expect(() => env.PRESET_ENV2).toThrow(
+        "❌ Attempted to access a server-side environment variable on the client",
+      );
+      expect(env.SHARED_ENV).toBe("shared");
+      expect(env.CLIENT_ENV).toBe("client");
+
+      globalThis.window = window;
+    });
+  });
+
+  describe("nested presets", () => {
+    const processEnv = {
+      PRESET_ENV1: "one",
+      PRESET_ENV2: "two",
+      PRESET_ENV3: 3,
+      SHARED_ENV: "shared",
+      SERVER_ENV: "server",
+      CLIENT_ENV: "client",
+    };
+
+    function lazyCreateEnv() {
+      const presetDeep = {
+        server: {
+          PRESET_ENV3: z.number(),
+        },
+      } as const satisfies Preset;
+
+      const presetMid = {
+        server: {
+          PRESET_ENV2: z.enum(["two"]),
+        },
+        extends: [presetDeep],
+      } as const satisfies Preset;
+
+      const presetTop = {
+        server: {
+          PRESET_ENV1: z.enum(["one"]),
+        },
+        extends: [presetMid],
+      } as const satisfies Preset;
+
+      return defineEnv({
+        server: {
+          SERVER_ENV: z.string(),
+        },
+        shared: {
+          SHARED_ENV: z.string(),
+        },
+        clientPrefix: "CLIENT_",
+        client: {
+          CLIENT_ENV: z.string(),
+        },
+        extends: [presetTop],
+        env: processEnv,
+      });
+    }
+
+    type Env = ReturnType<typeof lazyCreateEnv>;
+
+    // @ts-expect-error - TypeScript limitation prevents making this pass without a big perf hit
+    expectTypeOf<Env>().toMatchObjectType<
+      Readonly<{
+        PRESET_ENV1: "one";
+        PRESET_ENV2: "two";
+        PRESET_ENV3: number;
+        SERVER_ENV: string;
+        SHARED_ENV: string;
+        CLIENT_ENV: string;
+      }>
+    >();
+
+    test("server", () => {
+      const { window } = globalThis;
+      globalThis.window = undefined as any;
+
+      const env = lazyCreateEnv();
+
+      expect(env).toMatchObject({
+        PRESET_ENV1: "one",
+        PRESET_ENV2: "two",
+        PRESET_ENV3: 3,
+        SERVER_ENV: "server",
+        SHARED_ENV: "shared",
+        CLIENT_ENV: "client",
+      });
+
+      globalThis.window = window;
+    });
+
+    test("client", () => {
+      const { window } = globalThis;
+      globalThis.window = {} as any;
+
+      const env = lazyCreateEnv();
+
+      expect(() => env.SERVER_ENV).toThrow(
+        "❌ Attempted to access a server-side environment variable on the client",
+      );
+      expect(() => env.PRESET_ENV1).toThrow(
+        "❌ Attempted to access a server-side environment variable on the client",
+      );
+      expect(() => env.PRESET_ENV2).toThrow(
+        "❌ Attempted to access a server-side environment variable on the client",
+      );
+      expect(() => env.PRESET_ENV3).toThrow(
         "❌ Attempted to access a server-side environment variable on the client",
       );
       expect(env.SHARED_ENV).toBe("shared");

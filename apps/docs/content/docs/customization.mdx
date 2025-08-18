@@ -103,7 +103,7 @@ A preset is just like any other envin configuration object, so you can easily cr
 
 ```ts twoslash title="env.config.ts"
 import { defineEnv } from "envin";
-import { z } from "zod";
+import * as z from "zod"; 
 
 const stripe = {
   clientPrefix: "NEXT_PUBLIC_",
@@ -125,18 +125,46 @@ env.STRIPE_SECRET_KEY;
 //    ^?
 ```
 
+### Nested presets
+
+Presets can themselves use `extends` and be nested to any depth. Types and runtime validation will merge recursively.
+
+```ts twoslash title="env.config.ts"
+import { defineEnv } from "envin";
+import * as z from "zod";
+
+const storage = {
+  id: "storage",
+  server: { STORAGE_URL: z.string().url() },
+} as const;
+
+const api = {
+  id: "api",
+  server: { API_URL: z.string().url() },
+  extends: [storage],
+} as const;
+
+const env = defineEnv({
+  server: { APP_SECRET: z.string().min(1) },
+  extends: [api],
+});
+
+env.STORAGE_URL;
+//    ^?
+```
+
 ## Custom transformations and refinements
 
 You can use custom transformations to process environment variables or add complex validation logic:
 
 ```ts twoslash title="env.config.ts"
 import { defineEnv } from "envin";
-import { z } from "zod";
+import * as z from "zod"; 
 
 const env = defineEnv({
   server: {
     // Transform string to number with default
-    PORT: z.string().transform(Number).default("3000"),
+    PORT: z.string().transform(Number).default(3000),
     // Transform comma-separated string to array
     FEATURE_FLAGS: z.string().transform(s => s.split(",")),
     // Complex validation with refinement
@@ -149,7 +177,7 @@ const env = defineEnv({
       ),
     // Conditional validation
     SKIP_AUTH: z.boolean().optional(),
-    EMAIL: z.string().email().optional(),
+    EMAIL: z.email().optional(),
     PASSWORD: z.string().min(1).optional(),
   },
   env: process.env,

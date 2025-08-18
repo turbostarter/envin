@@ -1,9 +1,9 @@
-import { z } from "zod";
+import * as z from "zod";
 import type { StandardSchemaV1 } from "@/lib/standard";
 
 const zodSchema = z.object({
   _def: z.object({
-    defaultValue: z.union([z.function(), z.unknown()]).optional(),
+    defaultValue: z.unknown().optional(),
   }),
 });
 

@@ -7,6 +7,7 @@ import next from "next";
 import ora from "ora";
 import packageJson from "../../../../package.json";
 import { registerSpinnerAutostopping } from "../../../utils/register-spinner-autostopping";
+import { logger } from "../../utils/logger";
 import { getEnvVariablesForPreviewApp } from "./get-env-variables";
 import { serveStaticFile } from "./serve-static-file";
 
@@ -37,17 +38,30 @@ export const previewServerLocation = isDev
   ? path.resolve(dirname, "../../../..")
   : path.resolve(dirname, "../preview");
 
-export const startDevServer = async (
-  envDirRelativePath: string,
-  staticBaseDirRelativePath: string,
-  port: number,
-): Promise<http.Server> => {
+export const startDevServer = async ({
+  envDirRelativePath,
+  staticBaseDirRelativePath,
+  port,
+  verbose,
+}: {
+  envDirRelativePath: string;
+  staticBaseDirRelativePath: string;
+  port: number;
+  verbose: boolean;
+}): Promise<http.Server> => {
   devServer = http.createServer((req, res) => {
     if (!req.url) {
       res.end(404);
       return;
     }
 
+    if (verbose) {
+      logger.debug("Creating HTTP server...", {
+        envDirRelativePath,
+        staticBaseDirRelativePath,
+        port,
+      });
+    }
     const parsedUrl = url.parse(req.url, true);
 
     // Never cache anything to avoid
@@ -72,7 +86,7 @@ export const startDevServer = async (
         void nextHandleRequest?.(req, res, parsedUrl);
       }
     } catch (e) {
-      console.error("caught error", e);
+      logger.error(new Error("Error while handling request!"), e);
 
       res.writeHead(500);
       res.end();
@@ -84,18 +98,17 @@ export const startDevServer = async (
   if (!portAlreadyInUse) {
     // this errors when linting but doesn't on the editor so ignore the warning on this
     /* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */
-    console.log(chalk.greenBright(`    Envin ${packageJson.version}`));
-    console.log(`    Running preview at:          http://localhost:${port}\n`);
+    logger.log(chalk.greenBright(`\n  Envin ${packageJson.version}`));
+    logger.log(`  Running preview at:    http://localhost:${port}\n`);
   } else {
     const nextPortToTry = port + 1;
-    console.warn(
-      ` ${logSymbols.warning} Port ${port} is already in use, trying ${nextPortToTry}`,
-    );
-    return startDevServer(
+    logger.warn(`Port ${port} is already in use, trying ${nextPortToTry}...`);
+    return startDevServer({
       envDirRelativePath,
       staticBaseDirRelativePath,
-      nextPortToTry,
-    );
+      port: nextPortToTry,
+      verbose,
+    });
   }
 
   devServer.on("close", async () => {
@@ -103,10 +116,7 @@ export const startDevServer = async (
   });
 
   devServer.on("error", (e: NodeJS.ErrnoException) => {
-    console.error(
-      ` ${logSymbols.error} preview server error: `,
-      JSON.stringify(e),
-    );
+    logger.error(new Error("Preview server error!"), e);
     process.exit(1);
   });
 
@@ -175,7 +185,7 @@ const makeExitHandler =
   ) =>
   (_codeOrSignal: number | NodeJS.Signals) => {
     if (typeof devServer !== "undefined") {
-      console.log("\nshutting down dev server");
+      logger.log("\nShutting down dev server...");
       devServer.close();
       devServer = undefined;
     }

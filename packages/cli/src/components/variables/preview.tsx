@@ -23,7 +23,7 @@ export const FileContent = () => {
         key,
       };
     }),
-    ({ preset }) => preset ?? DEFAULT_PRESET,
+    ({ preset }) => preset?.id ?? DEFAULT_PRESET,
   );
 
   const presets = Object.keys(sections).reverse();

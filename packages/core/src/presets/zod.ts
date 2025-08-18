@@ -2,8 +2,8 @@
  * Presets for Zod
  *  * @module
  */
-import { z } from "zod";
-import type { InferPresetOutput } from "../types";
+import * as z from "zod";
+import type { InferPresetOutput, Preset } from "../types";
 
 /**
  * Vercel System Environment Variables
@@ -18,6 +18,7 @@ export const vercel = {
       .enum(["development", "preview", "production"])
       .optional()
       .default("development"),
+    VERCEL_TARGET_ENV: z.string().optional(),
     VERCEL_URL: z.string().optional(),
     VERCEL_PROJECT_PRODUCTION_URL: z.string().optional(),
     VERCEL_BRANCH_URL: z.string().optional(),
@@ -37,7 +38,7 @@ export const vercel = {
     VERCEL_GIT_PREVIOUS_SHA: z.string().optional(),
     VERCEL_GIT_PULL_REQUEST_ID: z.string().optional(),
   },
-} as const;
+} as const satisfies Preset;
 
 export type VercelEnv = InferPresetOutput<typeof vercel>;
 
@@ -55,16 +56,16 @@ export const neonVercel = {
     PGUSER: z.string().optional(),
     PGDATABASE: z.string().optional(),
     PGPASSWORD: z.string().optional(),
-    POSTGRES_URL: z.string().url().optional(),
-    POSTGRES_URL_NON_POOLING: z.string().url().optional(),
+    POSTGRES_URL: z.url().optional(),
+    POSTGRES_URL_NON_POOLING: z.url().optional(),
     POSTGRES_USER: z.string().optional(),
     POSTGRES_HOST: z.string().optional(),
     POSTGRES_PASSWORD: z.string().optional(),
     POSTGRES_DATABASE: z.string().optional(),
-    POSTGRES_URL_NO_SSL: z.string().url().optional(),
-    POSTGRES_PRISMA_URL: z.string().url().optional(),
+    POSTGRES_URL_NO_SSL: z.url().optional(),
+    POSTGRES_PRISMA_URL: z.url().optional(),
   },
-} as const;
+} as const satisfies Preset;
 
 export type NeonVercelEnv = InferPresetOutput<typeof neonVercel>;
 
@@ -76,7 +77,7 @@ export const uploadthing = {
   server: {
     UPLOADTHING_TOKEN: z.string(),
   },
-} as const;
+} as const satisfies Preset;
 
 export type UploadthingEnv = InferPresetOutput<typeof uploadthing>;
 
@@ -90,7 +91,7 @@ export const render = {
     IS_PULL_REQUEST: z.string().optional(),
     RENDER_DISCOVERY_SERVICE: z.string().optional(),
     RENDER_EXTERNAL_HOSTNAME: z.string().optional(),
-    RENDER_EXTERNAL_URL: z.string().url().optional(),
+    RENDER_EXTERNAL_URL: z.url().optional(),
     RENDER_GIT_BRANCH: z.string().optional(),
     RENDER_GIT_COMMIT: z.string().optional(),
     RENDER_GIT_REPO_SLUG: z.string().optional(),
@@ -102,7 +103,7 @@ export const render = {
       .optional(),
     RENDER: z.string().optional(),
   },
-} as const;
+} as const satisfies Preset;
 
 export type RenderEnv = InferPresetOutput<typeof render>;
 
@@ -137,7 +138,7 @@ export const railway = {
     RAILWAY_GIT_REPO_OWNER: z.string().optional(),
     RAILWAY_GIT_COMMIT_MESSAGE: z.string().optional(),
   },
-} as const;
+} as const satisfies Preset;
 
 export type RailwayEnv = InferPresetOutput<typeof railway>;
 
@@ -160,7 +161,7 @@ export const fly = {
     FLY_VM_MEMORY_MB: z.string().optional(),
     PRIMARY_REGION: z.string().optional(),
   },
-} as const;
+} as const satisfies Preset;
 
 export type FlyEnv = InferPresetOutput<typeof fly>;
 
@@ -185,7 +186,7 @@ export const netlify = {
     SITE_NAME: z.string().optional(),
     SITE_ID: z.string().optional(),
   },
-} as const;
+} as const satisfies Preset;
 
 export type NetlifyEnv = InferPresetOutput<typeof netlify>;
 
@@ -196,10 +197,10 @@ export type NetlifyEnv = InferPresetOutput<typeof netlify>;
 export const upstashRedis = {
   id: "upstash-redis",
   server: {
-    UPSTASH_REDIS_REST_URL: z.string().url(),
+    UPSTASH_REDIS_REST_URL: z.url(),
     UPSTASH_REDIS_REST_TOKEN: z.string(),
   },
-} as const;
+} as const satisfies Preset;
 
 export type UpstashRedisEnv = InferPresetOutput<typeof upstashRedis>;
 
@@ -219,7 +220,7 @@ export const coolify = {
     PORT: z.string().optional(),
     HOST: z.string().optional(),
   },
-} as const;
+} as const satisfies Preset;
 
 export type CoolifyEnv = InferPresetOutput<typeof coolify>;
 
@@ -231,23 +232,23 @@ export const supabaseVercel = {
   id: "supabase-vercel",
   clientPrefix: "NEXT_PUBLIC_",
   server: {
-    POSTGRES_URL: z.string().url(),
-    POSTGRES_PRISMA_URL: z.string().url().optional(),
-    POSTGRES_URL_NON_POOLING: z.string().url().optional(),
+    POSTGRES_URL: z.url(),
+    POSTGRES_PRISMA_URL: z.url().optional(),
+    POSTGRES_URL_NON_POOLING: z.url().optional(),
     POSTGRES_USER: z.string().optional(),
     POSTGRES_HOST: z.string().optional(),
     POSTGRES_PASSWORD: z.string().optional(),
     POSTGRES_DATABASE: z.string().optional(),
     SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
     SUPABASE_ANON_KEY: z.string().optional(),
-    SUPABASE_URL: z.string().url().optional(),
+    SUPABASE_URL: z.url().optional(),
     SUPABASE_JWT_SECRET: z.string().optional(),
   },
   client: {
     NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().optional(),
-    NEXT_PUBLIC_SUPABASE_URL: z.string().url().optional(),
+    NEXT_PUBLIC_SUPABASE_URL: z.url().optional(),
   },
-} as const;
+} as const satisfies Preset;
 
 export type SupabaseVercelEnv = InferPresetOutput<typeof supabaseVercel>;
 
@@ -257,14 +258,14 @@ export type SupabaseVercelEnv = InferPresetOutput<typeof supabaseVercel>;
  */
 export const vite = {
   id: "vite",
-  server: {
+  shared: {
     BASE_URL: z.string().optional(),
     MODE: z.string().optional(),
     DEV: z.boolean().optional(),
     PROD: z.boolean().optional(),
     SSR: z.boolean().optional(),
   },
-} as const;
+} as const satisfies Preset;
 
 export type ViteEnv = InferPresetOutput<typeof vite>;
 
@@ -287,6 +288,6 @@ export const wxt = {
     EDGE: z.boolean().optional(),
     OPERA: z.boolean().optional(),
   },
-} as const;
+} as const satisfies Preset;
 
 export type WxtEnv = InferPresetOutput<typeof wxt>;

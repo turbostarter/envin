@@ -21,6 +21,7 @@ program
     "./",
   )
   .option("-p --port <port>", "Port to run dev server on", "3000")
+  .option("-v, --verbose", "Enable verbose logging", false)
   .action(dev);
 
 program.parse();

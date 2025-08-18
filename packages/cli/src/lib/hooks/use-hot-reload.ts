@@ -2,7 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { io, type Socket } from "socket.io-client";
-import type { HotReloadChange } from "@/cli/utils/hot-reload/types";
+import type { HotReloadChange } from "../../cli/utils/hot-reload/types";
+import { logger } from "../../cli/utils/logger";
 
 /**
  * Hook that detects any "reload" event sent from the CLI's web socket
@@ -20,7 +21,7 @@ export const useHotreload = (
     const socket = socketRef.current;
 
     socket.on("reload", (changes: HotReloadChange[]) => {
-      console.debug("Reloading...");
+      logger.debug("Reloading...");
       void onShouldReload(changes);
     });
 

@@ -2,7 +2,7 @@ import { type } from "arktype";
 import { vercel } from "envin/presets/arktype";
 
 const stripe = {
-  id: "stripe",
+  // id: "stripe",
   clientPrefix: "NEXT_PUBLIC_",
   client: {
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: type("string"),

@@ -1,6 +1,7 @@
 import { existsSync, promises as fs, statSync } from "node:fs";
 import path from "node:path";
 import type { EventName } from "chokidar/handler.js";
+import { logger } from "../../utils/logger";
 import { isDev } from "../preview/start-dev-server";
 import { getImportedModules } from "./get-imported-modules";
 import { resolvePathAliases } from "./resolve-path-aliases";
@@ -136,8 +137,7 @@ export const createDependencyGraph = async (directory: string) => {
           if (pathWithExtension) {
             pathToDependencyFromDirectory = pathWithExtension;
           } else if (isDev) {
-            // only warn about this on development as it is probably going to be irrelevant otherwise
-            console.warn(
+            logger.warn(
               `Could not find index file for directory at ${pathToDependencyFromDirectory}. This is probably going to cause issues with both hot reloading and your code.`,
             );
           }
@@ -159,8 +159,7 @@ export const createDependencyGraph = async (directory: string) => {
         if (pathWithEnsuredExtension) {
           pathToDependencyFromDirectory = pathWithEnsuredExtension;
         } else if (isDev) {
-          // only warn about this on development as it is probably going to be irrelevant otherwise
-          console.warn(
+          logger.warn(
             `Could not find file at ${pathToDependencyFromDirectory}`,
           );
         }

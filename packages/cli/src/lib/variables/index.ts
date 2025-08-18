@@ -17,6 +17,8 @@ import {
 import { getDefault } from "./default";
 import { getDescription } from "./description";
 
+const getUntitledId = (counter: number) => `untitled-preset-${counter}`;
+
 export const getVariables = async (config: Config) => {
   if (!config) {
     return {};
@@ -25,17 +27,33 @@ export const getVariables = async (config: Config) => {
   const variables = {};
   const schema = config.env._schema;
 
-  const presets = [
-    ...(config.options.extends ?? []),
-    {
-      id: DEFAULT_PRESET,
-      ...config.options,
-    },
-  ];
+  let untitledCounter = 0;
+  const flattenPresets = (preset: Preset, accPath: string[] = []) => {
+    const resolvedId = preset.id ?? getUntitledId(++untitledCounter);
+    const currentPath = [...accPath, resolvedId].filter(Boolean);
+    const self = [
+      {
+        preset,
+        path: currentPath.length ? currentPath : [DEFAULT_PRESET],
+        id: resolvedId,
+      },
+    ];
+    const nested = (preset.extends ?? []).flatMap((p: Preset) =>
+      flattenPresets(p, currentPath),
+    );
+    return [...self, ...nested];
+  };
+
+  const rootPreset = {
+    id: DEFAULT_PRESET,
+    ...config.options,
+  } satisfies Preset;
+
+  const presetsWithPaths = flattenPresets(rootPreset);
 
   for (const key of Object.keys(schema)) {
-    for (const preset of presets) {
-      const variable = getVariable(key, preset);
+    for (const { preset, path, id } of presetsWithPaths) {
+      const variable = getVariable(key, preset, path, id);
 
       if (variable) {
         variables[key] = variable;
@@ -71,7 +89,12 @@ const getVariableGroup = (key: string, preset: Preset) => {
   return null;
 };
 
-const getVariable = (key: string, preset: Preset): Variable | null => {
+const getVariable = (
+  key: string,
+  preset: Preset,
+  path: string[],
+  resolvedId?: string,
+): Variable | null => {
   const keys = new Set([
     ...Object.keys(preset.shared ?? {}),
     ...Object.keys(preset.client ?? {}),
@@ -92,7 +115,10 @@ const getVariable = (key: string, preset: Preset): Variable | null => {
 
   return {
     description: getDescription(schema),
-    preset: preset.id ?? "",
+    preset: {
+      id: preset.id ?? resolvedId ?? "",
+      path,
+    },
     group,
     default: getDefault(schema),
   };

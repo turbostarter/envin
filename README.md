@@ -29,7 +29,7 @@ This package supports the full power of [most popular schema libraries](https://
 ```ts
 // env.config.ts
 import { defineEnv } from "envin";
-import { z } from "zod";
+import * as z from "zod"; 
 
 export default defineEnv({
   /*
@@ -48,14 +48,14 @@ export default defineEnv({
    * 💡 You'll get type errors if these are not prefixed with NEXT_PUBLIC_.
    */
   client: {
-    NEXT_PUBLIC_API_URL: z.string().url(),
+    NEXT_PUBLIC_API_URL: z.url(),
   },
   /*
    * Serverside Environment variables, not available on the client.
    * Will throw if you access these variables on the client.
    */
   server: {
-    DATABASE_URL: z.string().url(),
+    DATABASE_URL: z.url(),
   },
   /*
    * In some cases, we need to manually destructure environment variables to make sure all are included in bundle.

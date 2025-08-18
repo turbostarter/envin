@@ -2,23 +2,32 @@
 
 import path from "node:path";
 import { type BuildFailure, build, type OutputFile } from "esbuild";
-import { z } from "zod";
+import * as z from "zod";
 import type { Config } from "@/lib/types";
 import { improveErrorWithSourceMap } from "@/utils/improve-error-with-sourcemap";
 import { isErr } from "@/utils/result";
+import { logger } from "../cli/utils/logger";
 import { runBundledCode } from "./run-bundled-code";
 
-const presetSchema = z.object({
-  id: z.string().optional(),
+const optionsSchema = z.object({
   clientPrefix: z.string().optional(),
   client: z.record(z.string(), z.unknown()).optional(),
   server: z.record(z.string(), z.unknown()).optional(),
   shared: z.record(z.string(), z.unknown()).optional(),
 });
 
+const presetSchema = optionsSchema.extend({
+  id: z.string().optional(),
+  get extends() {
+    return z.array(presetSchema).optional();
+  },
+});
+
 const configSchema = z.object({
   default: z.object({
-    options: presetSchema.extend({ extends: z.array(presetSchema).optional() }),
+    options: optionsSchema.extend({
+      extends: z.array(presetSchema).optional(),
+    }),
     env: z.record(z.string(), z.unknown()),
   }),
 });
@@ -45,7 +54,7 @@ export const getConfigFile = async (configFilePath: string) => {
     outputFiles = buildData.outputFiles;
   } catch (exception) {
     const buildFailure = exception as BuildFailure;
-    console.error("Build failure:", buildFailure);
+    logger.error(new Error("Build failure"), buildFailure);
     return {
       error: {
         message: buildFailure.message,
@@ -76,7 +85,7 @@ export const getConfigFile = async (configFilePath: string) => {
     const { error } = runningResult;
     if (error instanceof Error) {
       error.stack &&= error.stack.split("at Script.runInContext (node:vm")[0];
-      console.error("Error running bundled code:", error);
+      logger.error(new Error("Error running bundled code"), error);
 
       return {
         error: improveErrorWithSourceMap(
@@ -87,14 +96,17 @@ export const getConfigFile = async (configFilePath: string) => {
       };
     }
 
-    console.error("Unknown error running bundled code:", error);
+    logger.error(new Error("Unknown error running bundled code"), error);
     throw error;
   }
 
   const parseResult = configSchema.safeParse(runningResult.value.exports);
 
   if (parseResult.error) {
-    console.error("Config schema validation error:", parseResult.error);
+    logger.error(
+      new Error("Config schema validation error"),
+      parseResult.error,
+    );
     return {
       error: improveErrorWithSourceMap(
         new Error(

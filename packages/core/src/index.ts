@@ -50,14 +50,36 @@ const getFinalSchema = <
   options: EnvOptions<Prefix, Shared, Server, Client, Extends, FinalSchema>,
   isServer: boolean,
 ): StandardSchemaDictionary => {
-  const presets = options.extends?.reduce(
-    (acc, preset) => ({
+  const getPresetSchemaRecursive = <
+    P extends PrefixFormat,
+    Sh extends SharedFormat,
+    Se extends ServerFormat,
+    Cl extends ClientFormat,
+    Ex extends ExtendsFormat,
+  >(
+    preset: ValidationOptions<P, Sh, Se, Cl> & { extends?: Ex },
+  ): StandardSchemaDictionary => {
+    const nested = preset.extends?.reduce((acc, nestedPreset) => {
+      return {
+        // biome-ignore lint/performance/noAccumulatingSpread: necessary for merging preset schemas
+        ...acc,
+        ...getPresetSchemaRecursive(nestedPreset),
+      };
+    }, {} as StandardSchemaDictionary);
+
+    return {
+      ...(nested ?? {}),
+      ...getCombinedSchema(preset, isServer),
+    } as StandardSchemaDictionary;
+  };
+
+  const presets = (options.extends?.reduce((acc, preset) => {
+    return {
       // biome-ignore lint/performance/noAccumulatingSpread: necessary for merging preset schemas
       ...acc,
-      ...getCombinedSchema(preset, isServer),
-    }),
-    {},
-  ) as StandardSchemaDictionary;
+      ...getPresetSchemaRecursive(preset),
+    };
+  }, {} as StandardSchemaDictionary) ?? {}) as StandardSchemaDictionary;
 
   return {
     ...presets,
@@ -136,22 +158,40 @@ export function defineEnv<
   }
 
   const isServerAccess = (prop: string) => {
-    const isClientAccess = [options, ...(options.extends ?? [])]
-      .map((preset) => ({
+    const collectClientDescriptors = (
+      preset: ValidationOptions<Prefix, Shared, Server, Client> & {
+        extends?: Extends;
+      },
+    ): Array<{ keys: string[]; prefix: PrefixFormat }> => {
+      const current = {
         keys: Object.keys(preset.client ?? {}),
         prefix: preset.clientPrefix,
-      }))
-      .some(
-        (preset) =>
-          preset.keys.includes(prop) &&
-          (!preset.prefix || prop.startsWith(preset.prefix)),
+      };
+      const nested = (preset.extends ?? []).flatMap((p) =>
+        collectClientDescriptors(p as never),
       );
+      return [current, ...nested];
+    };
 
-    const isSharedAccess = [
-      ...Object.keys(options.shared ?? {}),
-      ...(options.extends?.flatMap((ext) => Object.keys(ext.shared ?? {})) ??
-        []),
-    ].includes(prop);
+    const collectSharedKeys = (
+      preset: ValidationOptions<Prefix, Shared, Server, Client> & {
+        extends?: Extends;
+      },
+    ): string[] => {
+      const current = Object.keys(preset.shared ?? {});
+      const nested = (preset.extends ?? []).flatMap((p) =>
+        collectSharedKeys(p as never),
+      );
+      return [...current, ...nested];
+    };
+
+    const isClientAccess = collectClientDescriptors(options).some(
+      (preset) =>
+        preset.keys.includes(prop) &&
+        (!preset.prefix || prop.startsWith(preset.prefix)),
+    );
+
+    const isSharedAccess = collectSharedKeys(options).includes(prop);
 
     return !isSharedAccess && !isClientAccess;
   };
