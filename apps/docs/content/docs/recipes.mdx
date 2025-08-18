@@ -22,7 +22,7 @@ Coercing booleans from strings is a common use case. Below are two examples of h
 
 ```ts twoslash title="env.config.ts"
 import { defineEnv } from "envin";
-import { z } from "zod/v4";
+import * as z from "zod";
 
 const env = defineEnv({
   //    ^?
