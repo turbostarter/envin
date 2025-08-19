@@ -1,5 +1,14 @@
 # @envin/cli
 
+## 1.1.7
+
+### Patch Changes
+
+- [#40](https://github.com/turbostarter/envin/pull/40) [`c518621`](https://github.com/turbostarter/envin/commit/c518621f4d0dc5b60abdc61656eb10176db28707) Thanks [@Bartek532](https://github.com/Bartek532)! - fix next dependency
+
+- Updated dependencies [[`c518621`](https://github.com/turbostarter/envin/commit/c518621f4d0dc5b60abdc61656eb10176db28707)]:
+  - envin@1.1.7
+
 ## 1.1.6
 
 ### Patch Changes
