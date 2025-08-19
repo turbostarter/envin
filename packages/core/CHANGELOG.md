@@ -1,5 +1,11 @@
 # envin
 
+## 1.1.6
+
+### Patch Changes
+
+- [#38](https://github.com/turbostarter/envin/pull/38) [`626d690`](https://github.com/turbostarter/envin/commit/626d690a72fa55a1f717644ea482f1490884df48) Thanks [@Bartek532](https://github.com/Bartek532)! - fix hot reloading issues
+
 ## 1.1.5
 
 ### Patch Changes
