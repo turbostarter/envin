@@ -1,6 +1,6 @@
 {
   "name": "@envin/cli",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "Type-safe env validation with live previews",
   "keywords": [
     "turbostarter",
