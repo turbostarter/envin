@@ -150,7 +150,7 @@ export const Form = () => {
   }
 
   const renderNode = (node: TreeNode) => {
-    const childKeys = Object.keys(node.children);
+    const childKeys = Object.keys(node.children).reverse();
     return (
       <>
         {node.variables.length > 0 && (
@@ -169,7 +169,7 @@ export const Form = () => {
           </div>
         )}
         {childKeys.length > 0 && (
-          <Accordion type="multiple">
+          <Accordion type="multiple" defaultValue={childKeys}>
             {childKeys.map((child) => {
               const childNode = node.children[child];
               const Icon = getIconComponent(child);
