@@ -18,10 +18,12 @@ import {
   DEFAULT_PRESET,
   Environment,
   Status,
+  type VariablePreset,
   type Variables,
   type VariableWithKey,
 } from "@/lib/types";
 import { cn } from "@/utils/cn";
+import { getVariablePresetLabel, groupVariablesByPreset } from "@/utils/preset";
 
 export const Filters = () => {
   return (
@@ -116,21 +118,13 @@ const getTextToCopy = (
   values: Record<string, string>,
 ) => {
   const keys = Object.keys(variables);
-  const sections = Object.groupBy(
-    keys.map((key) => {
-      return {
-        ...variables[key],
-        key,
-      };
-    }),
-    ({ preset }) => preset?.id ?? DEFAULT_PRESET,
-  );
+  const { sections, presets } = groupVariablesByPreset(variables, keys);
 
-  const presets = Object.keys(sections).reverse();
-
-  const formatPresetHeader = (preset: string, presetIndex: number) => {
-    if (preset === DEFAULT_PRESET) return "";
-    return `${presetIndex > 0 ? "\n\n" : ""}### ${preset.toUpperCase()} ###\n`;
+  const formatPresetHeader = (preset: VariablePreset, index: number) => {
+    if (preset.id === DEFAULT_PRESET) {
+      return "";
+    }
+    return `${index > 0 ? (preset.path.length > 2 ? "\n" : "\n\n") : ""}${getVariablePresetLabel(preset)}\n`;
   };
 
   const formatVariable = (variable: VariableWithKey, index: number) => {
@@ -140,9 +134,12 @@ const getTextToCopy = (
     return `${description}${variable.key}="${values[variable.key]}"`;
   };
 
-  const text = presets
-    .map((preset, presetIndex) => {
-      const presetHeader = formatPresetHeader(preset, presetIndex);
+  const text = Object.keys(presets)
+    .reverse()
+    .map((preset, index) => {
+      const presetHeader = presets[preset]
+        ? formatPresetHeader(presets[preset], index)
+        : "";
       const variables = sections[preset]?.map(formatVariable).join("\n") ?? "";
       return `${presetHeader}${variables}`;
     })

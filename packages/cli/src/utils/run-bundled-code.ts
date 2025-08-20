@@ -55,6 +55,14 @@ export const runBundledCode = (
     },
     __filename: filename,
     __dirname: path.dirname(filename),
+    import_meta: {
+      env: process.env,
+    },
+    import: {
+      meta: {
+        env: process.env,
+      },
+    },
     require: (specifiedModule: string) => {
       let m = specifiedModule;
       if (specifiedModule.startsWith("node:")) {
