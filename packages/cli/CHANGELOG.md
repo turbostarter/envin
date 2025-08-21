@@ -1,5 +1,14 @@
 # @envin/cli
 
+## 1.1.8
+
+### Patch Changes
+
+- [#42](https://github.com/turbostarter/envin/pull/42) [`0285825`](https://github.com/turbostarter/envin/commit/028582545272ec71bf513e814d800b07782b97bc) Thanks [@Bartek532](https://github.com/Bartek532)! - adjust preview - grouping presets
+
+- Updated dependencies [[`0285825`](https://github.com/turbostarter/envin/commit/028582545272ec71bf513e814d800b07782b97bc)]:
+  - envin@1.1.8
+
 ## 1.1.7
 
 ### Patch Changes
