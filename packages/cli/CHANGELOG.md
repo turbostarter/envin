@@ -1,5 +1,14 @@
 # @envin/cli
 
+## 1.1.9
+
+### Patch Changes
+
+- [#44](https://github.com/turbostarter/envin/pull/44) [`dd52a54`](https://github.com/turbostarter/envin/commit/dd52a541db6010ff33d10bb04cca15fa47b4ed5d) Thanks [@Bartek532](https://github.com/Bartek532)! - ensure envStrict validates presets
+
+- Updated dependencies [[`dd52a54`](https://github.com/turbostarter/envin/commit/dd52a541db6010ff33d10bb04cca15fa47b4ed5d)]:
+  - envin@1.1.9
+
 ## 1.1.8
 
 ### Patch Changes
