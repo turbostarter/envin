@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useVariables } from "@/components/variables/context";
 import { DEFAULT_PRESET } from "@/lib/types";
 import { cn } from "@/utils/cn";
+import { getVariablePresetLabel, groupVariablesByPreset } from "@/utils/preset";
 
 export const FileContent = () => {
   const { form, issues, filteredKeys, variables } = useVariables();
@@ -15,55 +16,59 @@ export const FileContent = () => {
 
   const values = form.watch();
 
-  const sections = Object.groupBy(
-    filteredKeys.map((key) => {
-      return {
-        ...variables[key],
-        value: values[key],
-        key,
-      };
-    }),
-    ({ preset }) => preset?.id ?? DEFAULT_PRESET,
-  );
-
-  const presets = Object.keys(sections).reverse();
+  const { sections, presets } = groupVariablesByPreset(variables, filteredKeys);
 
   return (
     <ScrollArea className="w-full h-full grow bg-muted rounded-md p-4 px-5 min-w-0">
       <div className="font-mono text-sm">
-        {presets.map((preset) => (
-          <Fragment key={preset}>
-            {preset !== DEFAULT_PRESET && (
-              <span className="uppercase text-muted-foreground mt-8 block">
-                ### {preset} ###
-              </span>
-            )}
-            {sections[preset]?.map((variable) => {
-              const hasIssue = issues.some((issue) =>
-                issue.path?.includes(variable.key),
-              );
-
-              return (
-                <Fragment key={variable.key}>
-                  {variable.description && (
-                    <span className="text-muted-foreground truncate mt-4 first:mt-0 block">
-                      # {variable.description}
-                    </span>
+        {Object.keys(presets)
+          .reverse()
+          .map((preset) => (
+            <Fragment key={preset}>
+              {presets[preset]?.id !== DEFAULT_PRESET && presets[preset] && (
+                <span
+                  className={cn(
+                    "uppercase tracking-tight text-muted-foreground mt-8 block",
+                    {
+                      "mt-4": presets[preset]?.path.length > 2,
+                    },
                   )}
-                  <span
-                    className={cn("text-foreground block", {
-                      "text-destructive": hasIssue,
-                    })}
-                  >
-                    {variable.value
-                      ? `${variable.key}="${variable.value ?? ""}"`
-                      : `${variable.key}=`}
-                  </span>
-                </Fragment>
-              );
-            })}
-          </Fragment>
-        ))}
+                >
+                  {getVariablePresetLabel(presets[preset])}
+                </span>
+              )}
+              {sections[preset]?.map((variable, index) => {
+                const hasIssue = issues.some((issue) =>
+                  issue.path?.includes(variable.key),
+                );
+
+                const value = values[variable.key];
+
+                return (
+                  <Fragment key={variable.key}>
+                    {variable.description && (
+                      <span
+                        className={cn("text-muted-foreground truncate block", {
+                          "mt-4": index > 0,
+                        })}
+                      >
+                        # {variable.description}
+                      </span>
+                    )}
+                    <span
+                      className={cn("text-foreground block", {
+                        "text-destructive": hasIssue,
+                      })}
+                    >
+                      {value
+                        ? `${variable.key}="${value ?? ""}"`
+                        : `${variable.key}=`}
+                    </span>
+                  </Fragment>
+                );
+              })}
+            </Fragment>
+          ))}
       </div>
     </ScrollArea>
   );

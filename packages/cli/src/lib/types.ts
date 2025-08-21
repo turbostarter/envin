@@ -42,11 +42,13 @@ export const FILES = {
   ],
 } as const;
 
+export interface VariablePreset {
+  id: string;
+  path: string[];
+}
+
 export interface Variable {
-  preset: {
-    id: string;
-    path: string[];
-  };
+  preset: VariablePreset;
   group: VariableGroup;
   default: string | undefined;
   description: string | undefined;

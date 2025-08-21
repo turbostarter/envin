@@ -42,8 +42,19 @@ const zodV3 = () => {
 };
 
 const zodV4 = () => {
+  const shared = {
+    id: "shared",
+    server: {
+      BILLING_MODEL: v4
+        .enum(["metered", "fixed"])
+        .default("metered")
+        .describe("The billing model to use."),
+    },
+  } as const;
+
   const stripe = {
     // id: "stripe",
+    extends: [shared],
     clientPrefix: "NEXT_PUBLIC_",
     client: {
       NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: v4
@@ -59,8 +70,16 @@ const zodV4 = () => {
     },
   } as const;
 
+  const billing = {
+    id: "billing",
+    server: {
+      BILLING_TEST_KEY: v4.string().describe("The billing test key."),
+    },
+    extends: [stripe],
+  } as const;
+
   return {
-    extends: [vercel, stripe],
+    extends: [vercel, billing],
     shared: {
       NODE_ENV: v4
         .enum(["development", "production"])

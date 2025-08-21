@@ -44,6 +44,9 @@ export const getConfigFile = async (configFilePath: string) => {
       format: "cjs",
       jsx: "automatic",
       logLevel: "silent",
+      define: {
+        "import.meta.env": "process.env",
+      },
       loader: {
         ".js": "jsx",
       },

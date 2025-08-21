@@ -36,15 +36,36 @@ type ExtractExtendsArray<T> = T extends { extends?: infer E }
     : []
   : [];
 
-type ExtractCombinedSchema<T> = T extends ValidationOptions<
+// Depth-limited helpers to avoid excessive type instantiation with deep preset chains
+// Max depth is 4; default recursion budget is 2
+type Depth = 0 | 1 | 2 | 3 | 4;
+type DefaultDepth = 2;
+type Prev = [0, 0, 1, 2, 3];
+type Dec<N extends Depth> = Prev[N];
+
+// Coerce any object-like shape into a StandardSchemaDictionary-compatible type
+type AsDictionary<T> = T extends object
+  ? StandardSchemaDictionary<object, object> & T
+  : StandardSchemaDictionary<object, object>;
+
+type ExtractCombinedSchema<
+  T,
+  D extends Depth = DefaultDepth,
+> = T extends ValidationOptions<
   PrefixFormat,
   infer Shared,
   infer Server,
   infer Client
 >
   ? CombinedSchema<
-      Reduce<ExtractExtendsArray<T>>,
-      CombinedSchema<Shared, Server, Client>
+      AsDictionary<
+        Reduce<
+          ExtractExtendsArray<T>,
+          StandardSchemaDictionary<object, object>,
+          D
+        >
+      >,
+      AsDictionary<CombinedSchema<Shared, Server, Client>>
     >
   : T extends Readonly<
         ValidationOptions<
@@ -55,27 +76,41 @@ type ExtractCombinedSchema<T> = T extends ValidationOptions<
         >
       >
     ? CombinedSchema<
-        Reduce<ExtractExtendsArray<T>>,
-        CombinedSchema<Shared, Server, Client>
+        AsDictionary<
+          Reduce<
+            ExtractExtendsArray<T>,
+            StandardSchemaDictionary<object, object>,
+            D
+          >
+        >,
+        AsDictionary<CombinedSchema<Shared, Server, Client>>
       >
     : CombinedSchema<
-        Reduce<ExtractExtendsArray<T>>,
-        CombinedSchema<
-          T extends { shared: infer S }
-            ? S extends SharedFormat
-              ? S
+        AsDictionary<
+          Reduce<
+            ExtractExtendsArray<T>,
+            StandardSchemaDictionary<object, object>,
+            D
+          >
+        >,
+        AsDictionary<
+          CombinedSchema<
+            T extends { shared: infer S }
+              ? S extends SharedFormat
+                ? S
+                : StandardSchemaDictionary<object, object>
+              : StandardSchemaDictionary<object, object>,
+            T extends { server: infer Sv }
+              ? Sv extends ServerFormat
+                ? Sv
+                : StandardSchemaDictionary<object, object>
+              : StandardSchemaDictionary<object, object>,
+            T extends { client: infer C }
+              ? C extends ClientFormat
+                ? C
+                : StandardSchemaDictionary<object, object>
               : StandardSchemaDictionary<object, object>
-            : StandardSchemaDictionary<object, object>,
-          T extends { server: infer Sv }
-            ? Sv extends ServerFormat
-              ? Sv
-              : StandardSchemaDictionary<object, object>
-            : StandardSchemaDictionary<object, object>,
-          T extends { client: infer C }
-            ? C extends ClientFormat
-              ? C
-              : StandardSchemaDictionary<object, object>
-            : StandardSchemaDictionary<object, object>
+          >
         >
       >;
 
@@ -86,16 +121,28 @@ type Reduce<
     object,
     object
   > = StandardSchemaDictionary<object, object>,
-> = Arr extends readonly [] | []
+  D extends Depth = DefaultDepth,
+> = D extends 0
   ? Acc
-  : Arr extends
-        | readonly [infer Head, ...infer Tail]
-        // biome-ignore lint/suspicious/noRedeclare: it's not the same type
-        | [infer Head, ...infer Tail]
-    ? Tail extends readonly unknown[] | unknown[]
-      ? Mutable<Reduce<Tail, CombinedSchema<Acc, ExtractCombinedSchema<Head>>>>
-      : never
-    : never;
+  : Arr extends readonly [] | []
+    ? Acc
+    : Arr extends
+          | readonly [infer Head, ...infer Tail]
+          // biome-ignore lint/suspicious/noRedeclare: it's not the same type
+          | [infer Head, ...infer Tail]
+      ? Tail extends readonly unknown[] | unknown[]
+        ? Mutable<
+            Reduce<
+              Tail,
+              CombinedSchema<
+                AsDictionary<Acc>,
+                AsDictionary<ExtractCombinedSchema<Head, Dec<D>>>
+              >,
+              D
+            >
+          >
+        : never
+      : never;
 
 export type InferPresetOutput<T extends ExtendsFormat[number]> =
   StandardSchemaDictionary.InferOutput<ExtractCombinedSchema<T>>;
@@ -104,7 +151,8 @@ export type CombinedSchema<
   Shared extends SharedFormat = SharedFormat,
   Server extends ServerFormat = ServerFormat,
   Client extends ClientFormat = ClientFormat,
-> = Merge<Shared, Merge<Server, Client>>;
+> = StandardSchemaDictionary<object, object> &
+  Merge<Shared, Merge<Server, Client>>;
 
 export type PrefixFormat = string | undefined;
 export type SharedFormat = StandardSchemaDictionary<object, object>;
@@ -307,18 +355,23 @@ export type FullSchemaShape<
   Server extends ServerFormat,
   Client extends ClientFormat,
   Extends extends ExtendsFormat,
-> = CombinedSchema<Reduce<Extends>, CombinedSchema<Shared, Server, Client>>;
+  D extends Depth = DefaultDepth,
+> = CombinedSchema<
+  AsDictionary<Reduce<Extends, StandardSchemaDictionary<object, object>, D>>,
+  CombinedSchema<Shared, Server, Client>
+>;
 
 export type FinalSchema<
   Shared extends SharedFormat,
   Server extends ServerFormat,
   Client extends ClientFormat,
   Extends extends ExtendsFormat,
+  D extends Depth = DefaultDepth,
 > = StandardSchemaV1<
   object,
   UndefinedOptional<
     StandardSchemaDictionary.InferOutput<
-      FullSchemaShape<Shared, Server, Client, Extends>
+      FullSchemaShape<Shared, Server, Client, Extends, D>
     >
   >
 >;
