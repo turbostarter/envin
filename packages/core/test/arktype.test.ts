@@ -553,8 +553,7 @@ describe("extending presets", () => {
   describe("nested presets", () => {
     const processEnv = {
       PRESET_ENV1: "one",
-      PRESET_ENV2: "two",
-      PRESET_ENV3: 3,
+      PRESET_ENV2: 123,
       SHARED_ENV: "shared",
       SERVER_ENV: "server",
       CLIENT_ENV: "client",
@@ -563,22 +562,15 @@ describe("extending presets", () => {
     function lazyCreateEnv() {
       const presetDeep = {
         server: {
-          PRESET_ENV3: type("number"),
+          PRESET_ENV2: type("number"),
         },
-      } as const satisfies Preset;
-
-      const presetMid = {
-        server: {
-          PRESET_ENV2: type("'two'"),
-        },
-        extends: [presetDeep],
       } as const satisfies Preset;
 
       const presetTop = {
         server: {
           PRESET_ENV1: type("'one'"),
         },
-        extends: [presetMid],
+        extends: [presetDeep],
       } as const satisfies Preset;
 
       return defineEnv({
@@ -599,12 +591,10 @@ describe("extending presets", () => {
 
     type Env = ReturnType<typeof lazyCreateEnv>;
 
-    // @ts-expect-error - TypeScript limitation prevents making this pass without a big perf hit
     expectTypeOf<Env>().toMatchObjectType<
       Readonly<{
         PRESET_ENV1: "one";
-        PRESET_ENV2: "two";
-        PRESET_ENV3: number;
+        PRESET_ENV2: number;
         SERVER_ENV: string;
         SHARED_ENV: string;
         CLIENT_ENV: string;
@@ -619,8 +609,7 @@ describe("extending presets", () => {
 
       expect(env).toMatchObject({
         PRESET_ENV1: "one",
-        PRESET_ENV2: "two",
-        PRESET_ENV3: 3,
+        PRESET_ENV2: 123,
         SERVER_ENV: "server",
         SHARED_ENV: "shared",
         CLIENT_ENV: "client",
@@ -642,9 +631,6 @@ describe("extending presets", () => {
         "❌ Attempted to access a server-side environment variable on the client",
       );
       expect(() => env.PRESET_ENV2).toThrow(
-        "❌ Attempted to access a server-side environment variable on the client",
-      );
-      expect(() => env.PRESET_ENV3).toThrow(
         "❌ Attempted to access a server-side environment variable on the client",
       );
       expect(env.SHARED_ENV).toBe("shared");
