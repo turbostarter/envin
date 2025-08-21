@@ -247,7 +247,10 @@ export interface StrictOptions<
       }[keyof Server]
     | {
         [Key in keyof Shared]: Key extends string ? Key : never;
-      }[keyof Shared],
+      }[keyof Shared]
+    | keyof StandardSchemaDictionary.InferOutput<
+        FullSchemaShape<Shared, Server, Client, Extends>
+      >,
     string | boolean | number | undefined
   >;
   /**
