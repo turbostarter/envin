@@ -42,7 +42,7 @@ jobs:
         run: bun run scripts/canary.ts
 
       - name: Create a new comment notifying of the new canary version
-        uses: actions/github-script@v6
+        uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
