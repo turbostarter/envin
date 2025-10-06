@@ -1,5 +1,11 @@
 # envin
 
+## 1.1.10
+
+### Patch Changes
+
+- [`3ef2aa3`](https://github.com/turbostarter/envin/commit/3ef2aa32d96affa6f99ebdd86c21ee464309cf75) Thanks [@Bartek532](https://github.com/Bartek532)! - fix: delete undefined values at start
+
 ## 1.1.9
 
 ### Patch Changes
