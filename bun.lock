@@ -59,7 +59,7 @@
     },
     "packages/cli": {
       "name": "@envin/cli",
-      "version": "1.1.7",
+      "version": "1.1.9",
       "bin": {
         "envin": "dist/cli/index.mjs",
       },
@@ -125,7 +125,7 @@
     },
     "packages/core": {
       "name": "envin",
-      "version": "1.1.7",
+      "version": "1.1.9",
       "devDependencies": {
         "arktype": "2.1.20",
         "tsup": "^8.5.0",

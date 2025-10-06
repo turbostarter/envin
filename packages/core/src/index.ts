@@ -138,10 +138,21 @@ export function defineEnv<
     ? getDefault(finalSchema)
     : getDefaultDictionary(finalSchema);
 
+  const valuesWithDefaults = Object.fromEntries(
+    Object.entries(values).map(([k, v]) =>
+      v !== undefined
+        ? [k, v]
+        : [
+            k,
+            defaultValues && k in defaultValues ? defaultValues[k] : undefined,
+          ],
+    ),
+  );
+
   if (skip) {
     return {
       ...defaultValues,
-      ...values,
+      ...valuesWithDefaults,
       _schema: schema,
       // biome-ignore lint/suspicious/noExplicitAny: we set the type explicitly
     } as any;
