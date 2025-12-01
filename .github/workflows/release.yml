@@ -28,7 +28,7 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - uses: ./.github/setup
 
       - name: Build
@@ -67,7 +67,7 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - uses: ./.github/setup
 
       - name: Install Vercel CLI
