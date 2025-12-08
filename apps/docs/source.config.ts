@@ -19,7 +19,6 @@ export const docs = defineDocs({
 });
 
 export default defineConfig({
-  lastModifiedTime: "git",
   mdxOptions: {
     remarkCodeTabOptions: {
       parseMdx: true,

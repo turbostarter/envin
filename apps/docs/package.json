@@ -5,7 +5,7 @@
   "scripts": {
     "build": "next build",
     "clean": "rm -rf .next .turbo .source node_modules",
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "env": "bunx @envin/cli@latest dev",
     "start": "next start",
     "postinstall": "fumadocs-mdx"
@@ -13,7 +13,7 @@
   "dependencies": {
     "@radix-ui/react-slot": "1.2.4",
     "radix-ui": "catalog:",
-    "@vercel/analytics": "^1.5.0",
+    "@vercel/analytics": "^1.6.1",
     "class-variance-authority": "catalog:",
     "clsx": "catalog:",
     "envin": "workspace:*",

@@ -22,7 +22,7 @@
     "declaration": false,
     "declarationMap": false,
     "incremental": false,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "lib": ["dom", "dom.iterable", "esnext", "ESNext.AsyncIterable"],
     "noEmit": true,
     "strict": false,
@@ -35,6 +35,12 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
   "exclude": [".next", "dist", "node_modules"]
 }
