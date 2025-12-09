@@ -1,5 +1,4 @@
-import { rehypeCodeDefaultOptions } from "fumadocs-core/mdx-plugins";
-import { remarkInstall } from "fumadocs-docgen";
+import { rehypeCodeDefaultOptions, remarkNpm } from "fumadocs-core/mdx-plugins";
 import {
   defineConfig,
   defineDocs,
@@ -19,15 +18,14 @@ export const docs = defineDocs({
 });
 
 export default defineConfig({
-  lastModifiedTime: "git",
   mdxOptions: {
     remarkCodeTabOptions: {
       parseMdx: true,
     },
-    remarkPlugins: [remarkInstall],
+    remarkPlugins: [remarkNpm],
     rehypeCodeOptions: {
       lazy: true,
-      experimentalJSEngine: true,
+      engine: "js",
       langs: ["ts", "tsx", "js", "jsx", "json", "md", "mdx", "sh"],
       themes: {
         light: "github-light",

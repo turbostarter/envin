@@ -6,16 +6,16 @@ import { cn } from "@/lib/utils";
 
 export default function Home() {
   return (
-    <div className="flex flex-col min-h-screen w-full">
+    <>
       <Hero />
       <Footer />
-    </div>
+    </>
   );
 }
 
 const Hero = () => {
   return (
-    <div className="flex flex-1 flex-col justify-center items-center text-center gap-6">
+    <div className="flex flex-1 flex-col justify-center items-center text-center gap-6 px-4">
       <Link
         href="/docs/validators"
         target="_blank"
