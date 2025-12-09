@@ -13,6 +13,9 @@ export default function Layout({ children }: { children: ReactNode }) {
         ...baseOptions.nav,
         mode: "top",
       }}
+      containerProps={{
+        className: "max-w-[1400px] mx-auto w-full",
+      }}
     >
       {children}
     </DocsLayout>

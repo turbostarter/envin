@@ -1,7 +1,7 @@
 import { fonts } from "@/lib/fonts";
 import "./global.css";
 import { Analytics } from "@vercel/analytics/react";
-import { RootProvider } from "fumadocs-ui/provider";
+import { RootProvider } from "fumadocs-ui/provider/next";
 import type { ReactNode } from "react";
 import { createMetadata } from "@/lib/metadata";
 import { cn } from "@/lib/utils";

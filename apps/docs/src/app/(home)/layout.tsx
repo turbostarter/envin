@@ -1,17 +1,24 @@
-import { DocsLayout } from "fumadocs-ui/layouts/notebook";
+import { HomeLayout } from "fumadocs-ui/layouts/home";
 import type { ReactNode } from "react";
 import { baseOptions } from "@/lib/layout.config";
-import { source } from "@/lib/source";
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
-    <DocsLayout
+    <HomeLayout
       {...baseOptions}
-      tree={source.pageTree}
-      sidebar={{ hidden: true, collapsible: false }}
-      nav={{ ...baseOptions.nav, mode: "top" }}
+      links={[
+        {
+          text: "Home",
+          url: "/",
+        },
+        {
+          text: "Docs",
+          url: "/docs",
+          active: "nested-url",
+        },
+      ]}
     >
       {children}
-    </DocsLayout>
+    </HomeLayout>
   );
 }
