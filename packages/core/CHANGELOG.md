@@ -1,5 +1,11 @@
 # envin
 
+## 1.1.11
+
+### Patch Changes
+
+- [#57](https://github.com/turbostarter/envin/pull/57) [`ee9f7b6`](https://github.com/turbostarter/envin/commit/ee9f7b6aa1a312ff63e799df9a5e3f4dec2f5379) Thanks [@Bartek532](https://github.com/Bartek532)! - update dependencies
+
 ## 1.1.10
 
 ### Patch Changes
