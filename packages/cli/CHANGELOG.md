@@ -1,5 +1,14 @@
 # @envin/cli
 
+## 1.1.12
+
+### Patch Changes
+
+- [`0eeb6d5`](https://github.com/turbostarter/envin/commit/0eeb6d5a3b91b13cac350abe46cfac82cedcd83b) Thanks [@github-actions[bot]](https://github.com/github-actions%5Bbot%5D)! - fix catalog: dependencies for packages
+
+- Updated dependencies [[`0eeb6d5`](https://github.com/turbostarter/envin/commit/0eeb6d5a3b91b13cac350abe46cfac82cedcd83b)]:
+  - envin@1.1.12
+
 ## 1.1.11
 
 ### Patch Changes
