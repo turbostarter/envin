@@ -18,7 +18,7 @@
     "clsx": "catalog:",
     "envin": "workspace:*",
     "fumadocs-core": "16.2.3",
-    "fumadocs-mdx": "14.1.0",
+    "fumadocs-mdx": "14.2.4",
     "fumadocs-twoslash": "^3.1.10",
     "fumadocs-ui": "16.2.3",
     "geist": "^1.5.1",
