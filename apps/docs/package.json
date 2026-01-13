@@ -16,7 +16,7 @@
     "class-variance-authority": "catalog:",
     "clsx": "catalog:",
     "envin": "workspace:*",
-    "fumadocs-core": "16.2.3",
+    "fumadocs-core": "16.4.6",
     "fumadocs-mdx": "14.2.4",
     "fumadocs-twoslash": "^3.1.10",
     "fumadocs-ui": "16.2.3",
@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "catalog:",
-    "@types/mdx": "2.0.13",
+    "@types/mdx": "^2.0.13",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
