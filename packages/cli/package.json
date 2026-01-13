@@ -25,10 +25,10 @@
     "envin": "dist/cli/index.mjs"
   },
   "scripts": {
-    "build": "tsup-node && bun run build:preview",
+    "build": "tsdown && bun run build:preview",
     "build:preview": "node ./scripts/build-preview-server.mjs",
     "clean": "rm -rf dist .turbo node_modules .next",
-    "dev": "tsup-node --watch",
+    "dev": "tsdown --watch",
     "dev:preview": "cd ../../apps/example && tsx ../../packages/cli/src/cli/index.ts dev",
     "start": "node dist/cli/index.mjs",
     "typecheck": "tsc --noEmit",
@@ -79,7 +79,7 @@
     "stacktrace-parser": "0.1.11",
     "tailwind-merge": "catalog:",
     "tailwindcss": "catalog:",
-    "tsup": "catalog:",
+    "tsdown": "catalog:",
     "tsx": "^4.19.4",
     "tw-animate-css": "catalog:",
     "typescript": "catalog:"

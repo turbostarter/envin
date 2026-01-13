@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "@radix-ui/react-slot": "1.2.4",
-    "radix-ui": "catalog:",
     "@vercel/analytics": "^1.6.1",
     "class-variance-authority": "catalog:",
     "clsx": "catalog:",
@@ -24,6 +23,8 @@
     "geist": "^1.5.1",
     "lucide-react": "catalog:",
     "next": "catalog:",
+    "next-themes": "^0.4.6",
+    "radix-ui": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
     "tailwind-merge": "catalog:",
