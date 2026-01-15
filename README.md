@@ -101,9 +101,8 @@ npx @envin/cli@latest dev [options]
 ```
 
 Options:
-- `-d, --dir <path>`: directory with your env config and `.env` files (default: `./`)
 - `-c, --config <path>`: explicit path to `env.config.ts`
-- `-e, --env <path>`: path to a `.env` file or directory
+- `-e, --env <path...>`: path(s) to `.env` file(s) or directories
 - `-p, --port <port>`: port to run the preview server (default: `3000`)
 - `-v, --verbose`: enable verbose logging
 - `--cascade`: enable workspace env/config cascading
@@ -117,7 +116,7 @@ When `--cascade` is enabled, the CLI:
   - `.env` → `.env.local` → `.env.development` → `.env.development.local`
   - `.env` → `.env.local` → `.env.production` → `.env.production.local`
 
-If `-e` points to a file, only that file is used. If `-e` points to a directory, only that directory is used.
+If `-e` points to a single file, only that file is used. If `-e` points to a directory, only that directory is used. If multiple paths are provided, they must all be files or all be directories. Without `-e` or `--cascade`, the CLI uses the current working directory.
 
 
 ## Contributing

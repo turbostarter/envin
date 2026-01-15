@@ -5,9 +5,8 @@ import { logger } from "../utils/logger";
 import { startDevServer } from "../utils/preview";
 
 interface Args {
-  dir: string;
   config?: string;
-  env?: string;
+  env?: string[] | string;
   cascade?: boolean;
   port: string;
   verbose: boolean;
@@ -90,7 +89,6 @@ const uniquePaths = (paths: string[]) => {
 };
 
 export const dev = async ({
-  dir: envDirRelativePath,
   config,
   env,
   cascade = false,
@@ -101,7 +99,6 @@ export const dev = async ({
     if (verbose) {
       logger.debug("Starting dev command...", {
         cwd: process.cwd(),
-        dir: envDirRelativePath,
         config,
         env,
         cascade,
@@ -118,27 +115,45 @@ export const dev = async ({
     let envDirPaths: string[] = [];
     let primaryEnvDir = cwd;
 
-    if (env) {
-      const resolvedEnvPath = resolveFromCwd(env);
-      if (!fs.existsSync(resolvedEnvPath)) {
-        logger.error(`Missing ${resolvedEnvPath} path!`);
+    if (env && env.length > 0) {
+      const envPaths = Array.isArray(env) ? env : [env];
+      const resolvedEnvPaths = envPaths.map(resolveFromCwd);
+
+      const missingPath = resolvedEnvPaths.find(
+        (resolvedEnvPath) => !fs.existsSync(resolvedEnvPath),
+      );
+      if (missingPath) {
+        logger.error(`Missing ${missingPath} path!`);
         process.exit(1);
       }
-      const stats = fs.statSync(resolvedEnvPath);
-      if (stats.isFile()) {
-        envFilePaths = [resolvedEnvPath];
-        primaryEnvDir = path.dirname(resolvedEnvPath);
+
+      const directories = resolvedEnvPaths.filter((resolvedEnvPath) =>
+        fs.statSync(resolvedEnvPath).isDirectory(),
+      );
+      const files = resolvedEnvPaths.filter(
+        (resolvedEnvPath) => !fs.statSync(resolvedEnvPath).isDirectory(),
+      );
+
+      if (directories.length > 0 && files.length > 0) {
+        logger.error(
+          "Multiple --env paths must be all files or all directories.",
+        );
+        process.exit(1);
+      }
+
+      if (directories.length > 0) {
+        envDirPaths = directories;
+        primaryEnvDir = directories[directories.length - 1] ?? cwd;
       } else {
-        envDirPaths = [resolvedEnvPath];
-        primaryEnvDir = resolvedEnvPath;
+        envFilePaths = files;
+        primaryEnvDir = path.dirname(files[0] ?? cwd);
       }
     } else if (cascade) {
       envDirPaths = uniquePaths([workspaceRoot, cwd]);
       primaryEnvDir = envDirPaths[envDirPaths.length - 1] ?? cwd;
     } else {
-      const resolvedDir = resolveFromCwd(envDirRelativePath);
-      envDirPaths = [resolvedDir];
-      primaryEnvDir = resolvedDir;
+      envDirPaths = [cwd];
+      primaryEnvDir = cwd;
     }
 
     const resolvedEnvDirRelativePath = path.relative(cwd, primaryEnvDir) || ".";
