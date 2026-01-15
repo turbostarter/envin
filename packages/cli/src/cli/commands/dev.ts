@@ -163,23 +163,9 @@ export const dev = async ({
       process.exit(1);
     }
 
-    const resolveConfigPath = () => {
-      if (config) {
-        return resolveFromCwd(config);
-      }
-
-      if (!cascade) {
-        return path.join(primaryEnvDir, "env.config.ts");
-      }
-
-      const candidates = uniquePaths([
-        path.join(primaryEnvDir, "env.config.ts"),
-        path.join(workspaceRoot, "env.config.ts"),
-      ]);
-      return candidates.find((candidate) => fs.existsSync(candidate));
-    };
-
-    const resolvedConfigPath = resolveConfigPath();
+    const resolvedConfigPath = config
+      ? resolveFromCwd(config)
+      : path.join(cwd, "env.config.ts");
     if (!resolvedConfigPath || !fs.existsSync(resolvedConfigPath)) {
       logger.error("Missing env.config.ts file!");
       process.exit(1);
