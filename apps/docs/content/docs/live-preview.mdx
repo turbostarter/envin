@@ -48,13 +48,30 @@ bunx @envin/cli dev
 
 This will start a local server at [http://localhost:3000](http://localhost:3000). You can also specify a custom port using the `--port` flag.
 
-<Callout type="warn">
+## CLI options
 
-Make sure to place your `env.config.ts` file in the root of your directory where you run the CLI. Otherwise, the CLI will not be able to find it.
+```bash
+@envin/cli dev [options]
+```
 
-Also, the `.env` files should be colocated in the same directory as your `env.config.ts` to be picked up correctly. This will be customizable in the future.
+Options:
+- `-d, --dir <path>`: directory with your env config and `.env` files (default: `./`)
+- `-c, --config <path>`: explicit path to `env.config.ts`
+- `-e, --env <path>`: path to a `.env` file or directory
+- `-p, --port <port>`: port to run the preview server (default: `3000`)
+- `-v, --verbose`: enable verbose logging
+- `--cascade`: enable workspace env/config cascading
 
-</Callout>
+### Env loading behavior
+
+When `--cascade` is enabled, the CLI:
+- detects the workspace root by walking up from current working directory
+- loads env files from the workspace root first, then the package directory, so package values override root values
+- uses the following precedence within each directory:
+  - `.env` → `.env.local` → `.env.development` → `.env.development.local`
+  - `.env` → `.env.local` → `.env.production` → `.env.production.local`
+
+If `-e` points to a file, only that file is used. If `-e` points to a directory, only that directory is used.
 
 ## Usage
 
@@ -65,8 +82,9 @@ In Development Mode, the environment variables used during development will be d
 This mode will use variables from the following files:
 
 1. `.env`
-2. `.env.development`
-3. `.env.local`
+2. `.env.local`
+3. `.env.development`
+4. `.env.development.local`
 
 ### Production mode
 
@@ -75,8 +93,8 @@ In Production Mode, the environment variables used during production will be dis
 This mode will use variables from the following files:
 
 1. `.env`
-2. `.env.production`
-3. `.env.local`
+2. `.env.local`
+3. `.env.production`
 4. `.env.production.local`
 
 ### Generating variables

@@ -1,20 +1,23 @@
 import path from "node:path";
-import { envDirectoryAbsolutePath } from "@/app/env";
+import { envConfigPath, envDirectoryAbsolutePath } from "@/app/env";
 import { Environment } from "@/lib/types";
 import { getConfigFile } from "@/utils/get-config-file";
 
-export const envConfigFilePath = path.join(
-  envDirectoryAbsolutePath ?? "",
-  "env.config.ts",
-);
+export const envConfigFilePath =
+  envConfigPath || path.join(envDirectoryAbsolutePath ?? "", "env.config.ts");
 export const { config, error } = await getConfigFile(envConfigFilePath);
 
 export const FILES = {
-  [Environment.DEVELOPMENT]: [".env", ".env.development", ".env.local"],
+  [Environment.DEVELOPMENT]: [
+    ".env",
+    ".env.local",
+    ".env.development",
+    ".env.development.local",
+  ],
   [Environment.PRODUCTION]: [
     ".env",
-    ".env.production",
     ".env.local",
+    ".env.production",
     ".env.production.local",
   ],
 } as const;

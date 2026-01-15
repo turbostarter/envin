@@ -3,14 +3,12 @@ import { Ban } from "lucide-react";
 import { Envin } from "@/components/envin";
 import { getVariables } from "@/lib/variables";
 import { getConfigFile } from "@/utils/get-config-file";
-import { envDirectoryAbsolutePath } from "./env";
+import { envConfigPath, envDirectoryAbsolutePath } from "./env";
 
 export const dynamic = "force-dynamic";
 
-export const envConfigFilePath = path.join(
-  envDirectoryAbsolutePath ?? "",
-  "env.config.ts",
-);
+export const envConfigFilePath =
+  envConfigPath || path.join(envDirectoryAbsolutePath ?? "", "env.config.ts");
 
 export default async function Home() {
   const { config, error } = await getConfigFile(envConfigFilePath);

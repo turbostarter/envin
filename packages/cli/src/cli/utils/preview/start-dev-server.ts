@@ -41,11 +41,17 @@ export const previewServerLocation = isDev
 export const startDevServer = async ({
   envDirRelativePath,
   staticBaseDirRelativePath,
+  envDirAbsolutePaths,
+  envFilePaths,
+  envConfigPath,
   port,
   verbose,
 }: {
   envDirRelativePath: string;
   staticBaseDirRelativePath: string;
+  envDirAbsolutePaths: string[];
+  envFilePaths: string[];
+  envConfigPath: string;
   port: number;
   verbose: boolean;
 }): Promise<http.Server> => {
@@ -67,6 +73,9 @@ export const startDevServer = async ({
       logger.debug("Creating HTTP server...", {
         envDirRelativePath,
         staticBaseDirRelativePath,
+        envDirAbsolutePaths,
+        envFilePaths,
+        envConfigPath,
         port,
       });
     }
@@ -114,6 +123,9 @@ export const startDevServer = async ({
     return startDevServer({
       envDirRelativePath,
       staticBaseDirRelativePath,
+      envDirAbsolutePaths,
+      envFilePaths,
+      envConfigPath,
       port: nextPortToTry,
       verbose,
     });
@@ -146,6 +158,9 @@ export const startDevServer = async ({
     ...getEnvVariablesForPreviewApp(
       path.normalize(envDirRelativePath),
       process.cwd(),
+      envDirAbsolutePaths,
+      envFilePaths,
+      envConfigPath,
     ),
   };
   const app = next({

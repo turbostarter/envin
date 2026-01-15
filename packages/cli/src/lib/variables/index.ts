@@ -4,7 +4,11 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { parse } from "dotenv";
 import type { Preset } from "envin/types";
-import { envDirectoryAbsolutePath } from "@/app/env";
+import {
+  envDirectoryAbsolutePath,
+  envDirectoryAbsolutePaths,
+  envFilePaths,
+} from "@/app/env";
 import {
   type Config,
   DEFAULT_PRESET,
@@ -124,48 +128,64 @@ const getVariable = (
   };
 };
 
-const getFiles = () => {
-  return Object.fromEntries(
-    Object.entries(FILES).map(([environment, files]) => [
-      environment,
-      files.map((file) => {
-        try {
-          return parse(
-            readFileSync(
-              path.join(envDirectoryAbsolutePath ?? "", file),
-              "utf8",
-            ),
-          );
-        } catch {
-          return {};
-        }
-      }),
-    ]),
+const readEnvFile = (filePath: string) => {
+  try {
+    return parse(readFileSync(filePath, "utf8"));
+  } catch {
+    return {};
+  }
+};
+
+const resolveEnvDirs = () => {
+  if (envDirectoryAbsolutePaths.length) {
+    return envDirectoryAbsolutePaths;
+  }
+  if (envDirectoryAbsolutePath) {
+    return [envDirectoryAbsolutePath];
+  }
+  return [];
+};
+
+const getFilesForEnvironment = (environment: Environment) => {
+  if (envFilePaths.length) {
+    return envFilePaths.map((filePath) => ({
+      name: path.relative(process.cwd(), filePath),
+      values: readEnvFile(filePath),
+    }));
+  }
+
+  const envDirs = resolveEnvDirs();
+  const files = FILES[environment] ?? FILES[Environment.DEVELOPMENT];
+  return envDirs.flatMap((dir) =>
+    files.map((file) => {
+      const fullPath = path.join(dir, file);
+      return {
+        name: path.relative(process.cwd(), fullPath),
+        values: readEnvFile(fullPath),
+      };
+    }),
   );
 };
 
 export const getFileValues = async (
   environment: Environment = Environment.DEVELOPMENT,
 ): Promise<FileValues> => {
-  const files = getFiles();
-  const variablesFromFiles = files[environment];
+  const variablesFromFiles = getFilesForEnvironment(environment);
 
   const result: FileValues = {};
 
-  variablesFromFiles?.forEach((file, index) => {
-    const fileName = FILES[environment][index] ?? "";
-
-    Object.entries(file).forEach(([key, value]) => {
+  variablesFromFiles?.forEach(({ name, values }) => {
+    Object.entries(values).forEach(([key, value]) => {
       if (!result[key]) {
         result[key] = {
           value,
-          files: [fileName],
+          files: [name],
         };
       } else {
         result[key] = {
           ...result[key],
           value,
-          files: [...result[key].files, fileName],
+          files: [...result[key].files, name],
         };
       }
     });

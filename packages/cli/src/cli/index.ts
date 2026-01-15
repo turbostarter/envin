@@ -20,6 +20,9 @@ program
     "Directory with your envin configuration and .env files",
     "./",
   )
+  .option("-c, --config <path>", "Path to env.config.ts")
+  .option("-e, --env <path>", "Path to .env file or directory")
+  .option("--cascade", "Enable workspace env/config cascading", false)
   .option("-p --port <port>", "Port to run dev server on", "3000")
   .option("-v, --verbose", "Enable verbose logging", false)
   .action(dev);

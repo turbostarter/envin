@@ -94,6 +94,31 @@ npx @envin/cli@latest dev
 
 This will start a live preview server that will automatically update your environment variables when you change them allowing you to find and fix errors before deploying your app.
 
+### CLI options
+
+```bash
+npx @envin/cli@latest dev [options]
+```
+
+Options:
+- `-d, --dir <path>`: directory with your env config and `.env` files (default: `./`)
+- `-c, --config <path>`: explicit path to `env.config.ts`
+- `-e, --env <path>`: path to a `.env` file or directory
+- `-p, --port <port>`: port to run the preview server (default: `3000`)
+- `-v, --verbose`: enable verbose logging
+- `--cascade`: enable workspace env/config cascading
+
+#### Env loading behavior
+
+When `--cascade` is enabled, the CLI:
+- detects the workspace root by walking up from current working directory
+- loads env files from the workspace root first, then the package directory, so package values override root values
+- uses the following precedence within each directory:
+  - `.env` → `.env.local` → `.env.development` → `.env.development.local`
+  - `.env` → `.env.local` → `.env.production` → `.env.production.local`
+
+If `-e` points to a file, only that file is used. If `-e` points to a directory, only that directory is used.
+
 
 ## Contributing
 
