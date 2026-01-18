@@ -28,9 +28,9 @@ export const FileContent = () => {
               {presets[preset]?.id !== DEFAULT_PRESET && presets[preset] && (
                 <span
                   className={cn(
-                    "uppercase tracking-tight text-muted-foreground mt-8 block",
+                    "uppercase tracking-tight text-muted-foreground not-first:mt-8 block",
                     {
-                      "mt-4": presets[preset]?.path.length > 2,
+                      "not-first:mt-4": presets[preset]?.path.length > 2,
                     },
                   )}
                 >
@@ -49,7 +49,7 @@ export const FileContent = () => {
                     {variable.description && (
                       <span
                         className={cn("text-muted-foreground truncate block", {
-                          "mt-4": index > 0,
+                          "not-first:mt-4": index > 0,
                         })}
                       >
                         # {variable.description}

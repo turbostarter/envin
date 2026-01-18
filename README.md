@@ -105,18 +105,14 @@ Options:
 - `-e, --env <path...>`: path(s) to `.env` file(s) or directories
 - `-p, --port <port>`: port to run the preview server (default: `3000`)
 - `-v, --verbose`: enable verbose logging
-- `--cascade`: enable workspace env/config cascading
 
 #### Env loading behavior
 
-When `--cascade` is enabled, the CLI:
-- detects the workspace root by walking up from current working directory
-- loads env files from the workspace root first, then the package directory, so package values override root values
-- uses the following precedence within each directory:
+The CLI uses the following precedence within each directory:
   - `.env` → `.env.local` → `.env.development` → `.env.development.local`
   - `.env` → `.env.local` → `.env.production` → `.env.production.local`
 
-If `-e` points to a single file, only that file is used. If `-e` points to a directory, only that directory is used. If multiple paths are provided, they must all be files or all be directories. Without `-e` or `--cascade`, the CLI uses the current working directory.
+If `-e` points to a single file, only that file is used. If `-e` points to a directory, only that directory is used. If multiple paths are provided, they must all be files or all be directories. Without `-e`, the CLI uses the current working directory.
 
 
 ## Contributing

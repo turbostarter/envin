@@ -7,101 +7,17 @@ import { startDevServer } from "../utils/preview";
 interface Args {
   config?: string;
   env?: string[] | string;
-  cascade?: boolean;
   port: string;
   verbose: boolean;
 }
 
-const WORKSPACE_ROOT_FILE_MARKERS = [
-  "pnpm-workspace.yaml",
-  "turbo.json",
-  "nx.json",
-  "lerna.json",
-  "rush.json",
-  "WORKSPACE",
-  "WORKSPACE.bazel",
-];
-
-const findWorkspaceRoot = (startDir: string) => {
-  const readPackageJson = (candidateDir: string) => {
-    try {
-      const packageJsonPath = path.join(candidateDir, "package.json");
-      if (!fs.existsSync(packageJsonPath)) {
-        return null;
-      }
-      const raw = fs.readFileSync(packageJsonPath, "utf8");
-      return JSON.parse(raw);
-    } catch {
-      return null;
-    }
-  };
-
-  const hasWorkspacePackageJson = (candidateDir: string) => {
-    const parsed = readPackageJson(candidateDir);
-    return Boolean(parsed?.workspaces);
-  };
-
-  const hasWorkspaceMarkers = (candidateDir: string) =>
-    WORKSPACE_ROOT_FILE_MARKERS.some((marker) =>
-      fs.existsSync(path.join(candidateDir, marker)),
-    ) || hasWorkspacePackageJson(candidateDir);
-
-  const hasMonorepoFolderHints = (candidateDir: string) => {
-    const hasApps = fs.existsSync(path.join(candidateDir, "apps"));
-    const hasPackages = fs.existsSync(path.join(candidateDir, "packages"));
-    const packageJson = readPackageJson(candidateDir);
-    return (hasApps || hasPackages) && Boolean(packageJson?.private ?? false);
-  };
-
-  let currentDir = startDir;
-  let bestCandidate: string | null = null;
-
-  while (true) {
-    if (hasWorkspaceMarkers(currentDir)) {
-      return currentDir;
-    }
-    if (hasMonorepoFolderHints(currentDir)) {
-      bestCandidate = currentDir;
-    }
-
-    const parentDir = path.dirname(currentDir);
-    if (
-      parentDir === currentDir ||
-      fs.existsSync(path.join(currentDir, ".git")) ||
-      fs.existsSync(path.join(currentDir, "node_modules"))
-    ) {
-      return bestCandidate ?? startDir;
-    }
-    currentDir = parentDir;
-  }
-};
-
-const uniquePaths = (paths: string[]) => {
-  const seen = new Set<string>();
-  return paths.filter((candidate) => {
-    const normalized = path.normalize(candidate);
-    if (seen.has(normalized)) {
-      return false;
-    }
-    seen.add(normalized);
-    return true;
-  });
-};
-
-export const dev = async ({
-  config,
-  env,
-  cascade = false,
-  port,
-  verbose,
-}: Args) => {
+export const dev = async ({ config, env, port, verbose }: Args) => {
   try {
     if (verbose) {
       logger.debug("Starting dev command...", {
         cwd: process.cwd(),
         config,
         env,
-        cascade,
         port,
       });
     }
@@ -110,7 +26,6 @@ export const dev = async ({
     const resolveFromCwd = (targetPath: string) =>
       path.isAbsolute(targetPath) ? targetPath : path.resolve(cwd, targetPath);
 
-    const workspaceRoot = findWorkspaceRoot(cwd);
     let envFilePaths: string[] = [];
     let envDirPaths: string[] = [];
     let primaryEnvDir = cwd;
@@ -148,9 +63,6 @@ export const dev = async ({
         envFilePaths = files;
         primaryEnvDir = path.dirname(files[0] ?? cwd);
       }
-    } else if (cascade) {
-      envDirPaths = uniquePaths([workspaceRoot, cwd]);
-      primaryEnvDir = envDirPaths[envDirPaths.length - 1] ?? cwd;
     } else {
       envDirPaths = [cwd];
       primaryEnvDir = cwd;
