@@ -11,6 +11,7 @@ export function createMetadata(override: Metadata): Metadata {
       url: "https://envin.turbostarter.dev",
       images: "/images/banner.png",
       siteName: "Envin",
+      type: "website",
       ...override.openGraph,
     },
     twitter: {

@@ -1,5 +1,11 @@
 # envin
 
+## 1.2.0
+
+### Minor Changes
+
+- [`0fd2ad7`](https://github.com/turbostarter/envin/commit/0fd2ad707b75622aebabdd1de8986e80429b9b76) Thanks [@Bartek532](https://github.com/Bartek532)! - introduce more CLI options
+
 ## 1.1.13
 
 ### Patch Changes
