@@ -92,6 +92,7 @@ const zodV4 = () => {
     },
     server: {
       DATABASE_URL: v4.url().describe("The URL of the database."),
+      SHARED_FOO: v4.string().describe("The shared foo.").min(2),
     },
   } as const;
 };

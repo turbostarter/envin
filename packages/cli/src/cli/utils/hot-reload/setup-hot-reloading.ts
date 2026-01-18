@@ -1,9 +1,10 @@
-import { promises as fs } from "node:fs";
+import fsSync, { promises as fs } from "node:fs";
 import type http from "node:http";
 import path from "node:path";
 import { watch } from "chokidar";
 import debounce from "debounce";
 import { type Socket, Server as SocketServer } from "socket.io";
+import { Environment, FILES } from "../../../lib/types";
 import { logger } from "../../utils/logger";
 import { createDependencyGraph } from "./create-dependency-graph";
 import type { HotReloadChange } from "./types";
@@ -114,10 +115,14 @@ const attachShutdownHandlers = (
 export const setupHotreloading = async ({
   devServer,
   envDirRelativePath,
+  envDirAbsolutePaths,
+  envFilePaths,
   verbose,
 }: {
   devServer: http.Server;
   envDirRelativePath: string;
+  envDirAbsolutePaths: string[];
+  envFilePaths: string[];
   verbose: boolean;
 }) => {
   if (verbose) {
@@ -185,6 +190,17 @@ export const setupHotreloading = async ({
   }
 
   const watcher = await createEnvWatcher(absolutePathToEnvDirectory);
+  const extraEnvFiles = envFilePaths.length
+    ? envFilePaths
+    : envDirAbsolutePaths.flatMap((dir) =>
+        [
+          ...FILES[Environment.DEVELOPMENT],
+          ...FILES[Environment.PRODUCTION],
+        ].map((file) => path.join(dir, file)),
+      );
+  const existingExtraEnvFiles = extraEnvFiles.filter((filePath) =>
+    fsSync.existsSync(filePath),
+  );
 
   const getFilesOutsideEnvDirectory = () =>
     Object.keys(dependencyGraph).filter((p) =>
@@ -193,7 +209,10 @@ export const setupHotreloading = async ({
   let filesOutsideEnvDirectory = getFilesOutsideEnvDirectory();
   // adds in to be watched separately all of the files that are outside of
   // the user's env directory
-  addExternalFilesToWatcher(watcher, filesOutsideEnvDirectory);
+  addExternalFilesToWatcher(watcher, [
+    ...filesOutsideEnvDirectory,
+    ...existingExtraEnvFiles,
+  ]);
 
   attachShutdownHandlers(watcher, verbose);
 

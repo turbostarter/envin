@@ -33,11 +33,16 @@ export type Environment = (typeof Environment)[keyof typeof Environment];
 export const DEFAULT_PRESET = "root";
 
 export const FILES = {
-  [Environment.DEVELOPMENT]: [".env", ".env.development", ".env.local"],
+  [Environment.DEVELOPMENT]: [
+    ".env",
+    ".env.local",
+    ".env.development",
+    ".env.development.local",
+  ],
   [Environment.PRODUCTION]: [
     ".env",
-    ".env.production",
     ".env.local",
+    ".env.production",
     ".env.production.local",
   ],
 } as const;

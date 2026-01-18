@@ -141,7 +141,12 @@ export const Form = () => {
   const tree = useMemo(() => buildTree(items), [items]);
 
   const topLevelKeys = useMemo(
-    () => [DEFAULT_PRESET, ...Object.keys(tree.children).reverse()],
+    () => [
+      ...(items.some((item) => item.preset?.id === DEFAULT_PRESET)
+        ? [DEFAULT_PRESET]
+        : []),
+      ...Object.keys(tree.children).reverse(),
+    ],
     [tree.children],
   );
 

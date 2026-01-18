@@ -48,13 +48,25 @@ bunx @envin/cli dev
 
 This will start a local server at [http://localhost:3000](http://localhost:3000). You can also specify a custom port using the `--port` flag.
 
-<Callout type="warn">
+## CLI options
 
-Make sure to place your `env.config.ts` file in the root of your directory where you run the CLI. Otherwise, the CLI will not be able to find it.
+```bash
+@envin/cli dev [options]
+```
 
-Also, the `.env` files should be colocated in the same directory as your `env.config.ts` to be picked up correctly. This will be customizable in the future.
+Options:
+- `-c, --config <path>`: explicit path to `env.config.ts`
+- `-e, --env <path...>`: path(s) to `.env` file(s) or directories
+- `-p, --port <port>`: port to run the preview server (default: `3000`)
+- `-v, --verbose`: enable verbose logging
 
-</Callout>
+### Env loading behavior
+
+The CLI uses the following precedence within each directory:
+  - `.env` → `.env.local` → `.env.development` → `.env.development.local`
+  - `.env` → `.env.local` → `.env.production` → `.env.production.local`
+
+If `-e` points to a single file, only that file is used. If `-e` points to a directory, only that directory is used. If multiple paths are provided, they must all be files or all be directories. Without `-e`, the CLI uses the current working directory.
 
 ## Usage
 
@@ -65,8 +77,9 @@ In Development Mode, the environment variables used during development will be d
 This mode will use variables from the following files:
 
 1. `.env`
-2. `.env.development`
-3. `.env.local`
+2. `.env.local`
+3. `.env.development`
+4. `.env.development.local`
 
 ### Production mode
 
@@ -75,8 +88,8 @@ In Production Mode, the environment variables used during production will be dis
 This mode will use variables from the following files:
 
 1. `.env`
-2. `.env.production`
-3. `.env.local`
+2. `.env.local`
+3. `.env.production`
 4. `.env.production.local`
 
 ### Generating variables
