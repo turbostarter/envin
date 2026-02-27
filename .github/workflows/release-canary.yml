@@ -72,24 +72,3 @@ jobs:
               issue_number: context.payload.pull_request.number,
               name: 'canary',
             });
-  deploy:
-    runs-on: ubuntu-latest
-    environment: Preview
-    needs: [checks]
-    permissions:
-      id-token: write
-      pull-requests: write
-      deployments: write
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - uses: ./.github/setup
-
-      - uses: amondnet/vercel-action@v25
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID}}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID}}
-          scope: ${{ secrets.VERCEL_SCOPE }}

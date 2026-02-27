@@ -9,8 +9,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
 
@@ -60,24 +58,3 @@ jobs:
           else
             echo "No formatting changes to commit."
           fi
-  deploy:
-    runs-on: ubuntu-latest
-    environment: Production
-    needs: [release]
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - uses: ./.github/setup
-
-      - name: Install Vercel CLI
-        run: bun install --global vercel@latest
-
-      - name: Pull environment information
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Build
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Publish!
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
