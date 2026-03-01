@@ -60,7 +60,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@babel/core": "7.26.10",
+    "@babel/core": "7.29.0",
     "@swc/core": "1.11.21",
     "@tailwindcss/postcss": "catalog:",
     "@types/babel__core": "7.20.5",
