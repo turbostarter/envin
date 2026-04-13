@@ -60,7 +60,7 @@
     "tsdown": "catalog:",
     "typescript": "catalog:",
     "valibot": "catalog:",
-    "vitest": "3.2.3",
+    "vitest": "4.1.2",
     "zod": "catalog:"
   },
   "peerDependencies": {

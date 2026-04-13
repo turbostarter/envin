@@ -45,4 +45,4 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
       - uses: ./.github/setup
-      - run: bun test
+      - run: bun run test
