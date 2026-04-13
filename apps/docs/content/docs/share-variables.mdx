@@ -1,0 +1,118 @@
+---
+title: Share variables
+description: Define shared environment variables once and reuse them across packages with presets and extends.
+---
+
+When you split an app into multiple packages (or multiple deployables), you still want **one source of truth** for variables that mean the same thing everywhere—runtime mode, public URLs, feature flags that both client and server read, and so on. This page shows how to model that with `shared`, reusable **presets**, and **`extends`**.
+
+For background on `shared` / `server` / `client` in a single file—including **prefixed vs unprefixed names** (for example OAuth client IDs) and **when not to duplicate** keys across blocks—see [Installation](/docs/installation#server-vs-client-patterns). For every `extends` option (hosted presets, nesting), see [Customization](/docs/customization).
+
+## shared, server, and client
+
+| Block | Use for |
+| --- | --- |
+| **`shared`** | Keys that are **safe and intended** to exist in both client and server bundles (e.g. `NODE_ENV`, or values both sides must agree on). |
+| **`server`** | Secrets and server-only configuration. **Never** exposed to the client; accessing them in client code is a type and runtime error. |
+| **`client`** | Keys exposed to the client; names must match your **`clientPrefix`** (e.g. `NEXT_PUBLIC_*`). |
+
+Put cross-cutting “contract” values in **`shared`** when **one env key** is shared. If the browser and server use **different names** for the same idea (unprefixed vs `NEXT_PUBLIC_*`), declare them under **`server`** and **`client`**, not under **`shared`** twice—see [Server vs client patterns](/docs/installation#server-vs-client-patterns).
+
+## Recommended pattern: a package preset
+
+In a monorepo, keep a **small package** (for example `packages/env` or `@acme/env`) that exports one or more preset objects. Each preset is a plain object with the same shape you would pass to `defineEnv` (including `shared`, `server`, `client`, `clientPrefix`, and nested **`extends`**).
+
+Conventions that work well in practice:
+
+- **Single package** — One internal package owns shared definitions; apps import from it instead of copying blocks.
+- **`as const`** — Export presets with `as const` so keys and structure stay narrow for TypeScript.
+- **Optional `id`** — Set `id` on a preset when it helps logs, docs, or mental model (see [nested presets](/docs/customization#nested-presets)).
+- **One `.env` story** — Document where developers copy `.env.example` from (often repo root or per app); envin validates against the **merged** schema, not against “which file” variables came from.
+
+### Example: shared preset and two apps
+
+**1. Shared preset** — only what every consumer should agree on:
+
+```ts twoslash title="packages/env/src/shared-preset.ts"
+import * as z from "zod";
+
+export const sharedPreset = {
+  id: "acme-shared",
+  shared: {
+    NODE_ENV: z
+      .enum(["development", "production", "test"])
+      .default("development"),
+  },
+} as const;
+```
+
+**2. Web app** — extends the preset and adds client/server keys:
+
+```ts title="apps/web/env.config.ts"
+import { defineEnv } from "envin";
+import * as z from "zod";
+import { sharedPreset } from "@acme/env/shared-preset";
+
+export default defineEnv({
+  extends: [sharedPreset],
+  clientPrefix: "NEXT_PUBLIC_",
+  client: {
+    NEXT_PUBLIC_API_URL: z.url(),
+  },
+  server: {
+    DATABASE_URL: z.url(),
+  },
+  env: process.env,
+});
+```
+
+**3. Worker** — same shared contract, different surface area:
+
+```ts title="apps/worker/env.config.ts"
+import { defineEnv } from "envin";
+import * as z from "zod";
+import { sharedPreset } from "@acme/env/shared-preset";
+
+export default defineEnv({
+  extends: [sharedPreset],
+  server: {
+    DATABASE_URL: z.url(),
+    QUEUE_URL: z.url(),
+  },
+  env: process.env,
+});
+```
+
+At runtime, each entrypoint still calls `defineEnv` with its own `env` object (`process.env`, `import.meta.env`, etc.); **extends** merges schemas so validation and types stay aligned across packages.
+
+## Layering presets
+
+You can compose smaller presets (database, auth, analytics) and **stack** them in `extends`. Order matters for overlapping keys: later entries override earlier ones in the usual merge rules described in [Customization](/docs/customization#nested-presets).
+
+```ts twoslash title="packages/env/src/index.ts"
+import * as z from "zod";
+
+export const databasePreset = {
+  id: "database",
+  server: {
+    DATABASE_URL: z.url(),
+  },
+} as const;
+
+export const appShellPreset = {
+  id: "app-shell",
+  shared: {
+    NODE_ENV: z.enum(["development", "production", "test"]),
+  },
+  extends: [databasePreset],
+} as const;
+```
+
+## When server variable names are sensitive
+
+If exposing **server key names** in a shared client bundle is a concern, split **entrypoints** (separate `defineEnv` calls for client-only and server-only files) as in [Installation](/docs/installation). You can still **`extends`** a preset that only defines **`shared`** (and optionally **`client`**) from a package, and keep server-only schemas in server-only files.
+
+## Summary
+
+- Use **`shared`** for variables that are part of the **same contract** on client and server.
+- Export **presets** from a dedicated package and pass them as **`extends`** in each app or worker.
+- Prefer **`as const`**, optional **`id`**, and clear ownership of **where** `.env` examples live for your repo.

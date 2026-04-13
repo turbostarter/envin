@@ -185,4 +185,4 @@ This project follows a Code of Conduct. By participating, you agree to uphold th
 
 ## License
 
-[MIT](./LICENSE) License © 2025 [Bartosz Zagrodzki](https://github.com/Bartek532)
+[MIT](./LICENSE) License © 2026 [Bartosz Zagrodzki](https://github.com/Bartek532)

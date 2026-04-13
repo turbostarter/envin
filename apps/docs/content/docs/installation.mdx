@@ -117,6 +117,49 @@ export default defineEnv({
 });
 ```
 
+## Server vs client patterns
+
+Each **environment variable name** in your deployment (for example `DATABASE_URL` or `NEXT_PUBLIC_API_URL`) should appear in **exactly one** of `shared`, `server`, or `client`. Do not declare the same key in more than one block.
+
+- **`shared`** — Use when **one name** is read on both client and server (typical examples: `NODE_ENV`, or a flag both bundles need). The value is part of the same contract everywhere.
+- **`server`** — Unprefixed names that only server code should read (secrets, database URLs, OAuth **client secrets**).
+- **`client`** — Names that match **`clientPrefix`** (for example `NEXT_PUBLIC_*` in Next.js). Only these are intended for client bundles.
+
+### Do I need both `GOOGLE_CLIENT_ID` and `NEXT_PUBLIC_GOOGLE_CLIENT_ID`?
+
+Often **yes**, if your code uses **two different names**: server routes read `GOOGLE_CLIENT_ID`, while client code reads `NEXT_PUBLIC_GOOGLE_CLIENT_ID` (because the framework only exposes prefixed variables to the browser). They are **two entries** in your schema and, in `.env`, two assignments. It is normal for them to have the **same value** (the OAuth client ID string is public; the **secret** stays in `server` only).
+
+```ts twoslash title="env.config.ts"
+import { defineEnv } from "envin";
+import * as z from "zod";
+
+export default defineEnv({
+  clientPrefix: "NEXT_PUBLIC_",
+  shared: {
+    NODE_ENV: z.enum(["development", "production", "test"]),
+  },
+  server: {
+    GOOGLE_CLIENT_ID: z.string().min(1),
+    GOOGLE_CLIENT_SECRET: z.string().min(1),
+  },
+  client: {
+    NEXT_PUBLIC_GOOGLE_CLIENT_ID: z.string().min(1),
+  },
+  env: process.env,
+});
+```
+
+<Callout type="info">
+  If you **only** use the prefixed name everywhere (including server), you can
+  model a single variable under **`client`** and omit an unprefixed
+  `GOOGLE_CLIENT_ID`. Pick one approach per app and keep names consistent with
+  how your framework exposes env vars.
+</Callout>
+
+### Should the same value appear in `shared` and `client`?
+
+**No.** If a variable is listed under **`shared`**, do not list it again under **`client`** or **`server`**. Use **`shared`** only when there is a **single** env key that both sides read. If the browser must use a **different name** (prefixed) than the server, use **`server`** + **`client`** as in the example above, not `shared` plus duplicates.
+
 <Callout type="warn">
   While defining both client and server schemas in a single file provides the
   best developer experience, it also means that your validation schemas for the
@@ -152,6 +195,8 @@ export const env = defineEnv({
 
 </Callout>
 
+For reusing the same `shared` (and other) blocks across packages in a monorepo, see [Share variables](/docs/share-variables).
+
 For all available options, see [Customization](/docs/customization).
 
 You'll notice that if your clientPrefix is `PUBLIC_`, you won't be allowed to enter any other keys in the client object without getting type-errors. Below you can see we get a descriptive error when we set `VITE_PUBLIC_API_URL` instead of `PUBLIC_API_URL`:
@@ -182,7 +227,7 @@ For Next.js, you can import your env config in `next.config.ts`:
 
 ```ts twoslash title="next.config.ts"
 import type { NextConfig } from "next";
-import "./env.config";
+import "./env.config"; // [!code ++]
 
 const nextConfig: NextConfig = {
   // Your Next.js config
