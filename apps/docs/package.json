@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@radix-ui/react-slot": "1.2.4",
-    "@vercel/analytics": "^1.6.1",
+    "@vercel/analytics": "^2.0.1",
     "class-variance-authority": "catalog:",
     "clsx": "catalog:",
     "envin": "workspace:*",
