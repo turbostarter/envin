@@ -1,5 +1,11 @@
 # envin
 
+## 1.3.0
+
+### Minor Changes
+
+- [`b8ff1f0`](https://github.com/turbostarter/envin/commit/b8ff1f07cbd9d1480a813115ab29b09e60f8fd62) Thanks [@Bartek532](https://github.com/Bartek532)! - Add Cloudflare Pages, Workers Builds, and Containers presets
+
 ## 1.2.0
 
 ### Minor Changes
