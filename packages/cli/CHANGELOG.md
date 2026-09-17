@@ -1,5 +1,12 @@
 # @envin/cli
 
+## 1.3.0
+
+### Patch Changes
+
+- Updated dependencies [[`b8ff1f0`](https://github.com/turbostarter/envin/commit/b8ff1f07cbd9d1480a813115ab29b09e60f8fd62)]:
+  - envin@1.3.0
+
 ## 1.2.0
 
 ### Minor Changes

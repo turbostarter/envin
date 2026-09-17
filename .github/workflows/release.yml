@@ -32,6 +32,14 @@ jobs:
       - name: Build
         run: bun build:packages
 
+      - name: Configure npm auth
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          registry-url: https://registry.npmjs.org/
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: Create Release
         id: changeset
         uses: changesets/action@v2.1.1
@@ -42,7 +50,7 @@ jobs:
           publish-script: bun changeset publish
           push-with-git-cli: true
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Fix formatting
         if: steps.changeset.outputs.has-changesets == 'true'
