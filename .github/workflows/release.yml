@@ -36,15 +36,16 @@ jobs:
         id: changeset
         uses: changesets/action@v2.1.1
         with:
-          commit: "chore(release): 📦 version packages"
-          title: "chore(release): 📦 version packages"
-          publish: bunx changeset publish
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore(release): 📦 version packages"
+          pr-title: "chore(release): 📦 version packages"
+          publish-script: bun changeset publish
+          push-with-git-cli: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Fix formatting
-        if: steps.changeset.outputs.hasChangesets == 'true'
+        if: steps.changeset.outputs.has-changesets == 'true'
         run: |
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
