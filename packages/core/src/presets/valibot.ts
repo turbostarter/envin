@@ -190,6 +190,58 @@ export const netlify = {
 export type NetlifyEnv = InferPresetOutput<typeof netlify>;
 
 /**
+ * Cloudflare Pages System Environment Variables
+ * @see https://developers.cloudflare.com/pages/configuration/build-configuration/#environment-variables
+ */
+export const cloudflarePages = {
+  id: "cloudflare-pages",
+  server: {
+    CF_PAGES: v.optional(v.string()),
+    CF_PAGES_COMMIT_SHA: v.optional(v.string()),
+    CF_PAGES_BRANCH: v.optional(v.string()),
+    CF_PAGES_URL: v.optional(v.pipe(v.string(), v.url())),
+  },
+} as const satisfies Preset;
+
+export type CloudflarePagesEnv = InferPresetOutput<typeof cloudflarePages>;
+
+/**
+ * Cloudflare Workers Builds System Environment Variables
+ * @see https://developers.cloudflare.com/workers/ci-cd/builds/configuration/#environment-variables
+ */
+export const cloudflareWorkers = {
+  id: "cloudflare-workers",
+  server: {
+    WORKERS_CI: v.optional(v.string()),
+    WORKERS_CI_BUILD_UUID: v.optional(v.string()),
+    WORKERS_CI_COMMIT_SHA: v.optional(v.string()),
+    WORKERS_CI_BRANCH: v.optional(v.string()),
+  },
+} as const satisfies Preset;
+
+export type CloudflareWorkersEnv = InferPresetOutput<typeof cloudflareWorkers>;
+
+/**
+ * Cloudflare Containers Runtime Environment Variables
+ * @see https://developers.cloudflare.com/containers/configuration/environment-variables/
+ */
+export const cloudflareContainers = {
+  id: "cloudflare-containers",
+  server: {
+    CLOUDFLARE_APPLICATION_ID: v.optional(v.string()),
+    CLOUDFLARE_COUNTRY_A2: v.optional(v.string()),
+    CLOUDFLARE_DEPLOYMENT_ID: v.optional(v.string()),
+    CLOUDFLARE_LOCATION: v.optional(v.string()),
+    CLOUDFLARE_REGION: v.optional(v.string()),
+    CLOUDFLARE_DURABLE_OBJECT_ID: v.optional(v.string()),
+  },
+} as const satisfies Preset;
+
+export type CloudflareContainersEnv = InferPresetOutput<
+  typeof cloudflareContainers
+>;
+
+/**
  * Upstash redis Environment Variables
  * @see https://upstash.com/docs/redis/howto/connectwithupstashredis
  */

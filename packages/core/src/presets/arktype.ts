@@ -188,6 +188,58 @@ export const netlify = {
 export type NetlifyEnv = InferPresetOutput<typeof netlify>;
 
 /**
+ * Cloudflare Pages System Environment Variables
+ * @see https://developers.cloudflare.com/pages/configuration/build-configuration/#environment-variables
+ */
+export const cloudflarePages = {
+  id: "cloudflare-pages",
+  server: {
+    CF_PAGES: type("string | undefined"),
+    CF_PAGES_COMMIT_SHA: type("string | undefined"),
+    CF_PAGES_BRANCH: type("string | undefined"),
+    CF_PAGES_URL: type("string.url | undefined"),
+  },
+} as const satisfies Preset;
+
+export type CloudflarePagesEnv = InferPresetOutput<typeof cloudflarePages>;
+
+/**
+ * Cloudflare Workers Builds System Environment Variables
+ * @see https://developers.cloudflare.com/workers/ci-cd/builds/configuration/#environment-variables
+ */
+export const cloudflareWorkers = {
+  id: "cloudflare-workers",
+  server: {
+    WORKERS_CI: type("string | undefined"),
+    WORKERS_CI_BUILD_UUID: type("string | undefined"),
+    WORKERS_CI_COMMIT_SHA: type("string | undefined"),
+    WORKERS_CI_BRANCH: type("string | undefined"),
+  },
+} as const satisfies Preset;
+
+export type CloudflareWorkersEnv = InferPresetOutput<typeof cloudflareWorkers>;
+
+/**
+ * Cloudflare Containers Runtime Environment Variables
+ * @see https://developers.cloudflare.com/containers/configuration/environment-variables/
+ */
+export const cloudflareContainers = {
+  id: "cloudflare-containers",
+  server: {
+    CLOUDFLARE_APPLICATION_ID: type("string | undefined"),
+    CLOUDFLARE_COUNTRY_A2: type("string | undefined"),
+    CLOUDFLARE_DEPLOYMENT_ID: type("string | undefined"),
+    CLOUDFLARE_LOCATION: type("string | undefined"),
+    CLOUDFLARE_REGION: type("string | undefined"),
+    CLOUDFLARE_DURABLE_OBJECT_ID: type("string | undefined"),
+  },
+} as const satisfies Preset;
+
+export type CloudflareContainersEnv = InferPresetOutput<
+  typeof cloudflareContainers
+>;
+
+/**
  * Upstash redis Environment Variables
  * @see https://upstash.com/docs/redis/howto/connectwithupstashredis
  */
