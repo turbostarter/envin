@@ -75,7 +75,7 @@
     "postcss": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "source-map-js": "1.2.1",
+    "source-map-js": "1.2.2",
     "stacktrace-parser": "0.1.11",
     "tailwind-merge": "catalog:",
     "tailwindcss": "catalog:",
