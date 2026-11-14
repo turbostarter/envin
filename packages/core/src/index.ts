@@ -104,13 +104,10 @@ export function defineEnv<
 >(
   options: EnvOptions<Prefix, Shared, Server, Client, Extends, FinalSchemaType>,
 ): DefineEnv<FinalSchemaType> {
-  const values = options.envStrict ?? options.env ?? process.env;
-
-  for (const [key, value] of Object.entries(values)) {
-    if (value === "") {
-      delete values[key];
-    }
-  }
+  const rawValues = options.envStrict ?? options.env ?? process.env;
+  const values = Object.fromEntries(
+    Object.entries(rawValues).filter(([, value]) => value !== ""),
+  );
 
   const isServer =
     options.isServer ?? (typeof window === "undefined" || "Deno" in window);
