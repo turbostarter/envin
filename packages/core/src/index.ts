@@ -105,9 +105,6 @@ export function defineEnv<
   options: EnvOptions<Prefix, Shared, Server, Client, Extends, FinalSchemaType>,
 ): DefineEnv<FinalSchemaType> {
   const rawValues = options.envStrict ?? options.env ?? process.env;
-
-  // Treat empty strings as missing. Filter into a copy so we never mutate
-  // `process.env` or the object passed by the caller (which may be frozen).
   const values = Object.fromEntries(
     Object.entries(rawValues).filter(([, value]) => value !== ""),
   );
