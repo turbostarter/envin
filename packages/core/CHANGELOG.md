@@ -1,5 +1,11 @@
 # envin
 
+## 1.3.1
+
+### Patch Changes
+
+- [#96](https://github.com/turbostarter/envin/pull/96) [`fd5b3ae`](https://github.com/turbostarter/envin/commit/fd5b3aec6a56ac04e982e4b338f0965c177fdc7f) Thanks [@Bartek532](https://github.com/Bartek532)! - Fix `defineEnv` mutating `process.env` and the passed `env`/`envStrict` object when treating empty strings as missing. Empty values are now filtered into a copy, so frozen objects no longer throw.
+
 ## 1.3.0
 
 ### Minor Changes
